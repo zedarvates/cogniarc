@@ -189,8 +189,7 @@ arc-human-skills/                  # Human skills (separate repo)
 | [hermes-brain](https://github.com/zedarvates/hermes-brain) | Hermes Agent architecture |
 | [arc-human-skills](https://github.com/zedarvates/arc-human-skills) | Human skills track (drawing/writing/reading/painting) |
 | [hermes-fusion](https://github.com/zedarvates/hermes-fusion) | Multi-LLM fusion engine (4 providers, 4 strategies) |
-| [ultimate-odycer](https://github.com/zedarvates/ultimate-odycer) | MMORPG server |
-| [turboquant](https://github.com/zedarvates/turboquant) | Autonomous trading agent |
+
 
 ---
 
