@@ -10,7 +10,9 @@ Usage:
   cogniarc reframe "I'm stuck"                   # Reframing question (Douglass)
   cogniarc chat "Explain quantum computing"      # Direct LLM query via Rust backend
   cogniarc engines                               # Check all engine statuses
-  cogniarc analyze "problem description"         # Full: think + represent + balance
+  cogniarc analyze "problem description"      # Full: think + represent + balance
+  cogniarc vision https://example.com           # Visual analysis (browser-use + Hailo-8)
+  cogniarc watch https://example.com            # Watch page for changes
 """
 import argparse, json, sys, os, subprocess, textwrap, datetime
 from pathlib import Path
@@ -254,6 +256,13 @@ def main():
     p_analyze = sub.add_parser("analyze", help="Full analysis (all modes)")
     p_analyze.add_argument("text", help="Problem to analyze fully")
     
+    p_vision = sub.add_parser("vision", help="Visual analysis via browser-use + Hailo-8")
+    p_vision.add_argument("url", help="URL to analyze visually")
+    
+    p_watch = sub.add_parser("watch", help="Watch a page for changes")
+    p_watch.add_argument("url", help="URL to watch")
+    p_watch.add_argument("--interval", "-i", type=int, default=60, help="Check interval (seconds)")
+    
     args = parser.parse_args()
     
     if not args.command:
@@ -268,6 +277,8 @@ def main():
         "chat": cmd_chat,
         "engines": cmd_engines,
         "analyze": cmd_analyze,
+        "vision": lambda a: __import__('cogniarc.vision_sensor', fromlist=['cmd_analyze']).cmd_analyze(a.url),
+        "watch": lambda a: __import__('cogniarc.vision_sensor', fromlist=['cmd_watch']).cmd_watch(a.url, a.interval),
     }
     
     commands[args.command](args)

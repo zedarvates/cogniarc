@@ -8,8 +8,10 @@ from .skill_tree import SkillTree
 from .goal_inference import GoalInference
 from .stagnation_detector import StagnationDetector
 from .transform_inference import TransformInference
+from .cli import main as cli_main
+from .vision_sensor import cmd_analyze as vision_analyze, cmd_watch as vision_watch
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = [
     "ScientistAgent",
     "CognitivePlayer",
