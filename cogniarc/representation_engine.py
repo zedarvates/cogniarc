@@ -20,6 +20,8 @@ Usage:
 from dataclasses import dataclass
 from typing import Optional
 
+from .common import CAUSAL_MARKERS, DEPENDENCY_MARKERS
+
 
 @dataclass
 class Representation:
@@ -61,19 +63,6 @@ class RepresentationEngine:
     each representation can be refined iteratively.
     """
 
-    # Patterns for causal chain detection
-    CAUSAL_MARKERS = [
-        'because', 'therefore', 'causes', 'leads to', 'results in',
-        'due to', 'hence', 'consequently', 'parce que', 'donc',
-        'provoque', 'entraîne', 'résulte en',
-    ]
-
-    # Patterns for dependency detection
-    DEPENDENCY_MARKERS = [
-        'depends on', 'requires', 'needs', 'relies on', 'prerequisite',
-        'input', 'output', 'depends_on', 'nécessite', 'dépend de',
-    ]
-
     def represent(self, problem: str) -> Representation:
         """Generate all three representations for a problem."""
         return Representation(
@@ -86,7 +75,7 @@ class RepresentationEngine:
     def _infer_causal(self, text: str) -> str:
         """Infer a cause-effect chain from the problem description."""
         # Check for explicit causal markers
-        for marker in self.CAUSAL_MARKERS:
+        for marker in CAUSAL_MARKERS:
             if marker in text.lower():
                 parts = text.lower().split(marker, 1)
                 return f"1. {parts[0].strip().capitalize()}\n2. → This {marker} {parts[1].strip()}"
@@ -112,7 +101,7 @@ class RepresentationEngine:
         """Infer a dependency graph from the problem description."""
         deps = []
 
-        for marker in self.DEPENDENCY_MARKERS:
+        for marker in DEPENDENCY_MARKERS:
             if marker in text.lower():
                 idx = text.lower().find(marker)
                 before = text[:idx].strip().split()[-3:]

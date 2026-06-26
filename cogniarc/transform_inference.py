@@ -22,40 +22,19 @@ from __future__ import annotations
 
 import json
 import numpy as np
-import hashlib
 from collections import defaultdict, deque
 from typing import Dict, List, Optional, Tuple, Any, Set
 from pathlib import Path
 
+from .transforms import Transform, map_transforms, _hash_grid
+
 try:
-    from arcengine import GameAction
+    from arcengine import GameAction as ArcGameAction
 except ImportError:
-    class GameAction:
+    class _FallbackGameAction:
         ACTION1 = 1; ACTION2 = 2; ACTION3 = 3; ACTION4 = 4
         ACTION5 = 5; ACTION6 = 6; ACTION7 = 7; RESET = 0
-
-
-def _hash_grid(grid: np.ndarray) -> str:
-    return hashlib.sha256(grid.tobytes()).hexdigest()[:16]
-
-
-class Transform:
-    """A grid transformation: region + how pixels change."""
-    def __init__(self, action_id: int):
-        self.action_id = action_id
-        self.region: Optional[Tuple[slice, slice]] = None  # (row_slice, col_slice)
-        self.mapping: Dict[Tuple[int,int], Tuple[int,int]] = {}  # (r,c) → (old_val, new_val)
-        self.changed_pixels: int = 0
-        self.is_identity: bool = True
-
-    def describe(self) -> str:
-        if self.is_identity:
-            return f"ACTION{self.action_id}: IDENTITY (no change)"
-        r = self.region
-        if r:
-            return (f"ACTION{self.action_id}: {self.changed_pixels}px in "
-                    f"rows [{r[0].start}-{r[0].stop}], cols [{r[1].start}-{r[1].stop}]")
-        return f"ACTION{self.action_id}: {self.changed_pixels}px changed"
+    ArcGameAction = _FallbackGameAction
 
 
 class TransformInference:
@@ -89,32 +68,10 @@ class TransformInference:
         return self._plan()
 
     def _map_transforms(self, obs):
-        """For each available action, record its transform."""
-        initial = self.initial_grid
-        for act_num in (obs.available_actions or []):
-            if act_num not in [1, 2, 3, 4]:
-                continue
-            self.env.reset()
-            result = self.env.step(getattr(GameAction, f"ACTION{act_num}"))
-            grid2 = result.frame[0]
-
-            diff = initial != grid2
-            coords = np.argwhere(diff)
-            t = Transform(act_num)
-
-            if len(coords) == 0:
-                t.is_identity = True
-            else:
-                t.is_identity = False
-                t.changed_pixels = len(coords)
-                t.region = (
-                    slice(int(coords[:,0].min()), int(coords[:,0].max()) + 1),
-                    slice(int(coords[:,1].min()), int(coords[:,1].max()) + 1),
-                )
-                for r, c in coords:
-                    t.mapping[(int(r), int(c))] = (int(initial[r,c]), int(grid2[r,c]))
-
-            self.transforms[act_num] = t
+        """For each available action, record its transform using shared utility."""
+        assert self.initial_grid is not None, "initial_grid must be set before _map_transforms"
+        actions = [a for a in (obs.available_actions or []) if a in [1, 2, 3, 4]]
+        self.transforms = map_transforms(self.env, self.initial_grid, actions)
 
     def _explore_state_space(self, obs):
         """BFS to discover reachable states."""
@@ -206,8 +163,8 @@ class TransformInference:
             if len(path) >= 15:
                 continue
 
-            for act_num in sorted(self.transitions.get(sh, {}).keys()):
-                next_hash = self.transitions[sh][act_num]
+            for act_num in sorted(self.transition_graph.get(sh, {}).keys()):
+                next_hash = self.transition_graph[sh][act_num]
                 if next_hash not in visited:
                     visited.add(next_hash)
                     new_path = path + [act_num]

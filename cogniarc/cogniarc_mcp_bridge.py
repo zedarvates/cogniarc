@@ -70,20 +70,21 @@ def handle_list_tools() -> dict:
 
 
 def handle_call_tool(name: str, arguments: dict) -> dict:
+    # Validate required arguments per tool
     if name == "cogniarc_think":
+        if not arguments.get("decision"):
+            return {"error": "cogniarc_think requires 'decision' argument"}
         return cogniarc_think(arguments.get("decision", ""),
                             arguments.get("context", ""),
                             arguments.get("constraints", ""))
-
     elif name == "cogniarc_represent":
+        if not arguments.get("problem"):
+            return {"error": "cogniarc_represent requires 'problem' argument"}
         return cogniarc_represent(arguments.get("problem", ""))
-
     elif name == "cogniarc_balance":
         return cogniarc_balance()
-
     elif name == "cogniarc_reframe":
         return cogniarc_reframe()
-
     return {"error": f"Unknown tool: {name}"}
 
 

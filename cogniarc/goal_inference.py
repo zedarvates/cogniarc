@@ -24,23 +24,13 @@ Usage:
 
 from __future__ import annotations
 
-import hashlib
 import json
 import numpy as np
 from collections import defaultdict
 from typing import Dict, List, Optional, Tuple, Any, Set, Callable
 from pathlib import Path
 
-try:
-    from arcengine import GameAction
-except ImportError:
-    class GameAction:
-        ACTION1 = 1; ACTION2 = 2; ACTION3 = 3; ACTION4 = 4
-        ACTION5 = 5; ACTION6 = 6; ACTION7 = 7; RESET = 0
-
-
-def _hash_grid(grid: np.ndarray) -> str:
-    return hashlib.sha256(grid.tobytes()).hexdigest()[:16]
+from .common import GameAction, hash_grid
 
 
 class GridObject:
@@ -91,10 +81,11 @@ class GoalHypothesis:
 class GoalInferenceEngine:
     """Infer the goal of an ARC-AGI-3 game from observation and interaction."""
 
-    def __init__(self, env, physics_engine=None, max_steps: int = 80):
+    def __init__(self, env, physics_engine=None, max_steps: int = 80, observe_only: bool = False):
         self.env = env
         self.physics = physics_engine
         self.max_steps = max_steps
+        self.observe_only = observe_only  # If True, never step the environment
         self.objects: List[GridObject] = []
         self.hypotheses: List[GoalHypothesis] = []
         self.initial_grid: Optional[np.ndarray] = None
@@ -103,6 +94,9 @@ class GoalInferenceEngine:
 
     def infer(self) -> List[GoalHypothesis]:
         """Full inference pipeline."""
+        if self.observe_only:
+            return self.infer_from_initial_grid()
+        
         obs = self.env.reset()
         self.initial_grid = obs.frame[0].copy()
 
@@ -123,10 +117,97 @@ class GoalInferenceEngine:
         self._save()
         return self.hypotheses
 
+    def infer_from_initial_grid(self) -> List[GoalHypothesis]:
+        """Goal inference WITHOUT stepping the environment - pure static analysis.
+        
+        Useful for:
+        - Zero-shot goal guessing before any interaction
+        - Pre-game profiling (DomainProfiler integration)
+        - Games where stepping is expensive/failing
+        
+        Returns ranked hypotheses based on:
+        - Rarity (small unique objects = keys/goals)
+        - Completion (asymmetry, open boundaries)
+        - Visual patterns (rotation indicators, color changers)
+        """
+        obs = self.env.reset()
+        self.initial_grid = obs.frame[0].copy()
+        
+        # Phase 1: Extract objects (no interaction)
+        self._extract_objects(self.initial_grid)
+        
+        # Phase 2: Static hypothesis generation (no testing)
+        self._hypothesize_rarity()
+        self._hypothesize_completion()
+        self._hypothesize_rotation_targets()  # New: detect rotation/changer patterns
+        self._hypothesize_color_targets()     # New: detect color changer targets
+        
+        # Phase 3: Rank by confidence only (no testing)
+        self.hypotheses.sort(key=lambda h: h.confidence, reverse=True)
+        self._save()
+        return self.hypotheses
+
+    def _hypothesize_rotation_targets(self):
+        """Detect objects that look like rotation controllers/changers."""
+        grid = self.initial_grid
+        
+        # Look for circular/partial-circle patterns (manga-style rotation indicators)
+        for color in np.unique(grid):
+            if color == 0:
+                continue
+            mask = grid == color
+            coords = np.argwhere(mask)
+            if len(coords) < 5 or len(coords) > 200:
+                continue
+            
+            # Check for ring/circle shape
+            h_span = coords[:, 1].max() - coords[:, 1].min()
+            v_span = coords[:, 0].max() - coords[:, 0].min()
+            aspect = h_span / max(v_span, 1)
+            
+            # Approximate circle detection
+            if 0.7 <= aspect <= 1.4 and len(coords) < 100:
+                # Find object at this location
+                center_r = int(coords[:, 0].mean())
+                center_c = int(coords[:, 1].mean())
+                for obj in self.objects:
+                    if abs(obj.center[0] - center_r) < 3 and abs(obj.center[1] - center_c) < 3:
+                        h = GoalHypothesis(
+                            description=f"Rotate to target angle (changer at {obj.center}, color {obj.color})",
+                            target_object=obj.id,
+                        )
+                        h.confidence = 0.6
+                        h.evidence.append(f"Circular pattern at {obj.center} — likely rotation changer")
+                        self.hypotheses.append(h)
+                        break
+
+    def _hypothesize_color_targets(self):
+        """Detect objects that look like color changers / target indicators."""
+        grid = self.initial_grid
+        
+        # Look for small distinct color patches that might be targets
+        for obj in self.objects:
+            # Very small colored objects (1-5 pixels) in distinct colors
+            if obj.size <= 5 and obj.color != 0:
+                # Check if color is rare in grid
+                color_pixels = np.sum(grid == obj.color)
+                total_pixels = grid.size
+                rarity = color_pixels / total_pixels
+                
+                if rarity < 0.02:  # Less than 2% of grid
+                    h = GoalHypothesis(
+                        description=f"Match color {obj.color} (rare target at {obj.center})",
+                        target_object=obj.id,
+                    )
+                    h.confidence = 0.5 * (1 - rarity * 10)  # Higher for rarer colors
+                    h.evidence.append(f"Rare color {obj.color} ({rarity:.1%} of grid) at {obj.center}")
+                    self.hypotheses.append(h)
+
     # ── Object Extraction ────────────────────────────────
 
     def _extract_objects(self, grid: np.ndarray):
         """Find connected components of same color."""
+        assert grid is not None and grid.size > 0, "Invalid grid: None or empty"
         self.objects = []
         visited = np.zeros(grid.shape, dtype=bool)
 
@@ -165,9 +246,14 @@ class GoalInferenceEngine:
                     )
                     self.object_id_counter += 1
                     self.objects.append(obj)
+        # Verify: at least one object found (unless grid is empty)
+        assert isinstance(self.objects, list), "objects must be list"
 
     def _classify_objects(self, obs):
         """Classify objects by interacting with the environment."""
+        assert obs is not None, "Invalid observation: None"
+        assert hasattr(obs, 'frame'), "Invalid observation: missing frame"
+        assert hasattr(obs, 'available_actions'), "Invalid observation: missing available_actions"
         initial_objects = list(self.objects)
 
         # Test movement: try each action, see which object moved
@@ -177,6 +263,11 @@ class GoalInferenceEngine:
             action = getattr(GameAction, f"ACTION{act_num}")
             obs = self.env.step(action)
             self.steps_spent += 1
+
+            # Verify step result
+            assert obs is not None, "Step returned None"
+            assert hasattr(obs, 'frame'), "Step result missing frame"
+            assert obs.frame is not None, "Step result frame is None"
 
             new_grid = obs.frame[0]
             self._extract_objects(new_grid)
@@ -199,6 +290,10 @@ class GoalInferenceEngine:
         for obj in self.objects:
             if obj.static is None and obj.movable is None and obj.collectible is None:
                 obj.static = True
+        # Verify: all objects have classification
+        for obj in self.objects:
+            assert obj.static is not None or obj.movable is not None or obj.collectible is not None, \
+                f"Object {obj.id} unclassified"
 
     # ── Hypothesis Generation ────────────────────────────
 

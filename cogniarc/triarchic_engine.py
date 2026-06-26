@@ -133,8 +133,8 @@ class TriarchicEngine:
             self.state.balance_score < 0.4
         )
 
-    def reframe_prompt(self) -> str:
-        """Generate a reframing question."""
+    def reframe_prompt(self, max_chars: int = 200) -> str:
+        """Generate a reframing question with length guard."""
         prompts = [
             "What if the problem isn't what we think it is?",
             "What frame am I using that might be wrong?",
@@ -142,7 +142,10 @@ class TriarchicEngine:
             "What would Faraday/Douglass see that I'm missing?",
         ]
         idx = self.stagnation_counter % len(prompts)
-        return prompts[idx]
+        prompt = prompts[idx]
+        if len(prompt) > max_chars:
+            return prompt[:max_chars - 3] + "..."
+        return prompt
 
     def status_report(self) -> str:
         te = self.state

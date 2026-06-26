@@ -1,0 +1,38 @@
+version: "1.0"
+game: "universal"
+skills:
+  - id: "navigate-to-target"
+    type: "navigation"
+    file: "skills/navigation/navigate_to_target.md"
+    preconditions: ["has_player", "has_pathfinder"]
+    effects: ["player_at_target"]
+    validation_levels: [1, 2, 3]
+    depends_on: []
+  - id: "rotate-to-goal"
+    type: "rotation"
+    file: "skills/rotation/rotate_to_goal.md"
+    preconditions: ["has_changer", "knows_goal_rotation"]
+    effects: ["rotation_matches_goal"]
+    validation_levels: [1, 2, 3]
+    depends_on: ["navigate-to-target"]
+  - id: "interact-with-object"
+    type: "interaction"
+    file: "skills/interaction/interact_with_object.md"
+    preconditions: ["adjacent_to_target"]
+    effects: ["object_state_changed"]
+    validation_levels: [1, 2, 3]
+    depends_on: ["navigate-to-target"]
+  - id: "detect-walls-from-source"
+    type: "perception"
+    file: "skills/perception/detect_walls_from_source.md"
+    preconditions: ["source_available"]
+    effects: ["wall_colors_known"]
+    validation_levels: [1, 2, 3]
+    depends_on: []
+  - id: "select-skill-for-observation"
+    type: "meta"
+    file: "skills/meta/select_skill.md"
+    preconditions: ["current_obs", "skill_dag_loaded"]
+    effects: ["skill_selected"]
+    validation_levels: [1, 2, 3]
+    depends_on: []

@@ -16,45 +16,18 @@ import json
 import sys
 import time
 import numpy as np
-import hashlib
 from pathlib import Path
 from collections import deque, defaultdict
 from typing import Dict, List, Optional, Tuple, Any
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from transform_inference import Transform, _hash_grid
+from transforms import Transform, map_transforms, _hash_grid
 from skill_tree import SkillTree
+from temporal_inference import TemporalReasoner
 
 import arc_agi
 from arcengine import GameAction
-
-
-def map_transforms(env, actions) -> Dict[int, Transform]:
-    """Map transforms from initial state."""
-    transforms = {}
-    env.reset()
-    initial_grid = env.reset().frame[0].copy()
-
-    for act_num in actions[:4]:
-        env.reset()
-        initial = env.reset().frame[0].copy()
-        obs = env.step(getattr(GameAction, f"ACTION{act_num}"))
-        grid2 = obs.frame[0]
-        diff = initial != grid2
-        coords = np.argwhere(diff)
-        t = Transform(act_num)
-        if len(coords) > 0:
-            t.is_identity = False
-            t.changed_pixels = len(coords)
-            t.region = (
-                slice(int(coords[:, 0].min()), int(coords[:, 0].max()) + 1),
-                slice(int(coords[:, 1].min()), int(coords[:, 1].max()) + 1),
-            )
-            for r, c in coords:
-                t.mapping[(int(r), int(c))] = (int(initial[r, c]), int(grid2[r, c]))
-        transforms[act_num] = t
-    return transforms
 
 
 def real_bfs(env, actions: List[int], max_depth: int = 10,
@@ -144,9 +117,37 @@ class ArcAgentV3:
 
         # Map transforms
         print("\n[Phase 1] Mapping transforms...")
-        self.transforms = map_transforms(self.env, actions)
+        self.transforms = map_transforms(self.env, initial_grid, actions)
         for act_num, t in sorted(self.transforms.items()):
             print(f"  {t.describe()}")
+
+        # Temporal analysis
+        print("\n[Phase 1.5] Temporal pattern analysis...")
+        temporal = TemporalReasoner()
+        temporal.add_frame(initial_grid)
+        grid_history = [initial_grid]
+        # Take 3 random steps to observe temporal dynamics
+        obs_temp = self.env.reset()
+        for _ in range(min(3, len(actions) - 1)):
+            action = np.random.choice(actions)
+            obs_temp = self.env.step(getattr(GameAction, f"ACTION{action}"))
+            grid = obs_temp.frame[0].copy()
+            grid_history.append(grid)
+            temporal.add_frame(grid)
+
+        temporal_pattern = temporal.analyze()
+        print(f"  Temporal pattern: {temporal_pattern.type.value} "
+              f"(confidence: {temporal_pattern.confidence:.0%})")
+        print(f"  Deltas: {len(temporal.deltas)} frames analyzed")
+
+        # If temporal pattern indicates a clear transformation, predict next state
+        if temporal_pattern.confidence > 0.7:
+            predicted = temporal.predict()
+            if predicted is not None:
+                print(f"  Predicted next state shape: {predicted.shape}")
+
+        # Reset environment for BFS
+        self.env.reset()
 
         # Real-step BFS
         print(f"\n[Phase 2] Real-step BFS (max_depth=10)...")

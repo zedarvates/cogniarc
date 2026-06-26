@@ -30,13 +30,7 @@ import numpy as np
 from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
 
-# Will be available at runtime
-try:
-    from arcengine import GameAction
-except ImportError:
-    class GameAction:
-        ACTION1 = 1; ACTION2 = 2; ACTION3 = 3; ACTION4 = 4
-        ACTION5 = 5; ACTION6 = 6; ACTION7 = 7; RESET = 0
+from .common import GameAction
 
 # ── Domain Profiles ──────────────────────────────────────
 
@@ -135,27 +129,58 @@ class DomainClassifier:
         self._save()
         return self.result or "unknown"
 
-    def _step(self, action) -> Any:
+    def _step(self, action):
         self.steps_taken += 1
-        return self.env.step(action)
+        try:
+            return self.env.step(action)
+        except Exception as e:
+            # Buggy action - record and return None
+            self.evidence.setdefault("buggy_actions", []).append({
+                "action": getattr(action, 'name', str(action)),
+                "error": f"{type(e).__name__}: {e}"
+            })
+            return None
 
     # ── Diagnostic Tests ──────────────────────────────────
 
     def _test_action_effects(self):
-        """Test each available action, record what changes."""
+        """Test each available action, record what changes. Skip buggy actions."""
         for act_num in self.actions_available[:4]:
             if self.steps_taken >= self.max_steps:
                 break
-            before = self.obs.frame[0].copy()
             action = getattr(GameAction, f"ACTION{act_num}", None)
             if action is None:
                 continue
+            
+            # Get current observation safely
+            if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
+                self.env.reset()
+                self.obs = self.env.reset()
+            
+            before = self.obs.frame[0].copy() if self.obs and self.obs.frame else None
+            if before is None:
+                continue
+                
             self.obs = self._step(action)
+            
+            # Skip if action was buggy (returned None)
+            if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
+                self.evidence.setdefault("action_effects", {})[act_num] = {
+                    "changed_pixels": 0,
+                    "changed_ratio": 0.0,
+                    "buggy": True,
+                    "note": "Action crashed or returned invalid observation"
+                }
+                # Reset to clean state for next action
+                self.obs = self.env.reset()
+                continue
+            
             after = self.obs.frame[0]
             changed, mask = _diff_grid(before, after)
             self.evidence.setdefault("action_effects", {})[act_num] = {
                 "changed_pixels": changed,
                 "changed_ratio": round(changed / (64 * 64), 4),
+                "buggy": False
             }
 
     def _test_order_matters(self):
@@ -169,12 +194,28 @@ class DomainClassifier:
         act_a = getattr(GameAction, f"ACTION{a_num}")
         act_b = getattr(GameAction, f"ACTION{b_num}")
 
+        # Ensure we have a valid observation
+        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
+            self.obs = self.env.reset()
+        
         # Save current state
         saved = self.obs.frame[0].copy()
 
         # Sequence A→B
         self.obs = self._step(act_a)
+        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
+            self.evidence["order_matters"] = "inconclusive"
+            self.evidence["order_note"] = "Action A buggy"
+            self.obs = self.env.reset()
+            return
+            
         self.obs = self._step(act_b)
+        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
+            self.evidence["order_matters"] = "inconclusive"
+            self.evidence["order_note"] = "Action B buggy"
+            self.obs = self.env.reset()
+            return
+
         result_ab = self.obs.frame[0].copy()
 
         # Reset to saved state... we can't really reset to a saved state
@@ -186,6 +227,8 @@ class DomainClassifier:
 
     def _test_shapes(self):
         """Detect incomplete shapes in the grid."""
+        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
+            self.obs = self.env.reset()
         grid = self.obs.frame[0]
         # Simple heuristic: scan for open-ended color segments
         # A shape is "incomplete" if a color blob has thin, elongated extensions
@@ -196,6 +239,8 @@ class DomainClassifier:
 
     def _test_animation(self):
         """Check if frames > 1 (animation sequences)."""
+        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
+            self.obs = self.env.reset()
         n_frames = len(self.obs.frame)
         self.evidence["animation_frames"] = n_frames
         self.evidence["is_animated"] = n_frames > 1
@@ -207,9 +252,20 @@ class DomainClassifier:
         if not self.actions_available:
             return
 
+        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
+            self.obs = self.env.reset()
+            
         a1 = self.actions_available[0]
         b1 = self.obs.frame[0].copy()
         self.obs = self._step(getattr(GameAction, f"ACTION{a1}"))
+        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
+            self.evidence["agent_test"] = {
+                "changed_after_one_action": 0,
+                "changed_clusters": "action_buggy",
+            }
+            self.obs = self.env.reset()
+            return
+            
         a2 = self.obs.frame[0]
         changed, mask = _diff_grid(b1, a2)
 

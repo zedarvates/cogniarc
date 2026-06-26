@@ -25,14 +25,20 @@ from typing import Optional
 import hashlib
 import json
 
+from .common import get_working_memory_capacity
+
 
 class WorkingMemory:
     """Limited working memory — Miller's Law: 7±2 items."""
+    DEF_CAPACITY = get_working_memory_capacity()
     
-    def __init__(self, capacity: int = 7):
-        self.capacity = capacity
+    def __init__(self, capacity: int | None = None):
+        cap = capacity if capacity is not None else self.DEF_CAPACITY
+        if cap < 1:
+            raise ValueError(f"WorkingMemory capacity must be >= 1, got {cap}")
+        self.capacity = cap
         self._buffer: OrderedDict = OrderedDict()
-    
+
     def remember(self, key: str, item):
         """Add item. If full, forget the oldest (LRU eviction)."""
         if key in self._buffer:
@@ -55,26 +61,31 @@ class WorkingMemory:
         return len(self._buffer)
 
 
+import os
+
 class CognitiveFatigue:
     """Cognitive budget — limited thinking per level, then intuition takes over."""
-    
-    def __init__(self, budget: int = 50):
+    DEFAULT_BUDGET = 50
+
+    def __init__(self, budget: int | None = None):
+        if budget is None:
+            budget = int(os.environ.get("COGNIARC_TOKEN_BUDGET", self.DEFAULT_BUDGET))
         self.initial_budget = budget
         self.remaining = budget
         self.fatigue_level = 0.0  # 0 = fresh, 1 = exhausted
-    
+
     def spend(self, cost: int = 1):
         """Spend cognitive resource. Heavy planning costs more."""
         self.remaining -= cost
         self.fatigue_level = 1.0 - (max(0, self.remaining) / self.initial_budget)
-    
+
     def reset(self):
         self.remaining = self.initial_budget
         self.fatigue_level = 0.0
-    
+
     def is_exhausted(self) -> bool:
         return self.remaining <= 0
-    
+
     @property
     def intuition_mode(self) -> bool:
         """After budget expires, act on intuition (greedy/random/heuristic)."""
@@ -111,7 +122,7 @@ class CognitiveDrives:
         self.memory = WorkingMemory(capacity=7)
         
         # Fatigue
-        self.fatigue = CognitiveFatigue(budget=50)
+        self.fatigue = CognitiveFatigue()
         
         # Doute déclencheur
         self.doubt_triggered: bool = False

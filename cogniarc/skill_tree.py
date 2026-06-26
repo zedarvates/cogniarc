@@ -32,6 +32,7 @@ class Skill:
     """A discovered game mechanic."""
     name: str
     level_discovered: int
+    game_id: str = ""  # Track which game this skill came from
     action_id: Optional[int] = None
     description: str = ""
     preconditions: List[str] = field(default_factory=list)
@@ -41,15 +42,62 @@ class Skill:
     tests: int = 0
     successes: int = 0
 
+    @property
+    def success_rate(self) -> float:
+        return self.successes / max(self.tests, 1)
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "level": self.level_discovered,
+            "game_id": self.game_id,
+            "action_id": self.action_id,
+            "description": self.description,
+            "preconditions": self.preconditions,
+            "effects": self.effects,
+            "composed_from": self.composed_from,
+            "confidence": self.confidence,
+            "tests": self.tests,
+            "successes": self.successes,
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Skill":
+        return cls(
+            name=d["name"],
+            level_discovered=d["level"],
+            game_id=d.get("game_id", ""),
+            action_id=d.get("action_id"),
+            description=d.get("description", ""),
+            preconditions=d.get("preconditions", []),
+            effects=d.get("effects", []),
+            composed_from=d.get("composed_from", []),
+            confidence=d.get("confidence", 1.0),
+            tests=d.get("tests", 0),
+            successes=d.get("successes", 0),
+        )
+
+
+import os
+from pathlib import Path
+
+def _default_skill_tree_path() -> Path:
+    """Get default skill tree path in user cache directory."""
+    cache_dir = Path.home() / ".cache" / "cogniarc"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    return cache_dir / "skill_tree.json"
+
 
 class SkillTree:
     """Cumulative ability tree across levels."""
 
-    def __init__(self, save_path: str = "/home/redgamer/arc_agi_agent/skill_tree.json"):
+    def __init__(self, save_path: str | None = None):
         self.skills: Dict[str, Skill] = {}
         self.compositions: Dict[tuple, Skill] = {}
         self.level_caps: Dict[int, List[str]] = {}
         self.current_level: int = 0
+        if save_path is None:
+            save_path = os.environ.get("COGNIARC_SKILL_TREE_PATH", str(_default_skill_tree_path()))
         self.save_path = Path(save_path)
         self._load()
 
@@ -101,8 +149,11 @@ class SkillTree:
         }
 
         # Detect new colors
-        grid = obs.frame[0]
-        colors = set(int(c) for c in grid.flatten())
+        if hasattr(obs, 'frame') and obs.frame and len(obs.frame) > 0:
+            grid = obs.frame[0]
+            colors = set(int(c) for c in grid.flatten())
+        else:
+            colors = set()
         known_colors = set()
         discoveries["all_colors"] = sorted(colors)
 
@@ -151,11 +202,7 @@ class SkillTree:
 
     def _save(self):
         data = {
-            "skills": {k: {"name": v.name, "level": v.level_discovered,
-                           "action_id": v.action_id, "description": v.description,
-                           "composed_from": v.composed_from,
-                           "confidence": v.confidence}
-                       for k, v in self.skills.items()},
+            "skills": {k: v.to_dict() for k, v in self.skills.items()},
             "level_caps": {str(k): v for k, v in self.level_caps.items()},
             "current_level": self.current_level,
         }
@@ -167,16 +214,66 @@ class SkillTree:
         data = json.loads(self.save_path.read_text())
         self.current_level = data.get("current_level", 0)
         for name, d in data.get("skills", {}).items():
-            self.skills[name] = Skill(
-                name=d["name"],
-                level_discovered=d["level"],
-                action_id=d.get("action_id"),
-                description=d.get("description", ""),
-                composed_from=d.get("composed_from", []),
-                confidence=d.get("confidence", 1.0),
-            )
+            self.skills[name] = Skill.from_dict(d)
         for lvl, names in data.get("level_caps", {}).items():
             self.level_caps[int(lvl)] = names
+
+    # ── Cross-Game Transfer ─────────────────────────────────
+
+    @staticmethod
+    def get_game_path(game_id: str) -> Path:
+        """Get the skill tree path for a specific game."""
+        cache_dir = Path.home() / ".cache" / "cogniarc" / "games"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        return cache_dir / f"{game_id}_skill_tree.json"
+
+    def export_for_game(self, game_id: str) -> "SkillTree":
+        """Create a new SkillTree containing only skills from this game."""
+        game_tree = SkillTree(save_path=str(self.get_game_path(game_id)))
+        for name, skill in self.skills.items():
+            if skill.game_id == game_id or skill.game_id == "":
+                game_tree.skills[name] = skill
+        for lvl, names in self.level_caps.items():
+            game_tree.level_caps[lvl] = [n for n in names if self.skills[n].game_id == game_id or self.skills[n].game_id == ""]
+        game_tree.current_level = self.current_level
+        game_tree._save()
+        return game_tree
+
+    @classmethod
+    def load_for_game(cls, game_id: str) -> "SkillTree":
+        """Load a game-specific skill tree."""
+        return cls(save_path=str(cls.get_game_path(game_id)))
+
+    def import_from_game(self, other: "SkillTree", source_game: str, min_confidence: float = 0.7):
+        """Import skills from another game's tree (cross-game transfer).
+        
+        Only imports skills above confidence threshold.
+        Marks imported skills with source_game for traceability.
+        """
+        imported = 0
+        for name, skill in other.skills.items():
+            if skill.confidence >= min_confidence:
+                # Rename to avoid conflicts
+                new_name = f"{source_game}:{name}" if not name.startswith(f"{source_game}:") else name
+                if new_name not in self.skills:
+                    imported_skill = Skill(
+                        name=new_name,
+                        level_discovered=skill.level_discovered,
+                        game_id=source_game,
+                        action_id=skill.action_id,
+                        description=f"[imported from {source_game}] {skill.description}",
+                        preconditions=skill.preconditions.copy(),
+                        effects=skill.effects.copy(),
+                        composed_from=skill.composed_from.copy(),
+                        confidence=skill.confidence * 0.9,  # Slight penalty for transfer
+                        tests=skill.tests,
+                        successes=skill.successes,
+                    )
+                    self.skills[new_name] = imported_skill
+                    imported += 1
+        if imported > 0:
+            self._save()
+        return imported
 
     def report(self) -> str:
         lines = [f"Skill Tree — Level {self.current_level}"]
