@@ -26,16 +26,22 @@ Architecture :
 from __future__ import annotations
 
 import json
+import sys
 import time
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Optional
 from collections import defaultdict
 
-from .temporal_inference import PatternType
-from .spatial_inference import SpatialPatternType
-from .attention import AttentionEvent
-from .symbolic_inference import SymbolType
+# Same pattern as arc_agent.py: add parent to path, then absolute imports
+_cogniarc_path = Path(__file__).resolve().parent
+if str(_cogniarc_path) not in sys.path:
+    sys.path.insert(0, str(_cogniarc_path))
+
+from temporal_inference import PatternType
+from spatial_inference import SpatialPatternType
+from attention import AttentionEvent
+from symbolic_inference import SymbolType
 
 
 # ══════════════════════════════════════════════════════════════
