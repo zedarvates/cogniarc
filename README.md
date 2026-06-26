@@ -15,7 +15,7 @@
 
 | Track | Repository | Focus |
 |-------|------------|-------|
-| **Cognitive Solver** | `cogniarc/` (this repo) | ARC-AGI-3 puzzle solving via 6 drives + 9 reasoning modes + dynamic workflows |
+| **Cognitive Solver** | `cogniarc/` (this repo) | ARC-AGI-3 puzzle solving via 6 drives + 9 reasoning modes + temporal inference + dynamic workflows |
 | **Human Skills** | `arc-human-skills/` | Learn to **read, write, paint like a human from zero** — Watch tutorials → Practice in MS Paint → Self-evaluate → Transfer skills |
 
 Both share the **SkillDAG architecture** (atomic skills + topological dependencies) for composable, transferable learning.
@@ -50,6 +50,37 @@ CogniARC Solver
     ├── Generate and Filter      — N candidates → best
     ├── Tournament               — Pairwise comparison
     └── Loop Until Done          — Iterate to verification
+```
+
+### ⏱️ Temporal Inference
+
+> **Le temps n'est pas une mesure absolue. C'est la perception de changements entre états.**
+
+Le module `temporal_inference.py` implémente un raisonnement temporel sans horloge :
+le "temps" y est modélisé comme une séquence de **DELTAS** (différences entre
+états observés) et de **MÉTACHANGEMENTS** (relations entre ces deltas).
+
+| Pattern | Description | Détection |
+|---------|-------------|-----------|
+| **CONSTANT** | Le même changement se répète | Magnitudes identiques |
+| **ACCELERATING** | Le changement s'amplifie | Magnitude croissante |
+| **DECELERATING** | Le changement s'atténue | Magnitude décroissante |
+| **OSCILLATING** | Le changement s'inverse | Pixels ajoutés = retirés |
+| **WAVE** | Le changement se déplace | Centre de masse qui bouge |
+| **STASIS** | État stable | Magnitude ~0 |
+
+```python
+from cogniarc import TemporalReasoner
+
+r = TemporalReasoner(frames=[grid1, grid2, grid3])
+pattern = r.analyze()
+print(f"Pattern: {pattern.type.value} (confidence: {pattern.confidence:.0%})")
+next_grid = r.predict()
+```
+
+```bash
+# Run demo
+python -m cogniarc.temporal_inference
 ```
 
 ---
@@ -150,6 +181,7 @@ cogniarc/                          # Cognitive solver (this repo)
 │   ├── scientist_agent.py         # Hypothesis generation (legacy)
 │   ├── skill_dag/                 # SkillDAG v2 (17 atomic skills)
 │   ├── triarchic_engine.py        # Sternberg WICS model
+│   ├── temporal_inference.py      # ⏱️ Temporal pattern reasoning (time as change)
 │   ├── representation_engine.py   # Visual representation
 │   ├── cognitive_player.py        # Game playing interface
 │   └── *_inference.py             # Transform, goal, domain, causal
