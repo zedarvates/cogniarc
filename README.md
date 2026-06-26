@@ -15,7 +15,7 @@
 
 | Track | Repository | Focus |
 |-------|------------|-------|
-| **Cognitive Solver** | `cogniarc/` (this repo) | ARC-AGI-3 puzzle solving via 6 drives + 9 reasoning modes + temporal inference + dynamic workflows |
+| **Cognitive Solver** | `cogniarc/` (this repo) | ARC-AGI-3 puzzle solving via 6 drives + 9 reasoning modes + temporal inference + spatial inference + dynamic workflows |
 | **Human Skills** | `arc-human-skills/` | Learn to **read, write, paint like a human from zero** — Watch tutorials → Practice in MS Paint → Self-evaluate → Transfer skills |
 
 Both share the **SkillDAG architecture** (atomic skills + topological dependencies) for composable, transferable learning.
@@ -81,6 +81,41 @@ next_grid = r.predict()
 ```bash
 # Run demo
 python -m cogniarc.temporal_inference
+```
+
+### 🗺️ Spatial Inference
+
+> **L'espace n'est pas une grille de coordonnées. C'est un ensemble de relations entre objets.**
+
+Le module `spatial_inference.py` est le complément spatial de `temporal_inference.py` :
+le temps modélise les **changements**, l'espace modélise les **relations** entre régions.
+
+| Concept | Temporal | Spatial |
+|---------|----------|---------|
+| Unité | `Delta` (différence entre états) | `Region` (objet / composante connexe) |
+| Structure | Pattern de deltas | Graphe de relations |
+| Absence de | Temps absolu (pas d'horloge) | Coordonnées absolues (pas de mètre) |
+| Perception | Changements entre états | Relations entre objets |
+
+**Relations spatiales détectées :** `LEFT_OF`, `RIGHT_OF`, `ABOVE`, `BELOW`,
+`CONTAINS`, `INSIDE`, `TOUCHING`, `ALIGNED_H`, `ALIGNED_V`,
+`SAME_SIZE`, `SAME_COLOR`, `SAME_SHAPE`
+
+**Patterns globaux :** `SYMMETRY_H`, `SYMMETRY_V`, `GRID`, `CASCADE`,
+`RAY`, `CHAIN`, `RING`, `CLUSTER`
+
+```python
+from cogniarc import SpatialReasoner
+
+sr = SpatialReasoner(grid)
+regions = sr.segment()       # -> list[Region]
+relations = sr.relate()      # -> list[Relation]
+pattern = sr.analyze()       # -> SpatialPattern
+print(f"{pattern.type.value} ({pattern.confidence:.0%})")
+```
+
+```bash
+python -m cogniarc.spatial_inference
 ```
 
 ---

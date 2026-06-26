@@ -10,6 +10,7 @@ from .goal_inference import GoalInferenceEngine as GoalInference
 from .stagnation_detector import StagnationDetector
 from .transform_inference import TransformInference
 from .temporal_inference import TemporalReasoner, Delta, DeltaPattern, PatternType
+from .spatial_inference import SpatialReasoner, Region, Relation, RelationType, SpatialPattern, SpatialPatternType
 from .benchmark_tracker import BenchmarkTracker, GameResult, SessionResult
 from .cli import main as cli_main
 from .vision_sensor import cmd_analyze as vision_analyze, cmd_watch as vision_watch
@@ -26,6 +27,7 @@ __all__ = [
     "StagnationDetector",
     "TransformInference",
     "TemporalReasoner", "Delta", "DeltaPattern", "PatternType",
+    "SpatialReasoner", "Region", "Relation", "RelationType", "SpatialPattern", "SpatialPatternType",
     "BenchmarkTracker", "GameResult", "SessionResult",
     "cli_main", "vision_analyze", "vision_watch",
 ]
