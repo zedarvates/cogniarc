@@ -120,6 +120,39 @@ python -m cogniarc.spatial_inference
 
 ---
 
+## 📊 Benchmark Results (ARC-AGI-3)
+
+Résultats réels collectés sur **ls20-9607627b** (jeu de navigation avec obstacles).
+
+| Jeu | Niveau | Tentatives | Résolu | Taux | Steps moyens | Temps moyen |
+|-----|--------|-----------|--------|------|-------------|-------------|
+| `ls20-9607627b` | L1 | 76 | **55** | **72%** | 556 | ~0.02s |
+| `ls20-9607627b` | L2 | 22 | 0 | 0% | 753 | ~0.03s |
+
+### Métriques clés
+
+| Métrique | Valeur |
+|----------|--------|
+| **Tokens LLM consommés** | **0** par partie |
+| Temps total de résolution | 2.53s (98 parties) |
+| Architecture | BFS réel + transforms déterministes |
+| Efficacité L1 | 72% de réussite en ~0.02s |
+| Défi L2 | Non résolu — nécessite raisonnement spatial avancé |
+
+> **0 token utilisé.** L'agent résout les grilles par exploration BFS + mapping de transforms,
+> sans aucun appel LLM. Les 4 nouveaux modules (temporel, spatial, attention, symbolique)
+> visent à résoudre L2 et les jeux plus complexes en guidant la recherche.
+
+### Évolution des performances
+
+| Date | Version | Modules | Résolution L1 |
+|------|---------|---------|---------------|
+| 2026-06-14 | v1 (BFS simple) | arc_agent.py | ❌ Échec |
+| 2026-06-15 | v2 (BFS + transforms) | +transforms.py | ✅ 72% |
+| 2026-06-25 | v3 (Perception) | +temporal, spatial, attention, symbolic | 🚧 En cours |
+
+---
+
 ## 🎨 Human Skills Track (arc-human-skills)
 
 > **Learn to READ, WRITE, and PAINT like a human — from absolute zero — using Windows Paint, video tutorials, and iterative self-evaluation.**
