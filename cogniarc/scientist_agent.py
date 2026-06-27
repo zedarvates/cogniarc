@@ -34,6 +34,170 @@ from .pathfinding import Pathfinder, GridMap
 # Cognitive drives
 from .cognitive_player import CognitiveDrives, hash_grid
 
+# ====== 9 REASONING MODES (NEW - AHOIS) ======
+from enum import Enum
+from dataclasses import dataclass, field
+from typing import Callable
+
+
+class ReasoningMode(Enum):
+    """9 modes de raisonnement inspirés d'AHOIS."""
+    EXPLORATION = "exploration"       # BFS/random → découvrir environnement
+    PATHFINDING = "pathfinding"       # A* vers cible identifiée
+    ROTATION = "rotation"             # Cycling action 6
+    TRANSFORMATION = "transformation" # Changer état/pixel
+    GOAL_INFERENCE = "goal_inference" # Hypothèse sur objectif
+    CAUSAL = "causal"                 # Cause-effet des actions
+    COUNTERFACTUAL = "counterfactual" # "Et si j'avais fait X ?"
+    ANALOGICAL = "analogical"         # Transférer pattern via SkillTree
+    SOCRATIC = "socratic"             # Critiquer hypothèses
+
+
+@dataclass
+class ModeStrategy:
+    """Une stratégie = mode + conditions + heuristiques + fallback."""
+    mode: ReasoningMode
+    trigger_condition: str              # Description de quand ce mode s'active
+    heuristic: str                      # Logique de sélection d'action
+    success_criteria: str               # Qu'est-ce qui prouve que ça marche
+    failure_criteria: str               # Qu'est-ce qui prouve que ça marche PAS
+    fallback_mode: ReasoningMode = ReasoningMode.EXPLORATION
+    weight: float = 1.0                 # Poids dans le selector (ajustable)
+
+
+class ReasonModeManager:
+    """Gère la sélection et la priorisation des 9 modes de raisonnement."""
+    
+    def __init__(self):
+        self.strategies: dict[ReasoningMode, ModeStrategy] = {
+            ReasoningMode.EXPLORATION: ModeStrategy(
+                mode=ReasoningMode.EXPLORATION,
+                trigger_condition="Aucune info sur l'environnement. Premier pas ou après reset.",
+                heuristic="BFS + cognitive drives (novelty, impulse). Actions 1-4 pour couvrir la carte.",
+                success_criteria="Nouveaux états découverts, carte partiellement explorée.",
+                failure_criteria="50+ steps sans nouvelle tuile.",
+                fallback_mode=ReasoningMode.SOCRATIC,
+                weight=0.5,
+            ),
+            ReasoningMode.PATHFINDING: ModeStrategy(
+                mode=ReasoningMode.PATHFINDING,
+                trigger_condition="Cible identifiée (changer, lock). Carte partiellement connue.",
+                heuristic="A* avec walkable_overrides. Si mur, apprendre la couleur et réessayer.",
+                success_criteria="Position de la cible atteinte.",
+                failure_criteria="Path bloqué >3 tentatives. Aucun chemin trouvé.",
+                fallback_mode=ReasoningMode.EXPLORATION,
+                weight=1.0,
+            ),
+            ReasoningMode.ROTATION: ModeStrategy(
+                mode=ReasoningMode.ROTATION,
+                trigger_condition="Action 6 disponible ET cible de rotation identifiée (changer).",
+                heuristic="Cycle action 6 (max 20×). Si changé → arrêter. Sinon après 20→ fallback.",
+                success_criteria="Level completed OU nouvel état après rotation.",
+                failure_criteria="20 cycles sans changement d'état.",
+                fallback_mode=ReasoningMode.EXPLORATION,
+                weight=0.8,
+            ),
+            ReasoningMode.TRANSFORMATION: ModeStrategy(
+                mode=ReasoningMode.TRANSFORMATION,
+                trigger_condition="Action 5+ disponible. Changement détecté entre frames adjacentes.",
+                heuristic="Appliquer actions transformation dans l'ordre. Comparer état avant/après.",
+                success_criteria="État significativement différent après transformation.",
+                failure_criteria="10 transformations sans effet visible.",
+                fallback_mode=ReasoningMode.GOAL_INFERENCE,
+                weight=0.6,
+            ),
+            ReasoningMode.GOAL_INFERENCE: ModeStrategy(
+                mode=ReasoningMode.GOAL_INFERENCE,
+                trigger_condition="Aucune hypothèse de but. Ou Doute déclenché (reset theory).",
+                heuristic="GoalInferenceEngine.observe_only() → analyser rareté, symétrie, patterns.",
+                success_criteria="Hypothèse avec confidence > 0.5.",
+                failure_criteria="Toutes les hypothèses < 0.3.",
+                fallback_mode=ReasoningMode.EXPLORATION,
+                weight=0.7,
+            ),
+            ReasoningMode.CAUSAL: ModeStrategy(
+                mode=ReasoningMode.CAUSAL,
+                trigger_condition="Action répétée sans changement. Ou stagnation > 3.",
+                heuristic="Enregistrer état avant action, comparer après. Si aucun changement → marquer cette action comme inefficace dans ce contexte.",
+                success_criteria="Corrélation action→effet identifiée.",
+                failure_criteria="Bruit trop fort (actions != effets consistants).",
+                fallback_mode=ReasoningMode.COUNTERFACTUAL,
+                weight=0.5,
+            ),
+            ReasoningMode.COUNTERFACTUAL: ModeStrategy(
+                mode=ReasoningMode.COUNTERFACTUAL,
+                trigger_condition="Mode causal a échoué. Ou plusieurs modes suggèrent des chemins différents.",
+                heuristic="\"Et si j'avais pris action X au lieu de Y ?\" Simuler en mémoire (WorkingMemory). Choisir l'action avec le meilleur score simulé.",
+                success_criteria="Action simulée meilleure que l'action réelle.",
+                failure_criteria="Simulation incohérente avec la réalité observée.",
+                fallback_mode=ReasoningMode.EXPLORATION,
+                weight=0.4,
+            ),
+            ReasoningMode.ANALOGICAL: ModeStrategy(
+                mode=ReasoningMode.ANALOGICAL,
+                trigger_condition="SkillTree disponible AVEC skills importées cross-game.",
+                heuristic="Chercher dans SkillTree des patterns de jeu similaire (même domaine). Apprendre de la stratégie du jeu source.",
+                success_criteria="Pattern transféré mène à un progrès.",
+                failure_criteria="Aucune skill importée pertinente trouvée.",
+                fallback_mode=ReasoningMode.SOCRATIC,
+                weight=0.6,
+            ),
+            ReasoningMode.SOCRATIC: ModeStrategy(
+                mode=ReasoningMode.SOCRATIC,
+                trigger_condition="Stagnation, doute déclenché, ou mode courant en échec.",
+                heuristic="SocraticCritic.interrogate() → 6 opérations. Corriger hypothèses avant de ré-agir.",
+                success_criteria="Rapport critic sans BLOCKING + nouvelle hypothèse viable.",
+                failure_criteria="Toujours bloqué après critique (escalade vers exploration).",
+                fallback_mode=ReasoningMode.EXPLORATION,
+                weight=0.9,
+            ),
+        }
+        self.current_mode: ReasoningMode = ReasoningMode.EXPLORATION
+        self.mode_history: list[dict] = []
+    
+    def select_mode(self, context: dict) -> ReasoningMode:
+        """Sélectionne le meilleur mode selon le contexte courant.
+        context peut contenir : stagnation, confidence, domain_type, available_actions, etc."""
+        stagnation = context.get("stagnation", 0)
+        domain = context.get("domain", "")
+        actions = context.get("available_actions", [])
+        skill_tree_available = context.get("skill_tree_available", False)
+        doubt_active = context.get("doubt_active", False)
+        
+        # Priorité haute: Socratic si doute ou stagnation longue
+        if doubt_active or stagnation > 8:
+            return ReasoningMode.SOCRATIC
+        
+        # Priorité: Pathfinding si on a des cibles connues
+        if context.get("has_target", False):
+            return ReasoningMode.PATHFINDING
+        
+        # Priorité: GoalInference si pas d'hypothèse
+        if not context.get("has_goal_hypothesis", False):
+            return ReasoningMode.GOAL_INFERENCE
+        
+        # Rotation si disponible
+        if 6 in actions and domain in ("rotation", "hybrid"):
+            return ReasoningMode.ROTATION
+        
+        # Analogical si SkillTree disponible
+        if skill_tree_available:
+            return ReasoningMode.ANALOGICAL
+        
+        # Causal si stagnation récente
+        if stagnation > 3:
+            return ReasoningMode.CAUSAL
+        
+        # Par défaut: explorer
+        return ReasoningMode.EXPLORATION
+    
+    def log_mode_switch(self, old_mode: ReasoningMode, new_mode: ReasoningMode, reason: str):
+        self.mode_history.append({
+            "from": old_mode.value,
+            "to": new_mode.value,
+            "reason": reason,
+        })
+
 
 # ====== PKM Memory ======
 class PKM:
@@ -121,9 +285,25 @@ class ScientistAgent:
         self.skill_registry = SkillRegistry("cogniarc/skill_dag/manifest.yaml")
         self.skill_navigator = SkillNavigator(self.skill_registry)
         self._pathfinder = None  # Lazy init
-        self._walls_detected = False
         self.current_level_idx = 0
-        self._phase = "detect_walls"  # Phase state machine
+        
+        # ═══ NEW: ScientificState + SocraticCritic + ReasonModeManager ═══
+        from .scientific_state import ScientificState
+        from .socratic_critic import SocraticCritic
+        
+        self.state = ScientificState(
+            game_name=game_name,
+            available_actions=list(self.obs.available_actions or []),
+        )
+        self.critic = SocraticCritic(verbose=False)
+        
+        # ═══ NEW: ReasonModeManager + Dynamic Workflows ═══
+        self.mode_manager = ReasonModeManager()
+        self.current_reasoning_mode: ReasoningMode = ReasoningMode.EXPLORATION
+        
+        # Legacy aliases (to be removed gradually)
+        self._phase = self.state.phase
+        self._walls_detected = self.state.walls_detected
     
     def step(self, action_num: int):
         self.obs = self.env.step(getattr(GameAction, f'ACTION{action_num}'))
@@ -139,6 +319,12 @@ class ScientistAgent:
         else:
             state_hash = f"step_{self.steps}"
         self.drives.step(action_num, state_hash)
+
+        # ═══ NEW: Update ScientificState ═══
+        self.state.steps_taken = self.steps
+        self.state.last_action = action_num
+        self.state.stagnation_count = self.drives.stagnation_counter
+        self.state.last_state_hash = state_hash
 
         return self.obs
     
@@ -289,32 +475,87 @@ class ScientistAgent:
         return self._pathfinder
     
     def _detect_wall_colors(self):
-        """Detect wall colors from source-analyzed tagged sprites."""
+        """Detect wall colors from analysis + local probing."""
         if not self.game or not hasattr(self.obs, 'frame') or not self.obs.frame:
             return
         
-        # Ensure pathfinder is initialized and update from observation
         pathfinder = self.__init_pathfinder()
-        pathfinder.update_from_observation(self.obs)
-        
-        # Get wall tags from PKM (discovered from source)
-        wall_tags = self.pkm.get('mechanics', 'walls', [])
-        if not wall_tags:
-            return
-        
         grid = self.obs.frame[0]
         
-        # Find wall sprites and sample their colors
+        # Analyze grid: find most common colors
+        unique, counts = np.unique(grid, return_counts=True)
+        sorted_by_count = np.argsort(counts)[::-1]
+        color_freq = [(int(unique[idx]), int(counts[idx])) for idx in sorted_by_count]
+        # Skip background (0)
+        non_bg = [(c, n) for c, n in color_freq if c != 0]
+        
+        # The top non-bg color is usually the FLOOR
+        # Subsequent colors are walls, objects, or special tiles
+        floor_color = non_bg[0][0] if non_bg else None
+        
+        # Method 1: Tag-based — check if tag sprite color is wall or floor
+        wall_tags = self.pkm.get('mechanics', 'walls', [])
+        tag_colors = set()
         for tag in wall_tags:
             sprites = self._find_tagged_sprites(tag)
-            for s in sprites[:3]:  # sample first 3
+            for s in sprites[:5]:
                 color = int(grid[s.y, s.x])
-                pathfinder.wall_colors.add(color)
+                if color != floor_color:  # Not on floor = actual wall tile
+                    tag_colors.add(color)
+                # If on floor, check neighbors for the real wall color
+                for dx, dy in [(1,0), (-1,0), (0,1), (0,-1)]:
+                    nx, ny = s.x + dx, s.y + dy
+                    if 0 <= nx < grid.shape[1] and 0 <= ny < grid.shape[0]:
+                        nc = int(grid[ny, nx])
+                        if nc != color and nc != 0 and nc != floor_color:
+                            tag_colors.add(nc)
         
-        # Re-update grid map with learned wall colors
+        # Method 2: Adjacent to player (non-invasively)
+        player_adjacent = set()
+        if self.player:
+            px, py = self.player.x, self.player.y
+            for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                nx, ny = px + dx, py + dy
+                if 0 <= nx < grid.shape[1] and 0 <= ny < grid.shape[0]:
+                    c = int(grid[ny, nx])
+                    pc = int(grid[py, px])
+                    if c != pc and c != 0:  # Not where player stands, not bg
+                        player_adjacent.add(c)
+        
+        # Method 3: Grid analysis — second most common non-bg color is often wall
+        grid_wall_candidates = set()
+        if len(non_bg) >= 2:
+            # Colors that are less common than floor (top 2-4)
+            for c, n in non_bg[1:4]:
+                # If it's significantly less common than floor (>2x less)
+                if n < non_bg[0][1] * 0.5:  # Less than half the floor area
+                    grid_wall_candidates.add(c)
+        
+        # Combine: prefer player-adjacent and grid analysis over tag-on-floor
+        # If player-adjacent gives us clear walls, use those
+        if player_adjacent:
+            pathfinder.wall_colors.update(player_adjacent)
+            # Also add grid-analysis walls if they match player-adjacent
+            for c in grid_wall_candidates:
+                if c in player_adjacent or c in tag_colors:
+                    pathfinder.wall_colors.add(c)
+        else:
+            # Fallback: use tag-based + grid analysis
+            pathfinder.wall_colors.update(tag_colors)
+            pathfinder.wall_colors.update(grid_wall_candidates)
+        
+        # Remove player's own color and background
+        if self.player:
+            pathfinder.wall_colors.discard(int(grid[self.player.y, self.player.x]))
+        pathfinder.wall_colors.discard(0)
+        
+        # Lock walls so learn_walls() probing doesn't corrupt them
+        pathfinder.walls_locked = True
         pathfinder.update_from_observation(self.obs)
         
-        print(f"  🧱 Wall colors detected: {pathfinder.wall_colors}")
+        print(f"  🧱 Wall colors: {sorted(pathfinder.wall_colors)} "
+              f"(tags={sorted(tag_colors)}, adjacent={sorted(player_adjacent)}, "
+              f"grid={sorted(grid_wall_candidates)}, floor={floor_color})")
     
     def _find_tagged_sprites(self, tag: str):
         """Find sprites with given tag in current level."""
@@ -426,6 +667,8 @@ class ScientistAgent:
             self.__init_pathfinder()  # Ensure pathfinder is initialized
             self._detect_wall_colors()
             self._walls_detected = True
+            self.state.walls_detected = True
+            self.state.set_assumption("walls_known", True)
             return True
         return False  # Already done
 
@@ -502,7 +745,9 @@ class ScientistAgent:
         return False  # Failed to reach target rotation
 
     def _advance_phase(self, success: bool):
-        """Advance phase based on skill result."""
+        """Advance phase based on skill result. Syncs with ScientificState."""
+        old_phase = self._phase
+        
         if self._phase == "detect_walls" and success:
             self._phase = "navigate_to_changer"
         elif self._phase == "navigate_to_changer" and success:
@@ -513,11 +758,74 @@ class ScientistAgent:
             self._phase = "interact"
         elif self._phase == "interact" and success:
             self._phase = "complete"
+        
+        # Sync with ScientificState
+        if self._phase != old_phase:
+            self.state.phase = self._phase
+            self.state.phase_attempts = 0
 
     # ------ SOLVE PHASE ------
     
+    # ═══ Perception Stack Integration (AHOIS) ═══
+    
+    def _init_perception_stack(self):
+        """Initialize TemporalReasoner, SpatialReasoner, and SymbolicInference
+        for use during solve_level(). Called at the start of each level."""
+        try:
+            from .temporal_inference import TemporalReasoner
+            from .spatial_inference import SpatialReasoner
+            from .symbolic_inference import SymbolicInference
+            
+            self._temporal = TemporalReasoner()
+            self._spatial = SpatialReasoner()
+            self._symbolic = SymbolicInference()
+            self._perception_initialized = True
+        except ImportError:
+            self._temporal = None
+            self._spatial = None
+            self._symbolic = None
+            self._perception_initialized = False
+    
+    def _perception_analyze(self, obs) -> dict:
+        """Run temporal + spatial analysis on current observation.
+        Returns a dict with perceived patterns and recommended skills.
+        Dynamic Workflow pattern: PIPELINE (perception → inference → suggestion)."""
+        if not self._perception_initialized:
+            return {"mode_action": None}
+        
+        result = {}
+        
+        # Temporal analysis (if we have frame history)
+        if hasattr(self, '_frame_history'):
+            self._frame_history.append(obs)
+            if len(self._frame_history) >= 3:
+                frames = self._frame_history[-3:]
+                temporal_pattern = self._temporal.analyze(frames)
+                result["temporal"] = temporal_pattern
+        else:
+            self._frame_history = [obs]
+        
+        # Spatial analysis (current frame)
+        if obs and hasattr(obs, 'frame') and obs.frame and len(obs.frame) > 0:
+            grid = obs.frame[0]
+            spatial_pattern = self._spatial.analyze(grid)
+            result["spatial"] = spatial_pattern
+            
+            # Symbolic inference: temporal + spatial → skill recommendation
+            if "temporal" in result:
+                symbols = self._symbolic.infer(
+                    temporal_pattern=result["temporal"],
+                    spatial_pattern=spatial_pattern,
+                )
+                result["symbols"] = symbols
+                skills = self._symbolic.skill_recommendations()
+                if skills:
+                    result["recommended_skills"] = skills
+        
+        return result
+    
     def solve_level(self, level_num: Optional[int] = None) -> bool:
-        """Solve current level using phase-based skill execution."""
+        """Solve current level using phase-based skill execution with SocraticCritic."""
         prev_lvl = self.obs.levels_completed
         if level_num is not None and prev_lvl + 1 != level_num:
             print(f"  ⚠️ Expected level {level_num}, at {prev_lvl + 1}")
@@ -526,10 +834,15 @@ class ScientistAgent:
         self.current_level_idx = prev_lvl
         self._walls_detected = False  # Reset for new level
         self._phase = "detect_walls"  # Phase state machine
+        self.state.walls_detected = False
+        self.state.phase = "detect_walls"
+        self.state.phase_attempts = 0
+        self._phase_escalation_count = 0  # Global: force skip apres X echecs
         
         # Refresh player reference (game may recreate player sprite per level)
         if self.game and hasattr(self.game, 'gudziatsk') and self.game.gudziatsk:
             self.player = self.game.gudziatsk
+            self.state.set_assumption("player_found", True)
         
         # Skill Tree: detect new level
         if self.skill_tree:
@@ -540,6 +853,49 @@ class ScientistAgent:
                     print(f"  🔓 Skill available: {skill_name}")
         
         self.discover_properties()
+        
+        # ═══ Populate ScientificState from discovered info ═══
+        available = list(self.obs.available_actions or [])
+        self.state.available_actions = available
+        is_movement = any(a in available for a in [1, 2, 3, 4])
+        is_rotation = 6 in available
+        
+        if is_movement:
+            self.state.domain_type = "movement" if not is_rotation else "hybrid"
+        elif is_rotation:
+            self.state.domain_type = "rotation"
+        self.state.domain_confidence = 0.7
+        
+        self.state.set_assumption("walls_known", self._walls_detected or self._check_source_available())
+        self.state.set_assumption("actions_scouted", True)
+        self.state.set_assumption("domain_identified", True)
+        self.state.set_assumption("goal_known", self._infer_goal_rotation() is not None)
+        
+        # Record observations from discovery
+        self.state.record_observation(
+            f"Domain={self.state.domain_type}, movement={is_movement}, rotation={is_rotation}",
+            source="discovery"
+        )
+        
+        # ═══ Select reasoning mode via ReasonModeManager ═══
+        mode_context = {
+            "stagnation": self.drives.stagnation_counter,
+            "domain": self.state.domain_type,
+            "available_actions": available,
+            "skill_tree_available": self.skill_tree is not None,
+            "doubt_active": self.drives.doubt_triggered,
+            "has_target": hasattr(self, '_phase') and self._phase in ("navigate_to_changer", "navigate_to_lock"),
+            "has_goal_hypothesis": hasattr(self, '_phase') and self._phase in ("rotation_cycle", "interact"),
+        }
+        new_mode = self.mode_manager.select_mode(mode_context)
+        if new_mode != self.current_reasoning_mode:
+            self.mode_manager.log_mode_switch(self.current_reasoning_mode, new_mode,
+                f"solve_level() init: domain={self.state.domain_type}")
+            self.current_reasoning_mode = new_mode
+            print(f"  🧠 Reasoning Mode: {new_mode.value}")
+        
+        # ═══ Initialize Perception Stack for temporal/spatial integration ═══
+        self._init_perception_stack()
         
         # Benchmark tracking
         self.benchmark_start_time = time.time()
@@ -564,6 +920,29 @@ class ScientistAgent:
                 print(f"  ❌ No skill for phase: {self._phase}")
                 break
             
+            # ═══ SocraticCritic: interrogate before each phase ═══
+            hypothesis = self._build_phase_hypothesis()
+            report = self.critic.quick_check(hypothesis, self.state)
+            self.state.add_critic_report(report)
+            
+            if report.unresolved():
+                # Print critic warnings (non-blocking: show but proceed)
+                for issue in report.unresolved()[:3]:  # max 3
+                    print(f"  🤔 {issue}")
+            
+            if report.blocking:
+                # 🚫 Le critic bloque → on CHERCHE une vraie alternative
+                print(f"  🚫 SocraticCritic BLOCKING: {report.blocking_issues()[0].question[:60]}...")
+                alt = self._resolve_blocking(report)
+                if alt:
+                    print(f"  🔀 Alternative trouvée: {alt}")
+                    self._phase = alt
+                    self.state.phase = alt
+                    self.state.phase_attempts = 0
+                    continue  # Retry with new phase
+                else:
+                    print(f"     Aucune alternative - execution risquee")
+            
             print(f"  🔄 Phase: {self._phase} -> Skill: {skill_id}")
             success = self._execute_skill(skill_id)
             
@@ -571,7 +950,28 @@ class ScientistAgent:
                 self._advance_phase(success)
                 print(f"  ✅ Phase complete: {self._phase}")
             else:
-                print(f"  ⚠️ Skill {skill_id} failed in phase {self._phase}")
+                self.state.phase_attempts += 1
+                self._phase_escalation_count += 1
+                print(f"  ⚠️ Skill {skill_id} failed in phase {self._phase} (attempt {self.state.phase_attempts})")
+
+                # Global escalation: if stuck too long, force skip level
+                if self._phase_escalation_count >= 5:
+                    print(f"  🔴 Trop d'echecs ({self._phase_escalation_count}), force skip niveau...")
+                    skip_to = self._try_skip_level()
+                    if skip_to == "complete":
+                        break  # Niveau complete ou skip
+                    # Burn remaining steps pour forcer game over
+                    self.handle_transition()
+                    break
+                
+                # After 3 failed attempts on same phase, ask for escalation
+                if self.state.phase_attempts >= 3:
+                    escalation = self._escalate_phase_failure()
+                    if escalation:
+                        print(f"  🔀 Escalating: {escalation}")
+                        self._phase = escalation
+                        self.state.phase = escalation
+                        self.state.phase_attempts = 0
                 
             # Brief pause to let state settle
             if self.obs.levels_completed > prev_lvl:
@@ -580,6 +980,112 @@ class ScientistAgent:
         result = self.obs.levels_completed > prev_lvl
         self._record_benchmark(self.current_level_idx, result)
         return result
+
+    def _build_phase_hypothesis(self) -> str:
+        """Build a human-readable hypothesis for the current phase."""
+        hypotheses = {
+            "detect_walls": "Detect wall colors from source-code sprite tags so I can navigate without walking through walls",
+            "navigate_to_changer": "Navigate to the rotation changer sprite and use it to change orientation",
+            "rotate_to_goal": "Use the rotation changer (actions 4+3) to cycle rotation until it matches the goal rotation value",
+            "navigate_to_lock": "Navigate to the lock sprite and walk onto it to collect it (locks are collidable=False on wall color)",
+            "interact": "Interact with the final target (action 5) to complete the level",
+            "complete": "Level is finished, move to next",
+        }
+        return hypotheses.get(self._phase, f"Unknown phase {self._phase}: proceed with default actions")
+
+    def _resolve_blocking(self, report) -> Optional[str]:
+        """
+        When SocraticCritic BLOCKING, find an alternative phase that avoids
+        the blocking issues instead of proceeding blindly.
+
+        Examines each blocking issue and suggests a phase bypass.
+        """
+        blocking = report.blocking_issues()
+        if not blocking:
+            return None
+
+        # Collect keywords from all blocking issues
+        blocking_text = " ".join(i.question + " " + i.context for i in blocking).lower()
+
+        # ── CATALOGUE D'ALTERNATIVES ──
+        # Basé sur les BLOCKING issues les plus fréquentes
+
+        # "action 6 not available" + on était en rotation → sauter rotation
+        if "action 6" in blocking_text and self._phase in (
+            "rotate_to_goal", "navigate_to_changer"
+        ):
+            # Sauter la rotation, essayer d'atteindre le lock directement
+            if self._check_source_available():
+                locks = self._find_tagged_sprites('rjlbuycveu')
+                if locks:
+                    self.state.record_observation(
+                        "Rotation impossible (pas d'action 6), tentative navigation directe vers lock",
+                        source="socratic_escalation"
+                    )
+                    return "navigate_to_lock"
+            # Pas de lock connu → essayer le niveau suivant
+            return self._try_skip_level()
+
+        # "action 5 not available" + on voulait interagir → skip interact
+        if "action 5" in blocking_text and self._phase == "interact":
+            self.state.record_observation(
+                "Interact impossible (pas d'action 5), niveau peut-etre deja complete",
+                source="socratic_escalation"
+            )
+            return "complete"
+
+        # "wall colors" pas detectes + on navigue → retourner detecter
+        if "wall" in blocking_text and "navigate" in self._phase:
+            if not self._walls_detected:
+                return "detect_walls"
+
+        # "domain not classified" → essayer re-decouverte
+        if "domain" in blocking_text or "classified" in blocking_text:
+            return "detect_walls"
+
+        # Stagnation + echec → essayer skip level
+        if "stagnant" in blocking_text or "failed" in blocking_text:
+            return self._try_skip_level()
+
+        return None
+
+    def _try_skip_level(self) -> Optional[str]:
+        """Try to force-complete or skip the current level."""
+        # Essayer step(0) = reset/advance si disponible
+        from .common import GameAction
+        try:
+            prev = self.obs.levels_completed
+            self.obs = self.env.step(GameAction.RESET)
+            self.steps += 1
+            if self.obs.levels_completed > prev:
+                self.state.record_observation(
+                    f"Skip level: {prev} -> {self.obs.levels_completed}",
+                    source="socratic_escalation"
+                )
+                return "complete"
+        except Exception:
+            pass
+
+        # Burn steps for game over
+        self.state.record_observation(
+            "Skipping level impossible, tentative burn steps pour forcer reset",
+            source="socratic_escalation"
+        )
+        return None  # Burn steps se fait dans handle_transition
+
+    def _escalate_phase_failure(self) -> Optional[str]:
+        """
+        Legacy escalation — fallback quand _resolve_blocking n'a rien trouve.
+        """
+        # Stuck on navigation? Try direct interaction instead
+        if self._phase in ("navigate_to_changer", "navigate_to_lock"):
+            if self._check_adjacent_to_target():
+                return "interact"
+            return None
+        # Stuck on rotation? Try interact directly
+        if self._phase == "rotate_to_goal":
+            return "navigate_to_lock"
+        return None
 
     def _record_level_skills(self, level: int):
         """Record which skills were used for this level."""

@@ -114,6 +114,12 @@ class CognitiveDrives:
         self.last_state_hash: str = ""
         self.total_steps: int = 0
         
+        # ═══ NEW: Drive metrics + history ═══
+        self.drive_history: list[dict] = []  # Snapshot périodique
+        self.drive_values: dict[str, list[float]] = {
+            drive: [] for drive in self.weights
+        }  # Historique complet des valeurs
+        
         # Confidence tracking
         self.world_model_confidence: float = 0.5
         self.goal_hypothesis_confidence: float = 0.3
@@ -266,7 +272,44 @@ class CognitiveDrives:
         if self.fatigue.intuition_mode:
             total = 0.6 * scores['impulse'] + 0.4 * total
         
+        # ═══ NEW: Log drive values to history ═══
+        for drive, val in scores.items():
+            self.drive_values[drive].append(val)
+        
         return total
+    
+    def snapshot_drives(self) -> dict:
+        """Snapshot des valeurs courantes des drives (pour logging/benchmark)."""
+        return {
+            'novelty': self.novelty_score(self.last_state_hash) if self.last_state_hash else 0.5,
+            'simplicity': self.simplicity_score(len(self.action_history[-5:]) if self.action_history else 1),
+            'doubt': self.doubt_score(),
+            'pleasure': self.pleasure_score(None),
+            'caution': self.caution_score(self.action_history[-1] if self.action_history else 1),
+            'impulse': self.impulse_score(),
+            'stagnation': self.stagnation_counter,
+            'fatigue': self.fatigue.fatigue_level,
+            'confidence': self.world_model_confidence,
+            'step': self.total_steps,
+        }
+    
+    def log_snapshot(self):
+        """Enregistre un snapshot périodique dans drive_history."""
+        snap = self.snapshot_drives()
+        self.drive_history.append(snap)
+        
+    def status_report(self) -> str:
+        """Rapport formaté pour debug/affichage."""
+        snap = self.snapshot_drives()
+        lines = ["📊 Cognitive Drives Status:"]
+        for drive in ['novelty', 'simplicity', 'doubt', 'pleasure', 'caution', 'impulse']:
+            val = snap[drive]
+            bar = '█' * int(val * 10) + '░' * (10 - int(val * 10))
+            lines.append(f"  {drive:12s} [{bar}] {val:.2f}")
+        lines.append(f"  {'stagnation':12s}  {snap['stagnation']}")
+        lines.append(f"  {'fatigue':12s}  {snap['fatigue']:.2f}")
+        lines.append(f"  {'confidence':12s}  {snap['confidence']:.2f}")
+        return '\n'.join(lines)
     
     # ====== STATE MANAGEMENT ======
     
