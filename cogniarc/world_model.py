@@ -54,15 +54,20 @@ class WorldModelTool:
         predicted, confidence = wm.predict(grid_observation, action=1)
     """
     
-    def __init__(self, config: Optional[WorldModelConfig] = None):
+    def __init__(self, config: Optional[WorldModelConfig] = None, game_id: Optional[str] = None):
         self.config = config or WorldModelConfig()
         self.encoder = None
         self.transform = None
         self.memory: List[Tuple[np.ndarray, int, np.ndarray]] = []  # (latent, action, next_latent)
         self._loaded = False
+        self.game_id = game_id
         
         if HAS_TORCH and os.path.exists(self.config.checkpoint_path):
             self._load_encoder()
+        
+        # Auto-load memory for this game if game_id provided
+        if game_id:
+            self.load(game_id)
     
     def _load_encoder(self):
         """Load the V-JEPA 2.1 ViT-B/16 encoder."""
@@ -258,6 +263,67 @@ class WorldModelTool:
     def memory_size(self) -> int:
         """Number of transitions stored."""
         return len(self.memory)
+    
+    def save(self, game_id: Optional[str] = None):
+        """Persist world model memory to disk for a specific game.
+        
+        Format: compressed numpy arrays (.npz)
+        Path: ~/.cache/cogniarc/world_model/<game_id>.npz
+        
+        Saves: latents_before [N, D], actions [N], latents_after [N, D]
+        """
+        gid = game_id or self.game_id
+        if not gid:
+            return
+        
+        if not self.memory:
+            return
+        
+        cache_dir = os.path.expanduser("~/.cache/cogniarc/world_model")
+        os.makedirs(cache_dir, exist_ok=True)
+        
+        latents_before = np.stack([m[0] for m in self.memory])
+        actions = np.array([m[1] for m in self.memory], dtype=np.int8)
+        latents_after = np.stack([m[2] for m in self.memory])
+        
+        path = os.path.join(cache_dir, f"{gid}.npz")
+        np.savez_compressed(path,
+            latents_before=latents_before,
+            actions=actions,
+            latents_after=latents_after,
+            game_id=gid,
+            timestamp=np.datetime64('now')
+        )
+    
+    def load(self, game_id: str):
+        """Load world model memory from disk for a specific game.
+        
+        If the file exists, populates self.memory from saved transitions.
+        If not, starts fresh (empty memory) — discovery mode.
+        """
+        cache_dir = os.path.expanduser("~/.cache/cogniarc/world_model")
+        path = os.path.join(cache_dir, f"{game_id}.npz")
+        
+        if not os.path.exists(path):
+            return  # Fresh start — no prior knowledge of this game
+        
+        try:
+            data = np.load(path, allow_pickle=True)
+            latents_before = data['latents_before']
+            actions = data['actions']
+            latents_after = data['latents_after']
+            
+            self.memory = [
+                (latents_before[i], int(actions[i]), latents_after[i])
+                for i in range(len(actions))
+            ]
+            
+            # Enforce max capacity
+            if len(self.memory) > self.config.max_memory:
+                self.memory = self.memory[-self.config.max_memory:]
+            
+        except Exception as e:
+            print(f"[WorldModel] Failed to load memory for {game_id}: {e}")
     
     def forget(self):
         """Clear all memory (fresh start)."""

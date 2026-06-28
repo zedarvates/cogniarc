@@ -306,9 +306,11 @@ class ScientistAgent:
         if enable_world_model:
             try:
                 from cogniarc.world_model import WorldModelTool
-                self.world_model = WorldModelTool()
+                self.world_model = WorldModelTool(game_id=game_name)
                 if self.world_model.available:
-                    print(f"[WorldModel] Loaded V-JEPA encoder")
+                    mem = self.world_model.memory_size()
+                    print(f"[WorldModel] Loaded V-JEPA encoder" + 
+                          (f" + {mem} prior transitions" if mem > 0 else " (fresh start)"))
                 else:
                     print(f"[WorldModel] Fallback encoder active (no V-JEPA checkpoint)")
             except Exception as e:
@@ -382,6 +384,47 @@ class ScientistAgent:
         
         mem = self.world_model.memory_size()
         return f"World model: {mem} transitions memorized"
+    
+    def _predict_skill_action(self, skill_id: str) -> Optional[int]:
+        """Predict which action a skill will likely take (for world model pre-check).
+        
+        Maps skill IDs to their most probable action number.
+        Returns None if the skill doesn't involve a predictable action.
+        """
+        action_map = {
+            "navigate-to-target": None,  # Multi-action A* — too complex
+            "rotate-to-goal": 6,          # Rotation action
+            "interact-with-object": 5,    # Interact
+            "detect-walls-from-source": None,  # No step
+        }
+        
+        # Navigation: determine direction from phase
+        if skill_id == "navigate-to-target":
+            if self._phase == "navigate_to_changer":
+                # Predict direction toward changer
+                if self.player:
+                    changers = self._find_tagged_sprites('rhsxkxzdjz')
+                    if changers:
+                        ch = changers[0]
+                        cx, cy = getattr(ch, 'x', 0), getattr(ch, 'y', 0)
+                        px, py = self.player.x, self.player.y
+                        if cx > px: return 1  # right
+                        if cx < px: return 3  # left
+                        if cy > py: return 2  # down
+                        if cy < py: return 4  # up
+            elif self._phase == "navigate_to_lock":
+                if self.player:
+                    locks = self._find_tagged_sprites('rjlbuycveu')
+                    if locks:
+                        lk = locks[0]
+                        lx, ly = getattr(lk, 'x', 0), getattr(lk, 'y', 0)
+                        px, py = self.player.x, self.player.y
+                        if lx > px: return 1
+                        if lx < px: return 3
+                        if ly > py: return 2
+                        if ly < py: return 4
+        
+        return action_map.get(skill_id)
     
     # ------ DISCOVERY PHASE ------
     
@@ -690,6 +733,17 @@ class ScientistAgent:
 
     def _execute_skill(self, skill_id: str) -> bool:
         """Execute a single skill by ID. Returns True if skill made progress."""
+        
+        # ═══ World Model pre-check: simulate before executing ═══
+        if self.world_model and self.world_model.memory_size() > 0:
+            # Determine which action this skill will likely take
+            predicted_action = self._predict_skill_action(skill_id)
+            if predicted_action is not None:
+                _, confidence = self._world_model_simulate(predicted_action)
+                if confidence > 0.5:
+                    print(f"  🌍 WM: skill={skill_id} action={predicted_action} confidence={confidence:.3f}")
+                elif confidence > 0.0:
+                    print(f"  🌍 WM: skill={skill_id} action={predicted_action} low confidence={confidence:.3f}")
         
         if skill_id == "detect-walls-from-source":
             return self._skill_detect_walls()
@@ -1034,6 +1088,12 @@ class ScientistAgent:
         
         result = self.obs.levels_completed > prev_lvl
         self._record_benchmark(self.current_level_idx, result)
+        
+        # ═══ Auto-save world model memory ═══
+        if self.world_model and self.world_model.memory_size() > 0:
+            self.world_model.save()
+            print(f"  💾 WM saved: {self.world_model.memory_size()} transitions for {self.name}")
+        
         return result
 
     def _build_phase_hypothesis(self) -> str:
