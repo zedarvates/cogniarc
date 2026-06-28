@@ -833,8 +833,8 @@ class ScientistAgent:
         if astar_result:
             return True
         
-        # ═══ A* FAILED → World Model fallback ═══
-        if self.world_model and self.world_model.memory_size() > 0:
+        # ═══ A* FAILED → Micro-NN or World Model fallback ═══
+        if self.action_predictor or (self.world_model and self.world_model.memory_size() > 0):
             return self._world_model_navigate_fallback(tx, ty)
         
         return False
