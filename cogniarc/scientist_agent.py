@@ -840,18 +840,62 @@ class ScientistAgent:
         return False
     
     def _world_model_navigate_fallback(self, tx: int, ty: int) -> bool:
-        """When A* fails, use micro-NN or world model to suggest a direction.
+        """When A* fails, try to circumvent walls instead of forcing through.
         
-        Tiered fallback:
-        1. Micro-NN ActionPredictor (instant, <1ms) — if confidence > 0.5
-        2. World Model V-JEPA (6s CPU) — if micro-NN unavailable or uncertain
+        Strategy:
+        1. If stagnant (<3 fails): micro-NN suggests toward-target direction
+        2. If stagnant (≥3 fails): wall detected → try PERPENDICULAR escape
+        3. World Model V-JEPA as last resort
         """
         if not self.player:
             return False
         
         px, py = self.player.x, self.player.y
+        stagnation = self.drives.stagnation_counter
         
-        # ═══ TIER 1: Micro-NN Action Predictor (instant) ═══
+        # Determine primary axis toward target
+        dx = tx - px
+        dy = ty - py
+        toward_vertical = abs(dy) > abs(dx)  # Target is more up/down than left/right
+        
+        # ═══ TIER 1: Stuck ≥ 3 times → WALL CIRCUMVENTION ═══
+        if stagnation >= 3:
+            wall_colors = getattr(self, '_pathfinder', None)
+            wall_set = wall_colors.wall_colors if wall_colors and hasattr(wall_colors, 'wall_colors') else set()
+            grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+            
+            if grid is not None and wall_set:
+                # Check if toward-target cell is a wall
+                toward_action = None
+                if dy < 0 and py > 0: toward_action = 4  # up
+                elif dy > 0: toward_action = 2  # down
+                elif dx > 0: toward_action = 1  # right
+                elif dx < 0: toward_action = 3  # left
+                
+                # Try perpendicular escape: left/right if vertical target, up/down if horizontal
+                escape_actions = [1, 3] if toward_vertical else [2, 4]  # perpendicular
+                
+                for action in escape_actions:
+                    # Check if escape cell is walkable (not a wall)
+                    nx, ny = px, py
+                    if action == 1: nx = px + 1
+                    elif action == 3: nx = px - 1
+                    elif action == 2: ny = py + 1
+                    elif action == 4: ny = py - 1
+                    
+                    if 0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]:
+                        cell_color = grid[ny, nx]
+                        if cell_color not in wall_set:
+                            action_names = ['', 'right', 'down', 'left', 'up']
+                            print(f"  🧱 Wall blocked → escaping {action_names[action]} (cell {cell_color} is walkable)")
+                            self.step(action)
+                            return True
+                
+                # All perpendicular cells are walls → trapped
+                print(f"  🧱 Surrounded by walls at ({px},{py}) — cannot escape")
+                return False
+        
+        # ═══ TIER 2: Micro-NN (low stagnation) ═══
         if self.action_predictor and self.action_predictor.available:
             wall_colors = getattr(self, '_pathfinder', None)
             wall_set = wall_colors.wall_colors if wall_colors and hasattr(wall_colors, 'wall_colors') else set()
@@ -862,7 +906,6 @@ class ScientistAgent:
                 best_conf = 0.0
                 
                 for action in [1, 2, 3, 4]:
-                    # Only consider directions toward target
                     if action == 1 and px >= tx: continue
                     if action == 3 and px <= tx: continue
                     if action == 2 and py >= ty: continue
@@ -870,8 +913,7 @@ class ScientistAgent:
                     
                     prob = self.action_predictor.predict_action(
                         (px, py), (tx, ty), action, wall_set, grid,
-                        stagnation=self.drives.stagnation_counter,
-                        steps=self.steps
+                        stagnation=stagnation, steps=self.steps
                     )
                     if prob > best_conf:
                         best_conf = prob
@@ -882,7 +924,7 @@ class ScientistAgent:
                     self.step(best_action)
                     return True
         
-        # ═══ TIER 2: World Model V-JEPA (slower but more accurate) ═══
+        # ═══ TIER 3: World Model V-JEPA (last resort) ═══
         if self.world_model and self.world_model.memory_size() > 0:
             return self._world_model_navigate_fallback_vjepa(tx, ty)
         
