@@ -962,7 +962,30 @@ class ScientistAgent:
         elif self._phase == "rotate_to_goal" and success:
             self._phase = "navigate_to_lock"
         elif self._phase == "navigate_to_lock" and success:
-            self._phase = "interact"
+            # In LS20, locks are collected by walking ON them, not by interact (action 5).
+            # Skip interact phase — step onto the lock directly.
+            if self.player:
+                locks = self._find_tagged_sprites('rjlbuycveu')
+                if locks:
+                    lk = locks[0]
+                    lx, ly = getattr(lk, 'x', 0), getattr(lk, 'y', 0)
+                    if self.player.x == lx and self.player.y == ly:
+                        self._phase = "complete"  # Already on lock
+                    elif abs(self.player.x - lx) + abs(self.player.y - ly) == 1:
+                        # Adjacent: step onto lock
+                        if self.player.x < lx: action = 1
+                        elif self.player.x > lx: action = 3
+                        elif self.player.y < ly: action = 2
+                        else: action = 4
+                        print(f"  🔑 Stepping onto lock at ({lx},{ly}) — action {action}")
+                        self.step(action)
+                        self._phase = "complete"
+                    else:
+                        self._phase = "navigate_to_lock"  # Need more movement
+                else:
+                    self._phase = "interact"  # Fallback
+            else:
+                self._phase = "interact"
         elif self._phase == "interact" and success:
             self._phase = "complete"
         
