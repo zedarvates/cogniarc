@@ -782,38 +782,81 @@ class ScientistAgent:
         return False  # Already done
 
     def _skill_navigate_to_target(self) -> bool:
-        """Execute navigate-to-target skill."""
+        """Execute navigate-to-target skill. Falls back to world model if A* fails."""
+        target_pos = None
+        
         # Phase 1: Navigate to changer
         if self._phase == "navigate_to_changer":
             changers = self._find_tagged_sprites('rhsxkxzdjz')
             if changers:
                 ch = changers[0]
-                cx, cy = getattr(ch, 'x', 0), getattr(ch, 'y', 0)
+                target_pos = (getattr(ch, 'x', 0), getattr(ch, 'y', 0))
                 
-                # Check if already at changer
-                if self.player and self.player.x == cx and self.player.y == cy:
-                    return True  # At changer - success
-                
-                pathfinder = self.__init_pathfinder()
-                pathfinder.walkable_overrides.add((cx, cy))
-                pathfinder.update_from_observation(self.obs)
-                return pathfinder.navigate_astar((cx, cy), max_steps=200, obs=self.obs)
+                if self.player and self.player.x == target_pos[0] and self.player.y == target_pos[1]:
+                    return True  # At changer
         
         # Phase 2: Navigate to lock
-        if self._phase == "navigate_to_lock":
+        elif self._phase == "navigate_to_lock":
             locks = self._find_tagged_sprites('rjlbuycveu')
             if locks:
                 lk = locks[0]
-                lx, ly = getattr(lk, 'x', 0), getattr(lk, 'y', 0)
+                target_pos = (getattr(lk, 'x', 0), getattr(lk, 'y', 0))
                 
-                # Check if already at lock
-                if self.player and self.player.x == lx and self.player.y == ly:
-                    return True  # At lock - success
-                
-                pathfinder = self.__init_pathfinder()
-                pathfinder.walkable_overrides.add((lx, ly))
-                pathfinder.update_from_observation(self.obs)
-                return pathfinder.navigate_astar((lx, ly), max_steps=200, obs=self.obs)
+                if self.player and self.player.x == target_pos[0] and self.player.y == target_pos[1]:
+                    return True  # At lock
+        
+        if target_pos is None:
+            return False
+        
+        tx, ty = target_pos
+        
+        # Try A* pathfinding
+        pathfinder = self.__init_pathfinder()
+        pathfinder.walkable_overrides.add((tx, ty))
+        pathfinder.update_from_observation(self.obs)
+        astar_result = pathfinder.navigate_astar((tx, ty), max_steps=200, obs=self.obs)
+        
+        if astar_result:
+            return True
+        
+        # ═══ A* FAILED → World Model fallback ═══
+        if self.world_model and self.world_model.memory_size() > 0:
+            return self._world_model_navigate_fallback(tx, ty)
+        
+        return False
+    
+    def _world_model_navigate_fallback(self, tx: int, ty: int) -> bool:
+        """When A* fails, use world model to suggest a direction.
+        
+        Queries the world model for all 4 cardinal directions.
+        Picks the one with highest confidence and steps there.
+        Limits to 3 WM-guided steps per call to avoid loops.
+        """
+        if not self.player:
+            return False
+        
+        px, py = self.player.x, self.player.y
+        
+        # Try each direction: query world model confidence
+        best_action = None
+        best_conf = 0.0
+        
+        for action in [1, 2, 3, 4]:  # right, down, left, up
+            # Only consider directions that move TOWARD the target
+            if action == 1 and px >= tx: continue  # right but target is left
+            if action == 3 and px <= tx: continue  # left but target is right
+            if action == 2 and py >= ty: continue  # down but target is up
+            if action == 4 and py <= ty: continue  # up but target is down
+            
+            _, conf = self._world_model_simulate(action)
+            if conf > best_conf:
+                best_conf = conf
+                best_action = action
+        
+        if best_action is not None and best_conf > 0.3:
+            print(f"  🌍 WM fallback: A* failed → stepping {['','right','down','left','up'][best_action]} (conf={best_conf:.3f})")
+            self.step(best_action)
+            return True  # Made progress, A* will retry from new position
         
         return False
 
