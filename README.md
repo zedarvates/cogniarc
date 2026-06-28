@@ -258,6 +258,8 @@ cogniarc/                          # Cognitive solver (this repo)
 │   ├── arc_agent.py               # Main ARC solver entry point
 │   ├── scientist_agent.py         # 🧠 Discover → simulate → solve loop
 │   ├── world_model.py             # 🆕 V-JEPA 2.1 encoder + k-NN predictor
+│   ├── audio_cartography.py       # 🔊 18 paramètres, 10 émotions, 10 archétypes
+│   ├── audio_perception.py        # 🎧 Son → compréhension du jeu
 │   ├── scientific_state.py        # Structured hypothesis/evidence tracking
 │   ├── socratic_critic.py         # 6 Socratic operations for hypothesis validation
 │   ├── cognitive_player.py        # 6 cognitive drives + game interface
@@ -267,6 +269,8 @@ cogniarc/                          # Cognitive solver (this repo)
 │   ├── spatial_inference.py       # 🗺️ Space as region relations
 │   ├── attention.py               # Focus follows changes
 │   ├── symbolic_inference.py      # Perception → SkillDAG bridge
+│   ├── audio_cartography.py        # 🔊 18 audio params → emotion → archetype
+│   ├── audio_perception.py         # Audio analysis → cognitive drives
 │   ├── skill_dag/                 # SkillDAG v2 (atomic skills)
 │   ├── benchmark_tracker.py       # JSONL experiment tracking
 │   └── goal_inference.py          # Goal hypothesis from observation
@@ -291,6 +295,39 @@ arc-human-skills/                  # Human skills (separate repo)
 ├── tests/                         # 70 passed, 10 skipped (Linux)
 └── README.md
 ```
+
+---
+
+## 🔊 Audio Cartography — Sound Skills
+
+> *"Chaque paramètre sonore est catalogué comme les jeux ARC-AGI-3 : effet perçu → symbole → application."*
+
+The `audio_cartography.py` module maps **18 audio parameters** to their perceptual effects, symbolic meanings, and practical applications — treating sound design as a cognitive skill to be mastered.
+
+| Category | Parameters |
+|----------|-----------|
+| **Dynamics** | gain, envelope attack/decay/sustain/release |
+| **Spectral** | frequency, timbre, brightness, warmth, air |
+| **Modulation** | vibrato, tremolo, chorus, flanger, phaser |
+| **Spatial** | pan, reverb, delay |
+| **Articulation** | portamento, glissando, staccato/legato |
+
+Each parameter maps to:
+- **Perceptual effect** — what the human ear/brain perceives
+- **Symbolic meaning** — what the sound communicates (urgency, calm, closeness, mystery)
+- **ARC-AGI-3 pattern** — which reasoning skill it exercises (temporal, spatial, symbolic)
+- **10 emotions + 10 archetypes** — affective mapping for generative audio
+
+```python
+from cogniarc.audio_cartography import AudioParameter, AudioParameterMap
+
+freq_map = AudioParameterMap.get(AudioParameter.FREQUENCY)
+print(freq_map.what_it_does)     # "Hauteur perçue. Aigu = petit, proche, urgent. Grave = grand, lointain, calme."
+print(freq_map.emotion)          # Emotion.JOY (high) / Emotion.SADNESS (low)
+print(freq_map.archetype)        # Archetype.TRICKSTER (high) / Archetype.SAGE (low)
+```
+
+**Related:** `audio_perception.py` — bridges audio analysis to CognitiveDrives (novelty response to new sounds, caution response to sudden loudness).
 
 ---
 
