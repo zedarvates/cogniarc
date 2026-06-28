@@ -5,9 +5,9 @@
 [![Status](https://img.shields.io/badge/status-active-brightgreen.svg)]()
 [![ARC-AGI-3](https://img.shields.io/badge/ARC--AGI--3-human--skills-orange.svg)]()
 
-**ARC-AGI-3 Cognitive Architecture** — 6 human drives, 9 reasoning modes, SkillDAG orchestration, and **human-like skill acquisition from zero** (drawing fundamentals → writing → reading → painting).
+**ARC-AGI-3 Cognitive Architecture** — 6 human drives, 9 reasoning modes, SkillDAG, SocraticCritic, **V-JEPA World Model**, and human-like skill acquisition from zero.
 
-> **Discovers then solves.** No brute force, no templates — an architecture that generalizes.
+> **Discover, simulate, then solve.** World model as a tool, not the architecture.
 
 ---
 
@@ -15,7 +15,7 @@
 
 | Track | Repository | Focus |
 |-------|------------|-------|
-| **Cognitive Solver** | `cogniarc/` (this repo) | ARC-AGI-3 puzzle solving via 6 drives + 9 reasoning modes + temporal inference + spatial inference + dynamic workflows |
+| **Cognitive Solver** | `cogniarc/` (this repo) | ARC-AGI-3 puzzle solving via 6 drives + 9 reasoning modes + SocraticCritic + World Model + Perception Stack |
 | **Human Skills** | `arc-human-skills/` | Learn to **read, write, paint like a human from zero** — Watch tutorials → Practice in MS Paint → Self-evaluate → Transfer skills |
 
 Both share the **SkillDAG architecture** (atomic skills + topological dependencies) for composable, transferable learning.
@@ -26,48 +26,92 @@ Both share the **SkillDAG architecture** (atomic skills + topological dependenci
 
 ```text
 CogniARC Solver
+├── ScientificState          — structured hypothesis/evidence/assumptions
+├── SocraticCritic           — 6 Socratic operations (midwifery)
+├── ReasonModeManager        — 9 reasoning modes with automatic selection
+├── WorldModelTool 🆕        — V-JEPA 2.1 encoder + k-NN predictor
+│   └── "If I do X, what happens?" — simulate without executing
 ├── Drives (6)
-│   ├── Curiosity       — Explore the unknown
-│   ├── Pattern_Match   — Recognize visual patterns
-│   ├── Causal          — Understand cause-effect
-│   ├── Efficiency      — Seek simplest solution
-│   ├── Memory          — Retain past patterns
-│   └── Verify          — Validate and self-correct
+│   ├── novelty, simplicity, doubt, pleasure, caution, impulse
 ├── Reasoning Modes (9)
-│   ├── Symbolic        — Symbol manipulation
-│   ├── Spatial         — Spatial reasoning
-│   ├── Temporal        — Sequential reasoning
-│   ├── Analogical      — Analogy & transfer
-│   ├── Causal          — Causal chains
-│   ├── Compositional   — Pattern composition
-│   ├── Relational      — Object relations
-│   ├── Probabilistic   — Uncertainty estimation
-│   └── Meta            — Reasoning about reasoning
+│   ├── EXPLORATION, PATHFINDING, ROTATION, TRANSFORMATION
+│   ├── GOAL_INFERENCE, CAUSAL, COUNTERFACTUAL, ANALOGICAL, SOCRATIC
+├── Perception Stack
+│   ├── TemporalReasoner     — ⏱️ time as change (no clock)
+│   ├── SpatialReasoner      — 🗺️ space as relations (no ruler)
+│   ├── AttentionModel       — focus follows changes
+│   └── SymbolicInference    — perception → SkillDAG
 └── Dynamic Workflows (6)
-    ├── Classify and Act         — Type classification → strategy
-    ├── Fan Out & Synthesize     — Parallel hypotheses
-    ├── Adversarial Verification — Skeptic agent review
-    ├── Generate and Filter      — N candidates → best
-    ├── Tournament               — Pairwise comparison
-    └── Loop Until Done          — Iterate to verification
+    ├── Classify and Act, Fan Out & Synthesize, Adversarial Verification
+    ├── Generate and Filter, Tournament, Loop Until Done
 ```
 
-### ⏱️ Temporal Inference
+---
 
-> **Le temps n'est pas une mesure absolue. C'est la perception de changements entre états.**
+## 🌍 World Model Tool (NEW — June 2026)
 
-Le module `temporal_inference.py` implémente un raisonnement temporel sans horloge :
-le "temps" y est modélisé comme une séquence de **DELTAS** (différences entre
-états observés) et de **MÉTACHANGEMENTS** (relations entre ces deltas).
+> *"The world model is a tool, not the entire architecture. You plug it into your harness."*
+> — Inspired by "Einstein World Models" (Discover AI, 2026)
 
-| Pattern | Description | Détection |
+The `WorldModelTool` lets ScientistAgent simulate "what happens if I take action X?" without executing the action in the real environment.
+
+### Architecture
+
+```
+Observation (ARC grid) → V-JEPA 2.1 ViT-B/16 (80M, pretrained) → 768-dim latent
+                                        ↓
+                              k-NN Predictor (k=3)
+                              "Which past transition with same action is most similar?"
+                                        ↓
+                           (predicted_latent, confidence 0-1)
+```
+
+### Usage
+
+```python
+from cogniarc import ScientistAgent
+
+# Agent with world model enabled
+agent = ScientistAgent('ls20-9607627b', enable_world_model=True)
+
+# Every step() automatically records transitions
+agent.step(1)  # Move right → latent_before + action + latent_after memorized
+
+# Simulate without executing
+predicted, confidence = agent._world_model_simulate(action=1)
+print(f"Confidence: {confidence:.0%}")
+
+# Report
+print(agent._world_model_report())
+# → "World model: 47 transitions memorized"
+```
+
+### Key Features
+- **Pretrained encoder:** V-JEPA 2.1 ViT-B/16 (80M params, 384px, RoPE) — zero-shot understanding of visual scenes
+- **k-NN predictor:** Learns from real experience — no training needed
+- **Graceful degradation:** Falls back to statistical encoding if V-JEPA checkpoint unavailable
+- **Memory:** Up to 10,000 transitions, automatic eviction
+- **Token-free:** World model queries cost 0 LLM tokens
+- **Harness-compatible:** The world model is an optional tool — agent works without it
+
+---
+
+## ⏱️ Temporal Inference
+
+> **Time is not an absolute measure. It's the perception of changes between states.**
+
+The `temporal_inference.py` module implements clockless temporal reasoning:
+"time" is modeled as a sequence of **DELTAS** (differences between observed states)
+and **METACHANGES** (relations between those deltas).
+
+| Pattern | Description | Detection |
 |---------|-------------|-----------|
-| **CONSTANT** | Le même changement se répète | Magnitudes identiques |
-| **ACCELERATING** | Le changement s'amplifie | Magnitude croissante |
-| **DECELERATING** | Le changement s'atténue | Magnitude décroissante |
-| **OSCILLATING** | Le changement s'inverse | Pixels ajoutés = retirés |
-| **WAVE** | Le changement se déplace | Centre de masse qui bouge |
-| **STASIS** | État stable | Magnitude ~0 |
+| **CONSTANT** | Same change repeats | Equal magnitudes |
+| **ACCELERATING** | Change amplifies | Increasing magnitude |
+| **DECELERATING** | Change attenuates | Decreasing magnitude |
+| **OSCILLATING** | Change reverses | Added pixels = removed |
+| **WAVE** | Change moves | Center of mass shifts |
+| **STASIS** | Stable state | Magnitude ~0 |
 
 ```python
 from cogniarc import TemporalReasoner
@@ -75,34 +119,22 @@ from cogniarc import TemporalReasoner
 r = TemporalReasoner(frames=[grid1, grid2, grid3])
 pattern = r.analyze()
 print(f"Pattern: {pattern.type.value} (confidence: {pattern.confidence:.0%})")
-next_grid = r.predict()
 ```
 
 ```bash
-# Run demo
 python -m cogniarc.temporal_inference
 ```
 
-### 🗺️ Spatial Inference
+---
 
-> **L'espace n'est pas une grille de coordonnées. C'est un ensemble de relations entre objets.**
+## 🗺️ Spatial Inference
 
-Le module `spatial_inference.py` est le complément spatial de `temporal_inference.py` :
-le temps modélise les **changements**, l'espace modélise les **relations** entre régions.
+> **Space is not a grid of coordinates. It's a set of relations between objects.**
 
-| Concept | Temporal | Spatial |
-|---------|----------|---------|
-| Unité | `Delta` (différence entre états) | `Region` (objet / composante connexe) |
-| Structure | Pattern de deltas | Graphe de relations |
-| Absence de | Temps absolu (pas d'horloge) | Coordonnées absolues (pas de mètre) |
-| Perception | Changements entre états | Relations entre objets |
+The `spatial_inference.py` module models space as a **graph of regions**:
+no absolute ruler — only `LEFT_OF`, `CONTAINS`, `TOUCHING`, `ALIGNED_H` relations.
 
-**Relations spatiales détectées :** `LEFT_OF`, `RIGHT_OF`, `ABOVE`, `BELOW`,
-`CONTAINS`, `INSIDE`, `TOUCHING`, `ALIGNED_H`, `ALIGNED_V`,
-`SAME_SIZE`, `SAME_COLOR`, `SAME_SHAPE`
-
-**Patterns globaux :** `SYMMETRY_H`, `SYMMETRY_V`, `GRID`, `CASCADE`,
-`RAY`, `CHAIN`, `RING`, `CLUSTER`
+**Global patterns:** `SYMMETRY_H`, `SYMMETRY_V`, `GRID`, `CASCADE`, `RAY`, `CHAIN`, `RING`, `CLUSTER`
 
 ```python
 from cogniarc import SpatialReasoner
@@ -111,7 +143,6 @@ sr = SpatialReasoner(grid)
 regions = sr.segment()       # -> list[Region]
 relations = sr.relate()      # -> list[Relation]
 pattern = sr.analyze()       # -> SpatialPattern
-print(f"{pattern.type.value} ({pattern.confidence:.0%})")
 ```
 
 ```bash
@@ -122,62 +153,41 @@ python -m cogniarc.spatial_inference
 
 ## 📊 Benchmark Results (ARC-AGI-3)
 
-Résultats réels collectés sur **ls20-9607627b** (jeu de navigation avec obstacles).
+Results collected on **ls20-9607627b** (navigation game with obstacles).
 
-| Jeu | Niveau | Tentatives | Résolu | Taux | Steps moyens | Temps moyen |
-|-----|--------|-----------|--------|------|-------------|-------------|
+| Game | Level | Attempts | Solved | Rate | Avg Steps | Avg Time |
+|------|-------|----------|--------|------|-----------|----------|
 | `ls20-9607627b` | L1 | 76 | **55** | **72%** | 556 | ~0.02s |
 | `ls20-9607627b` | L2 | 22 | 0 | 0% | 753 | ~0.03s |
 
-### Métriques clés
+### Key Metrics
 
-| Métrique | Valeur |
-|----------|--------|
-| **Tokens LLM consommés** | **0** par partie |
-| Temps total de résolution | 2.53s (98 parties) |
-| Architecture | BFS réel + transforms déterministes |
-| Efficacité L1 | 72% de réussite en ~0.02s |
-| Défi L2 | Non résolu — nécessite raisonnement spatial avancé |
+| Metric | Value |
+|--------|-------|
+| **LLM tokens consumed** | **0** per game |
+| Total solve time | 2.53s (98 games) |
+| Architecture | BFS + deterministic transforms |
+| L1 efficiency | 72% success in ~0.02s |
+| L2 challenge | Unsolved — needs advanced spatial reasoning |
 
-> **0 token utilisé.** L'agent résout les grilles par exploration BFS + mapping de transforms,
-> sans aucun appel LLM. Les 4 nouveaux modules (temporel, spatial, attention, symbolique)
-> visent à résoudre L2 et les jeux plus complexes en guidant la recherche.
+> **0 tokens used.** The agent solves grids via BFS exploration + transform mapping,
+> without any LLM calls. The Perception Stack + World Model target L2 and complex games by guiding search.
 
-### Évolution des performances
+### Performance Evolution
 
-| Date | Version | Modules | Résolution L1 |
+| Date | Version | Modules | L1 Resolution |
 |------|---------|---------|---------------|
-| 2026-06-14 | v1 (BFS simple) | arc_agent.py | ❌ Échec |
+| 2026-06-14 | v1 (simple BFS) | arc_agent.py | ❌ Failed |
 | 2026-06-15 | v2 (BFS + transforms) | +transforms.py | ✅ 72% |
-| 2026-06-25 | v3 (Perception) | +temporal, spatial, attention, symbolic | 🚧 En cours |
+| 2026-06-25 | v3 (Perception) | +temporal, spatial, attention, symbolic | 🚧 In progress |
+| 2026-06-27 | v3.1 (AHOIS) | +ScientificState, SocraticCritic, 9 modes | 🚧 In progress |
+| 2026-06-28 | v3.2 (World Model) 🆕 | +WorldModelTool (V-JEPA 2.1) | 🚧 In progress |
 
 ---
 
 ## 🎨 Human Skills Track (arc-human-skills)
 
 > **Learn to READ, WRITE, and PAINT like a human — from absolute zero — using Windows Paint, video tutorials, and iterative self-evaluation.**
-
-### Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    SKILL DAG ORCHESTRATOR                    │
-│  (Topological scheduling, prerequisites, mastery tracking)  │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-        ┌──────────────┼──────────────┐
-        ▼              ▼              ▼
-   ┌─────────┐    ┌─────────┐    ┌─────────┐
-   │ DRAWING │    │ WRITING │    │ READING │
-   └────┬────┘    └────┬────┘    └────┬────┘
-        │              │              │
-        └──────────────┼──────────────┘
-                       ▼
-            ┌─────────────────────┐
-            │     PAINTING        │
-            │  (Bob Ross style)   │
-            └─────────────────────┘
-```
 
 ### Five Learning Levels (Drawing Fundamentals)
 
@@ -192,38 +202,38 @@ Résultats réels collectés sur **ls20-9607627b** (jeu de navigation avec obsta
 **Total: 39 drawing skills** + 12 writing + 4 reading + 12 painting + 7 transfer = **74 atomic skills** in unified DAG.
 
 ### Key Features
-
-- **Embodied practice** — Real drawing in MS Paint via pywinauto automation
-- **Self-supervision** — LocalAI vision (qwen3.6-27b) evaluates own output
 - **Geometric evaluation** — Angle tolerance ±3°, length ±5%, closure <5px (no vision needed for basics)
+- **Real Paint automation** — pywinauto on Windows, headless fallback on Linux
 - **Cross-domain transfer** — Strokes→Letters, Primitives→Shapes, Perspective→Scenes
-- **Continuous learning** — SkillDAG unlocks skills via mastery (5 attempts, avg ≥80%)
-- **Tutorial-driven** — YouTube → Whisper transcription → Key frame extraction → Practice
+- **SkillDAG mastery** — Skills unlock via 5 attempts with avg ≥80%
 
 ---
 
 ## 🚀 Quick Start
-
-### Windows (Full Training — ODIN-PC)
-```cmd
-cd C:\Users\redga\projects\arc-human-skills
-run_windows.bat
-# Or PowerShell with options:
-.\run_windows.ps1 -Mode train -MaxSessions 10 -Duration 30 -Domains drawing,writing,reading
-```
-
-### Linux/WSL (Headless Testing)
-```bash
-cd ~/projects/arc-human-skills
-python -m arc_human_skills.trainer --headless --max-sessions 1 --domains drawing
-python -m arc_human_skills.benchmark
-```
 
 ### CogniARC Solver (This Repo)
 ```bash
 cd ~/projects/cogniarc
 pip install -e .
 python -m cogniarc.arc_agent --task <arc_task.json>
+
+# With world model (requires V-JEPA checkpoint)
+python -c "
+from cogniarc import ScientistAgent
+agent = ScientistAgent('ls20-9607627b', enable_world_model=True)
+"
+```
+
+### Windows (Full Training — ODIN-PC)
+```cmd
+cd C:\Users\redga\projects\arc-human-skills
+run_windows.bat
+```
+
+### Linux/WSL (Headless Testing)
+```bash
+cd ~/projects/arc-human-skills
+python -m arc_human_skills.trainer --headless --max-sessions 1 --domains drawing
 ```
 
 ---
@@ -232,11 +242,11 @@ python -m cogniarc.arc_agent --task <arc_task.json>
 
 | Component | Purpose |
 |-----------|---------|
-| **Windows 10/11** | MS Paint automation (pywinauto) |
 | **Python 3.11+** | Runtime |
+| **V-JEPA 2.1 checkpoint** | World model encoder (~320MB, auto-downloaded) |
+| **PyTorch + torchvision** | V-JEPA inference (CPU OK, GPU recommended) |
 | **LocalAI on EUREKAI (192.168.1.47:8080)** | qwen3.6-27b (vision), whisper-1 (STT), tts-1 (TTS) |
-| **Qdrant on EUREKAI (192.168.1.47:6333)** | Vector embeddings for letter templates |
-| **NVIDIA GPU** | For LocalAI inference |
+| **Qdrant on EUREKAI (192.168.1.47:6333)** | Vector embeddings |
 
 ---
 
@@ -246,37 +256,39 @@ python -m cogniarc.arc_agent --task <arc_task.json>
 cogniarc/                          # Cognitive solver (this repo)
 ├── cogniarc/
 │   ├── arc_agent.py               # Main ARC solver entry point
-│   ├── scientist_agent.py         # Hypothesis generation (legacy)
-│   ├── skill_dag/                 # SkillDAG v2 (17 atomic skills)
-│   ├── triarchic_engine.py        # Sternberg WICS model
-│   ├── temporal_inference.py      # ⏱️ Temporal pattern reasoning (time as change)
-│   ├── representation_engine.py   # Visual representation
-│   ├── cognitive_player.py        # Game playing interface
-│   └── *_inference.py             # Transform, goal, domain, causal
-├── tests/
+│   ├── scientist_agent.py         # 🧠 Discover → simulate → solve loop
+│   ├── world_model.py             # 🆕 V-JEPA 2.1 encoder + k-NN predictor
+│   ├── scientific_state.py        # Structured hypothesis/evidence tracking
+│   ├── socratic_critic.py         # 6 Socratic operations for hypothesis validation
+│   ├── cognitive_player.py        # 6 cognitive drives + game interface
+│   ├── pathfinding.py             # A* navigation with walkable overrides
+│   ├── skill_tree.py              # Cross-game skill transfer
+│   ├── temporal_inference.py      # ⏱️ Time as change patterns
+│   ├── spatial_inference.py       # 🗺️ Space as region relations
+│   ├── attention.py               # Focus follows changes
+│   ├── symbolic_inference.py      # Perception → SkillDAG bridge
+│   ├── skill_dag/                 # SkillDAG v2 (atomic skills)
+│   ├── benchmark_tracker.py       # JSONL experiment tracking
+│   └── goal_inference.py          # Goal hypothesis from observation
+├── tests/                         # 31 passing
 └── README.md
 
 arc-human-skills/                  # Human skills (separate repo)
 ├── arc_human_skills/
-│   ├── config.py                  # Typed configuration
-│   ├── paint_automation.py        # Windows Paint control
-│   ├── video_tutorial.py          # YouTube → Whisper → keyframes
-│   ├── trainer.py                 # Main training loop (CLI)
-│   ├── benchmark.py               # ARC-style evaluation
-│   ├── drawing_fundamentals/      # Levels 0-4 (NEW)
+│   ├── drawing_fundamentals/      # Levels 0-4 + geometric evaluators
 │   │   ├── line_control.py        # Level 0: motor control
 │   │   ├── primitives_2d.py       # Level 1: 2D shapes
 │   │   ├── wireframe_3d.py        # Level 2: 3D wireframes
 │   │   ├── perspective.py         # Level 3: perspective
 │   │   ├── construction.py        # Level 4: scenes
-│   │   └── curriculum.py          # Orchestrator + SkillDAG
-│   ├── reading/                   # Letter recognition
-│   ├── writing/                   # Stroke patterns + letters
+│   │   ├── eval_utils.py          # 🆕 Extract + evaluate drawn strokes
+│   │   └── curriculum.py          # Orchestrator + 74-skill SkillDAG
+│   ├── reading/                   # Letter recognition + Qdrant
+│   ├── writing/                   # Zaner-Bloser strokes + letters
 │   ├── painting/                  # Shapes + Bob Ross landscapes
-│   ├── skill_dag/                 # Unified manifest (74 skills)
-│   └── eval_tasks/                # Benchmark tasks
-├── tests/                         # 68 passing (10 skipped on Linux)
-├── run_windows.bat / .ps1         # Windows launchers
+│   ├── paint_automation.py        # Windows Paint control
+│   └── trainer.py                 # Main training loop
+├── tests/                         # 70 passed, 10 skipped (Linux)
 └── README.md
 ```
 
@@ -286,18 +298,21 @@ arc-human-skills/                  # Human skills (separate repo)
 
 | Repo | Description |
 |------|-------------|
-| [hermes-brain](https://github.com/zedarvates/hermes-brain) | Hermes Agent architecture |
+| [hermes-agent](https://github.com/nous-research/hermes-agent) | Hermes Agent framework |
 | [arc-human-skills](https://github.com/zedarvates/arc-human-skills) | Human skills track (drawing/writing/reading/painting) |
-| [hermes-fusion](https://github.com/zedarvates/hermes-fusion) | Multi-LLM fusion engine (4 providers, 4 strategies) |
-
+| [hermes-fusion](https://github.com/zedarvates/hermes-fusion) | Multi-LLM fusion engine (Rust + Python) |
+| [turboquant](https://github.com/zedarvates/turboquant) | Autonomous trading agent |
+| [ultimate-odycer](https://github.com/zedarvates/ultimate-odycer) | MMORPG server |
 
 ---
 
 ## 📚 Documentation
 
-- [ARC-AGI-3 Human Skills Guide](https://github.com/zedarvates/arc-human-skills/blob/master/WINDOWS_RUNNER.md)
-- [SkillDAG Architecture](https://github.com/zedarvates/arc-human-skills/tree/master/arc_human_skills/skill_dag)
-- [Drawing Fundamentals Curriculum](https://github.com/zedarvates/arc-human-skills/tree/master/arc_human_skills/drawing_fundamentals)
+- [World Model Tool](./cogniarc/world_model.py) — V-JEPA encoder + k-NN predictor
+- [Einstein World Models (video)](https://youtu.be/tv17bmE2FNY) — World models as tools, not architectures
+- [Socratic Agents (AHOIS)](https://arxiv.org/abs/2606.26722) — Paper inspiring SocraticCritic
+- [V-JEPA 2.1](https://ai.meta.com/blog/v-jepa-yann-lecun-ai-model-video-joint-embedding-predictive-architecture/) — Encoder architecture
+- [World Models: 5 Approaches](https://themesis.com/2026/01/07/world-models-five-competing-approaches) — Competitive landscape
 
 ---
 
@@ -307,9 +322,4 @@ MIT — See `LICENSE` for details.
 
 ---
 
-**Built for ARC-AGI-3** — Advancing human-like skill acquisition and cognitive generalization.
-
-
----
-
-[![Donate](https://img.shields.io/badge/☕%20Soutenir-BTC%20%7C%20ETH-orange)](DONATE.md)
+**Built for ARC-AGI-3** — Advancing cognitive generalization through world models, socratic reasoning, and human-like skill acquisition.

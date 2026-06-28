@@ -232,7 +232,7 @@ class PKM:
 class ScientistAgent:
     """Discover game mechanics, then solve each level."""
     
-    def __init__(self, game_name: str, enable_benchmark: bool = True, enable_skill_tree: bool = True):
+    def __init__(self, game_name: str, enable_benchmark: bool = True, enable_skill_tree: bool = True, enable_world_model: bool = False):
         self.name = game_name
         self.pkm = PKM(game_name)
         self.arc = arc_agi.Arcade()
@@ -301,13 +301,39 @@ class ScientistAgent:
         self.mode_manager = ReasonModeManager()
         self.current_reasoning_mode: ReasoningMode = ReasoningMode.EXPLORATION
         
+        # ═══ NEW: World Model Tool (V-JEPA based simulator) ═══
+        self.world_model = None
+        if enable_world_model:
+            try:
+                from cogniarc.world_model import WorldModelTool
+                self.world_model = WorldModelTool()
+                if self.world_model.available:
+                    print(f"[WorldModel] Loaded V-JEPA encoder")
+                else:
+                    print(f"[WorldModel] Fallback encoder active (no V-JEPA checkpoint)")
+            except Exception as e:
+                print(f"[WorldModel] Failed to init: {e}")
+        
         # Legacy aliases (to be removed gradually)
         self._phase = self.state.phase
         self._walls_detected = self.state.walls_detected
     
     def step(self, action_num: int):
+        # ═══ NEW: Record pre-step observation for world model ═══
+        obs_before = None
+        if self.world_model and self.obs.frame and len(self.obs.frame) > 0:
+            obs_before = self.obs.frame[0].copy()
+        
         self.obs = self.env.step(getattr(GameAction, f'ACTION{action_num}'))
         self.steps += 1
+        
+        # ═══ NEW: Record transition in world model ═══
+        if self.world_model and obs_before is not None and self.obs.frame and len(self.obs.frame) > 0:
+            self.world_model.remember(
+                self.world_model.encode(obs_before),
+                action_num,
+                self.world_model.encode(self.obs.frame[0])
+            )
         # Verify observation
         assert self.obs is not None, "Invalid observation: None returned"
         assert hasattr(self.obs, 'frame'), "Invalid observation: missing frame"
@@ -327,6 +353,35 @@ class ScientistAgent:
         self.state.last_state_hash = state_hash
 
         return self.obs
+    
+    # ═══════ WORLD MODEL TOOL ═══════
+    
+    def _world_model_simulate(self, action: int):
+        """Simulate the effect of an action using the world model.
+        
+        Queries the V-JEPA encoder + k-NN predictor:
+        "If I take action X from my current state, what state do I predict?"
+        
+        Returns:
+            (predicted_latent, confidence) or (None, 0.0) if world model unavailable
+        """
+        if not self.world_model:
+            return None, 0.0
+        
+        if not self.obs.frame or len(self.obs.frame) == 0:
+            return None, 0.0
+        
+        obs = self.obs.frame[0]
+        predicted, confidence = self.world_model.predict(obs, action)
+        return predicted, confidence
+    
+    def _world_model_report(self) -> str:
+        """Human-readable report of world model state."""
+        if not self.world_model:
+            return "World model: disabled"
+        
+        mem = self.world_model.memory_size()
+        return f"World model: {mem} transitions memorized"
     
     # ------ DISCOVERY PHASE ------
     
