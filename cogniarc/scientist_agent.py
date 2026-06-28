@@ -316,6 +316,20 @@ class ScientistAgent:
             except Exception as e:
                 print(f"[WorldModel] Failed to init: {e}")
         
+        # ═══ NEW: Micro-NN predictors (instant, <1ms) ═══
+        self.action_predictor = None
+        self.domain_predictor = None
+        try:
+            from cogniarc.micro_predictors import ActionPredictor, DomainPredictor
+            self.action_predictor = ActionPredictor()
+            self.domain_predictor = DomainPredictor()
+            if self.action_predictor.available:
+                print(f"[MicroNN] Action predictor loaded")
+            if self.domain_predictor.available:
+                print(f"[MicroNN] Domain predictor loaded")
+        except Exception as e:
+            pass  # Micro-NN is optional
+        
         # Legacy aliases (to be removed gradually)
         self._phase = self.state.phase
         self._walls_detected = self.state.walls_detected
@@ -826,27 +840,68 @@ class ScientistAgent:
         return False
     
     def _world_model_navigate_fallback(self, tx: int, ty: int) -> bool:
-        """When A* fails, use world model to suggest a direction.
+        """When A* fails, use micro-NN or world model to suggest a direction.
         
-        Queries the world model for all 4 cardinal directions.
-        Picks the one with highest confidence and steps there.
-        Limits to 3 WM-guided steps per call to avoid loops.
+        Tiered fallback:
+        1. Micro-NN ActionPredictor (instant, <1ms) — if confidence > 0.5
+        2. World Model V-JEPA (6s CPU) — if micro-NN unavailable or uncertain
         """
         if not self.player:
             return False
         
         px, py = self.player.x, self.player.y
         
-        # Try each direction: query world model confidence
+        # ═══ TIER 1: Micro-NN Action Predictor (instant) ═══
+        if self.action_predictor and self.action_predictor.available:
+            wall_colors = getattr(self, '_pathfinder', None)
+            wall_set = wall_colors.wall_colors if wall_colors and hasattr(wall_colors, 'wall_colors') else set()
+            grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+            
+            if grid is not None:
+                best_action = None
+                best_conf = 0.0
+                
+                for action in [1, 2, 3, 4]:
+                    # Only consider directions toward target
+                    if action == 1 and px >= tx: continue
+                    if action == 3 and px <= tx: continue
+                    if action == 2 and py >= ty: continue
+                    if action == 4 and py <= ty: continue
+                    
+                    prob = self.action_predictor.predict_action(
+                        (px, py), (tx, ty), action, wall_set, grid,
+                        stagnation=self.drives.stagnation_counter,
+                        steps=self.steps
+                    )
+                    if prob > best_conf:
+                        best_conf = prob
+                        best_action = action
+                
+                if best_action is not None and best_conf > 0.5:
+                    print(f"  ⚡ MicroNN: A* failed → stepping {['','right','down','left','up'][best_action]} (prob={best_conf:.3f})")
+                    self.step(best_action)
+                    return True
+        
+        # ═══ TIER 2: World Model V-JEPA (slower but more accurate) ═══
+        if self.world_model and self.world_model.memory_size() > 0:
+            return self._world_model_navigate_fallback_vjepa(tx, ty)
+        
+        return False
+    
+    def _world_model_navigate_fallback_vjepa(self, tx: int, ty: int) -> bool:
+        """V-JEPA world model fallback (original implementation)."""
+        if not self.player:
+            return False
+        
+        px, py = self.player.x, self.player.y
         best_action = None
         best_conf = 0.0
         
-        for action in [1, 2, 3, 4]:  # right, down, left, up
-            # Only consider directions that move TOWARD the target
-            if action == 1 and px >= tx: continue  # right but target is left
-            if action == 3 and px <= tx: continue  # left but target is right
-            if action == 2 and py >= ty: continue  # down but target is up
-            if action == 4 and py <= ty: continue  # up but target is down
+        for action in [1, 2, 3, 4]:
+            if action == 1 and px >= tx: continue
+            if action == 3 and px <= tx: continue
+            if action == 2 and py >= ty: continue
+            if action == 4 and py <= ty: continue
             
             _, conf = self._world_model_simulate(action)
             if conf > best_conf:
@@ -856,7 +911,7 @@ class ScientistAgent:
         if best_action is not None and best_conf > 0.3:
             print(f"  🌍 WM fallback: A* failed → stepping {['','right','down','left','up'][best_action]} (conf={best_conf:.3f})")
             self.step(best_action)
-            return True  # Made progress, A* will retry from new position
+            return True
         
         return False
 
