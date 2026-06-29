@@ -155,23 +155,35 @@ python -m cogniarc.spatial_inference
 
 Results collected on **ls20-9607627b** (navigation game with obstacles).
 
-| Game | Level | Attempts | Solved | Rate | Avg Steps | Avg Time |
-|------|-------|----------|--------|------|-----------|----------|
-| `ls20-9607627b` | L1 | 76 | **55** | **72%** | 556 | ~0.02s |
-| `ls20-9607627b` | L2 | 22 | 0 | 0% | 753 | ~0.03s |
+| Game | Level | Solver | Attempts | Solved | Rate | Notes |
+|------|-------|--------|----------|--------|------|-------|
+| `ls20-9607627b` | L1 | BFS (v2) | 76 | **55** | **72%** | Deterministic transforms, ~0.02s |
+| `ls20-9607627b` | L1 | ScientistAgent (v3.2) | 10+ | 0 | 0% | 🚧 Phase machine + nano-LLM — maze blocking |
+| `ls20-9607627b` | L2 | BFS (v2) | 22 | 0 | 0% | Unsolved |
+
+### LS20 Mechanics (discovered 2026-06-28)
+
+| Mechanic | Detail |
+|----------|--------|
+| **Actions** | 1=UP, 2=DOWN, 3=LEFT, 4=RIGHT (non-standard!) |
+| **Step size** | 5 cells per action |
+| **Wall colors** | {3, 5, 11} — color 5 blocks lock area |
+| **Changer** | at (19,30) — cycles rotation 3→0→1→2→3 |
+| **Lock** | at (34,10) — intangible, all rotations valid |
+| **Topology** | Maze — no direct path player→lock |
 
 ### Key Metrics
 
 | Metric | Value |
 |--------|-------|
 | **LLM tokens consumed** | **0** per game |
-| Total solve time | 2.53s (98 games) |
-| Architecture | BFS + deterministic transforms |
-| L1 efficiency | 72% success in ~0.02s |
+| Architecture (BFS) | BFS + deterministic transforms → 72% L1 |
+| Architecture (Agent) | Phase machine + SocraticCritic + nano-LLM + WM → 🚧 |
+| L1 challenge | Maze navigation + changer rotation cycling |
 | L2 challenge | Unsolved — needs advanced spatial reasoning |
 
-> **0 tokens used.** The agent solves grids via BFS exploration + transform mapping,
-> without any LLM calls. The Perception Stack + World Model target L2 and complex games by guiding search.
+> **0 tokens used.** The BFS solver achieves 72% on L1 via transform mapping.
+> The ScientistAgent discovers mechanics correctly but maze navigation is WIP.
 
 ### Performance Evolution
 
@@ -181,7 +193,8 @@ Results collected on **ls20-9607627b** (navigation game with obstacles).
 | 2026-06-15 | v2 (BFS + transforms) | +transforms.py | ✅ 72% |
 | 2026-06-25 | v3 (Perception) | +temporal, spatial, attention, symbolic | 🚧 In progress |
 | 2026-06-27 | v3.1 (AHOIS) | +ScientificState, SocraticCritic, 9 modes | 🚧 In progress |
-| 2026-06-28 | v3.2 (World Model) 🆕 | +WorldModelTool (V-JEPA 2.1) | 🚧 In progress |
+| 2026-06-28 | v3.2 (World Model + nano-LLM) | +WorldModelTool, micro-NN, heuristic path, grid_viz | 🚧 0% L1 (mechanics discovered) |
+| 2026-06-28 | 🎯 Mechanics discovered | LS20: actions {UP,DOWN,LEFT,RIGHT}, 5-cell jumps, walls {3,5,11}, changer cycles rotation | — |
 
 ---
 
