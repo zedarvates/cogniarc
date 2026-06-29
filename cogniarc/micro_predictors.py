@@ -290,3 +290,84 @@ class PathfinderPredictor:
         features.append(min(stagnation/15.0, 1.0))
         
         return self.predict(np.array(features, dtype=np.float32))
+
+
+class CaptchaPredictor:
+    """Micro-NN CAPTCHA type classifier — identifies CAPTCHA from 8×8 screenshot.
+    
+    Architecture: 64 → 32 → 16 → 6 (relu×2 + softmax)
+    Input:  8×8 downsampled grayscale (64 features)
+    Output: recaptcha_v2 | hcaptcha | turnstile | text | math | none
+    """
+    
+    TYPES = ['recaptcha_v2', 'hcaptcha', 'turnstile', 'text_captcha', 'math_captcha', 'none']
+    
+    def __init__(self, model_path: str = None):
+        if model_path is None:
+            model_path = os.path.join(
+                os.path.dirname(__file__), '..', 'micro_nn', 'captcha_classifier.json'
+            )
+        
+        self._loaded = False
+        if os.path.exists(model_path):
+            try:
+                with open(model_path) as f:
+                    data = json.load(f)
+                self.weights = [np.array(w).reshape(data['layers'][i+1], data['layers'][i])
+                               for i, w in enumerate(data['weights'])]
+                self.biases = [np.array(b) for b in data['biases']]
+                self.activations = data['activations']
+                self.TYPES = data.get('types', self.TYPES)
+                self._loaded = True
+            except Exception as e:
+                print(f"[Captcha] Failed to load: {e}")
+    
+    @property
+    def available(self) -> bool:
+        return self._loaded
+    
+    def _activate(self, x, name):
+        if name == 'relu': return np.maximum(0, x)
+        if name == 'softmax':
+            ex = np.exp(x - np.max(x))
+            return ex / ex.sum()
+        return x
+    
+    def predict(self, features: np.ndarray) -> tuple:
+        """Classify CAPTCHA from 64 features (8×8 downsampled grayscale).
+        
+        Returns:
+            (type_name, confidence)
+        """
+        if not self._loaded:
+            return 'none', 0.0
+        
+        x = features.reshape(1, -1)
+        for i in range(len(self.weights)):
+            x = x @ self.weights[i].T + self.biases[i]
+            x = self._activate(x, self.activations[i])
+        
+        probs = x[0]
+        idx = np.argmax(probs)
+        return self.TYPES[idx], float(probs[idx])
+    
+    def classify_screenshot(self, screenshot: np.ndarray) -> tuple:
+        """Classify a screenshot (any size, grayscale or RGB).
+        Downsamples to 8×8 for the classifier.
+        """
+        if len(screenshot.shape) == 3:
+            gray = np.mean(screenshot, axis=2)
+        else:
+            gray = screenshot
+        
+        # Downsample to 8×8
+        h, w = gray.shape
+        downsampled = np.zeros((8, 8))
+        for i in range(8):
+            for j in range(8):
+                y0, y1 = i * h // 8, (i+1) * h // 8
+                x0, x1 = j * w // 8, (j+1) * w // 8
+                downsampled[i, j] = np.mean(gray[y0:max(y0+1, y1), x0:max(x0+1, x1)])
+        
+        downsampled = downsampled / 255.0
+        return self.predict(downsampled.flatten())
