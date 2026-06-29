@@ -319,7 +319,7 @@ class ScientistAgent:
         # ═══ NEW: Micro-NN predictors (instant, <1ms) ═══
         self.action_predictor = None
         self.domain_predictor = None
-        self.pathfinder_nn = None  # 🆕 Nano-LLM pathfinder
+        self.pathfinder_nn = None  # Micro-NN pathfinder
         try:
             from cogniarc.micro_predictors import ActionPredictor, DomainPredictor, PathfinderPredictor
             self.action_predictor = ActionPredictor()
@@ -830,7 +830,7 @@ class ScientistAgent:
         # Ensure pathfinder is initialized (needed for wall colors)
         pf = self.__init_pathfinder()
         
-        # ═══ TIER 0: Nano-LLM Pathfinder (primary) ═══
+        # ═══ TIER 0: Micro-NN Pathfinder (primary) ═══
         nano_used = False
         if self.pathfinder_nn and self.pathfinder_nn.available and self.drives.stagnation_counter < 5:
             grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None

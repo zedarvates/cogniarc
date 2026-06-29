@@ -179,11 +179,11 @@ class DomainPredictor:
 
 
 class PathfinderPredictor:
-    """Nano-LLM pathfinder — replaces A* with learned navigation.
+    """Micro-NN pathfinder — replaces A* with learned navigation.
     
-    Architecture: 105 → 64 → 32 → 4 (relu×2 + softmax)
-    Input:  7×7 grid patch + wall mask + target direction + edge distances + stagnation
-    Output: [→ ↓ ← ↑] action probabilities
+    Architecture: 105 -> 64 -> 32 -> 4 (relu x2 + softmax)
+    Input:  7x7 grid patch + wall mask + target direction + edge distances + stagnation
+    Output: [right, down, left, up] action probabilities
     
     Trained on diverse wall-circumvention scenarios + LS20 optimal paths.
     <1ms inference, 0 tokens.

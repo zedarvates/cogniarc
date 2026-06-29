@@ -158,7 +158,7 @@ Results collected on **ls20-9607627b** (navigation game with obstacles).
 | Game | Level | Solver | Attempts | Solved | Rate | Notes |
 |------|-------|--------|----------|--------|------|-------|
 | `ls20-9607627b` | L1 | BFS (v2) | 76 | **55** | **72%** | Deterministic transforms, ~0.02s |
-| `ls20-9607627b` | L1 | ScientistAgent (v3.2) | 10+ | 0 | 0% | 🚧 Phase machine + nano-LLM — maze blocking |
+| `ls20-9607627b` | L1 | ScientistAgent (v3.2) | 10+ | 0 | 0% | 🚧 Phase machine + micro-NN — maze blocking |
 | `ls20-9607627b` | L2 | BFS (v2) | 22 | 0 | 0% | Unsolved |
 
 ### LS20 Mechanics (discovered 2026-06-28)
@@ -178,7 +178,7 @@ Results collected on **ls20-9607627b** (navigation game with obstacles).
 |--------|-------|
 | **LLM tokens consumed** | **0** per game |
 | Architecture (BFS) | BFS + deterministic transforms → 72% L1 |
-| Architecture (Agent) | Phase machine + SocraticCritic + nano-LLM + WM → 🚧 |
+| Architecture (Agent) | Phase machine + SocraticCritic + micro-NN + WM → 🚧 |
 | L1 challenge | Maze navigation + changer rotation cycling |
 | L2 challenge | Unsolved — needs advanced spatial reasoning |
 
@@ -193,7 +193,7 @@ Results collected on **ls20-9607627b** (navigation game with obstacles).
 | 2026-06-15 | v2 (BFS + transforms) | +transforms.py | ✅ 72% |
 | 2026-06-25 | v3 (Perception) | +temporal, spatial, attention, symbolic | 🚧 In progress |
 | 2026-06-27 | v3.1 (AHOIS) | +ScientificState, SocraticCritic, 9 modes | 🚧 In progress |
-| 2026-06-28 | v3.2 (World Model + nano-LLM) | +WorldModelTool, micro-NN, heuristic path, grid_viz | 🚧 0% L1 (mechanics discovered) |
+| 2026-06-28 | v3.2 (World Model + micro-NN) | +WorldModelTool, micro-NN, heuristic path, grid_viz | 🚧 0% L1 (mechanics discovered) |
 | 2026-06-28 | 🎯 Mechanics discovered | LS20: actions {UP,DOWN,LEFT,RIGHT}, 5-cell jumps, walls {3,5,11}, changer cycles rotation | — |
 
 ---

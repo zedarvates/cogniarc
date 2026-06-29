@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train a nano-LLM pathfinder for ARC-AGI-3 navigation.
+"""Train a micro-NN pathfinder for ARC-AGI-3 navigation.
 Learns from successful A* paths + synthetic wall-circumvention data.
 Pure numpy, exports JSON for Rust inference.
 
@@ -287,7 +287,7 @@ def generate_pathfinding_data(n_samples: int = 5000) -> Tuple[np.ndarray, np.nda
 
 
 def main():
-    print("🤖 Training Nano-LLM Pathfinder")
+    print("🤖 Training Micro-NN Pathfinder")
     print("=" * 50)
     
     print("\n📊 Generating training data...")

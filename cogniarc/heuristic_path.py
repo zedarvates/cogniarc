@@ -1,5 +1,5 @@
 """Simple heuristic pathfinder for LS20 — solves the level immediately.
-When nano-LLM oscillates, this takes over with deterministic wall-circumvention.
+When micro-NN pathfinder oscillates, this takes over with deterministic wall-circumvention.
 
 Rule: go perpendicular to wall until toward-target cell is clear, then go toward target.
 """
