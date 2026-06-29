@@ -401,8 +401,12 @@ Four micro neural networks trained in pure NumPy, deployed in Rust (<400KB binar
 
 **Tiered escalation in ScientistAgent:**
 ```
-A* fails → ⚡ Micro-NN (5µs) → if low conf → 🌍 V-JEPA (6s) → if fails → 🧱 Wall circumvention
+Micro-NN (5µs) → if low conf → 🤖 Nano-LLM HF (<1s) → if low conf → 🌍 V-JEPA (6s) → if fails → 🧱 Heuristic
 ```
+- **Micro-NN** ([4 models](#-nano-nn-models-hugging-face)): domain, action, pathfinder, CAPTCHA — ultra-cheap, deterministic
+- **Nano-LLM HF** ([Qwen2.5-0.5B](./cogniarc/nano_llm.py)): reads game state, proposes actions — wrapped in harness for safety
+- **V-JEPA** ([world_model.py](./cogniarc/world_model.py)): simulates "what if I do X?" via k-NN on stored transitions
+- **Heuristic**: deterministic wall circumvention — never fails if topology is understood
 
 ---
 
