@@ -14,8 +14,10 @@ from .spatial_inference import SpatialReasoner, Region, Relation, RelationType, 
 from .benchmark_tracker import BenchmarkTracker, GameResult, SessionResult
 from .cli import main as cli_main
 from .vision_sensor import cmd_analyze as vision_analyze, cmd_watch as vision_watch
+from .scientific_state import ScientificState, Hypothesis, Observation, EvidenceReliability, ActionPlan
+from .socratic_critic import SocraticCritic, SocraticReport, SocraticIssue, SocraticIssueType, SophismType
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __all__ = [
     "ScientistAgent",
     "CognitivePlayer",
@@ -30,4 +32,6 @@ __all__ = [
     "SpatialReasoner", "Region", "Relation", "RelationType", "SpatialPattern", "SpatialPatternType",
     "BenchmarkTracker", "GameResult", "SessionResult",
     "cli_main", "vision_analyze", "vision_watch",
+    "ScientificState", "Hypothesis", "Observation", "EvidenceReliability", "ActionPlan",
+    "SocraticCritic", "SocraticReport", "SocraticIssue", "SocraticIssueType", "SophismType",
 ]

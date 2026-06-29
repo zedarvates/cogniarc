@@ -831,17 +831,35 @@ class ScientistAgent:
                 wall_colors = getattr(self, '_pathfinder', None)
                 wall_set = wall_colors.wall_colors if wall_colors and hasattr(wall_colors, 'wall_colors') else set()
                 
-                action, conf = self.pathfinder_nn.predict_action(
-                    grid, self.player.x, self.player.y, tx, ty,
-                    wall_set, self.drives.stagnation_counter
-                )
+                # Take MULTIPLE steps in same direction (burst mode)
+                prev_action = None
+                burst_steps = 0
+                max_burst = 10  # Max steps before re-evaluating
                 
-                if conf > 0.3:  # Better than random
-                    print(f"  🤖 NanoPath: → {['','→','↓','←','↑'][action]} (conf={conf:.3f})")
+                while burst_steps < max_burst:
+                    action, conf = self.pathfinder_nn.predict_action(
+                        grid, self.player.x, self.player.y, tx, ty,
+                        wall_set, self.drives.stagnation_counter
+                    )
+                    
+                    # If direction changed, stop burst (re-evaluate)
+                    if prev_action is not None and action != prev_action:
+                        break
+                    
+                    if conf < 0.5:  # Too uncertain
+                        break
+                    
+                    prev_action = action
+                    burst_steps += 1
                     self.step(action)
+                    
                     # Check if we reached the target
                     if self.player.x == tx and self.player.y == ty:
+                        print(f"  🤖 NanoPath: burst {burst_steps}×{['','→','↓','←','↑'][action]} → reached target!")
                         return True
+                
+                if burst_steps > 0:
+                    print(f"  🤖 NanoPath: burst {burst_steps}×{['','→','↓','←','↑'][prev_action]} (conf={conf:.3f})")
                     return True  # Made progress
         
         # ═══ TIER 1: A* pathfinding (fallback) ═══

@@ -147,14 +147,14 @@ def astar_path_to_actions(path: Optional[List[Tuple[int, int]]]) -> List[int]:
 
 class Pathfinder:
     """High-level pathfinder with caching and wall learning."""
-    
     def __init__(self, agent=None):
         self.agent = agent
         self.grid_map: Optional[GridMap] = None
         self.wall_colors: Set[int] = set()
         self.walkable_overrides: Set[Tuple[int, int]] = set()  # positions forced walkable
         self.path_cache: Dict[Tuple[Tuple[int, int], Tuple[int, int], int], List[int]] = {}
-        
+        self.walls_locked: bool = False  # Once true, learn_walls is no-op
+
     def update_from_observation(self, obs):
         """Update grid map from latest observation."""
         if not hasattr(obs, 'frame') or obs.frame is None or len(obs.frame) == 0:
@@ -174,7 +174,10 @@ class Pathfinder:
             self.grid_map.walkable = new_walkable
     
     def learn_walls(self, obs):
-        """Learn wall colors by observing failed movements."""
+        """Learn wall colors by observing failed movements.
+        No-op if walls_locked=True (source-based detection already done)."""
+        if self.walls_locked:
+            return
         if not self.agent or not self.agent.player:
             return
         if not hasattr(obs, 'frame') or obs.frame is None or len(obs.frame) == 0:
