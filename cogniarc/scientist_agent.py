@@ -834,7 +834,7 @@ class ScientistAgent:
                 # Take MULTIPLE steps in same direction (burst mode)
                 prev_action = None
                 burst_steps = 0
-                max_burst = 10  # Max steps before re-evaluating
+                max_burst = 15
                 
                 while burst_steps < max_burst:
                     action, conf = self.pathfinder_nn.predict_action(
@@ -842,25 +842,32 @@ class ScientistAgent:
                         wall_set, self.drives.stagnation_counter
                     )
                     
-                    # If direction changed, stop burst (re-evaluate)
                     if prev_action is not None and action != prev_action:
                         break
-                    
-                    if conf < 0.5:  # Too uncertain
+                    if conf < 0.5:
                         break
+                    
+                    # Check if this step would hit a wall or boundary
+                    px, py = self.player.x, self.player.y
+                    dx, dy = {1:(1,0), 2:(0,1), 3:(-1,0), 4:(0,-1)}[action]
+                    nx, ny = px+dx, py+dy
+                    
+                    if not (0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]):
+                        break  # Boundary
+                    if int(grid[ny, nx]) in wall_set:
+                        break  # Wall ahead — stop and re-evaluate
                     
                     prev_action = action
                     burst_steps += 1
                     self.step(action)
                     
-                    # Check if we reached the target
                     if self.player.x == tx and self.player.y == ty:
                         print(f"  🤖 NanoPath: burst {burst_steps}×{['','→','↓','←','↑'][action]} → reached target!")
                         return True
                 
                 if burst_steps > 0:
                     print(f"  🤖 NanoPath: burst {burst_steps}×{['','→','↓','←','↑'][prev_action]} (conf={conf:.3f})")
-                    return True  # Made progress
+                    return True
         
         # ═══ TIER 1: A* pathfinding (fallback) ═══
         pathfinder = self.__init_pathfinder()
