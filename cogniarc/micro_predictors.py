@@ -181,16 +181,16 @@ class DomainPredictor:
 class PathfinderPredictor:
     """Nano-LLM pathfinder — replaces A* with learned navigation.
     
-    Architecture: 53 → 32 → 16 → 4 (relu×2 + softmax)
-    Input:  5×5 grid patch + wall mask + target direction + stagnation
-    Output: [↑ ↓ ← →] action probabilities
+    Architecture: 105 → 64 → 32 → 4 (relu×2 + softmax)
+    Input:  7×7 grid patch + wall mask + target direction + edge distances + stagnation
+    Output: [→ ↓ ← ↑] action probabilities
     
-    Trained on successful A* paths + synthetic wall-circumvention data.
+    Trained on diverse wall-circumvention scenarios + LS20 optimal paths.
     <1ms inference, 0 tokens.
     """
     
-    ACTIONS = ['↑', '↓', '←', '→']  # action indices: 0=right, 1=down, 2=left, 3=up
-    ACTION_MAP = {0: 1, 1: 2, 2: 3, 3: 4}  # model_idx → game_action
+    ACTIONS = ['→', '↓', '←', '↑']
+    ACTION_MAP = {0: 1, 1: 2, 2: 3, 3: 4}
     
     def __init__(self, model_path: str = None):
         if model_path is None:
@@ -201,6 +201,7 @@ class PathfinderPredictor:
         self._loaded = False
         self.feature_mean = None
         self.feature_std = None
+        self.patch_size = 5  # default, overridden by JSON
         
         if os.path.exists(model_path):
             try:
@@ -210,8 +211,9 @@ class PathfinderPredictor:
                                for i, w in enumerate(data['weights'])]
                 self.biases = [np.array(b) for b in data['biases']]
                 self.activations = data['activations']
-                self.feature_mean = np.array(data.get('feature_mean', [0]*53))
-                self.feature_std = np.array(data.get('feature_std', [1]*53))
+                self.feature_mean = np.array(data.get('feature_mean', [0]*105))
+                self.feature_std = np.array(data.get('feature_std', [1]*105))
+                self.patch_size = data.get('patch_size', 5)
                 self._loaded = True
             except Exception as e:
                 print(f"[Pathfinder] Failed to load: {e}")
@@ -252,37 +254,39 @@ class PathfinderPredictor:
     def predict_action(self, grid: np.ndarray, px: int, py: int,
                        tx: int, ty: int, wall_colors: set,
                        stagnation: int = 0) -> Tuple[int, float]:
-        """High-level: predict best navigation action from game state.
-        
-        Extracts 5×5 patch features and predicts which direction to go.
-        """
+        """High-level: predict best navigation action from game state."""
         h, w = grid.shape
+        half = self.patch_size // 2
         features = []
         
-        # 5×5 grid patch (25)
-        for dy in [-2, -1, 0, 1, 2]:
-            for dx in [-2, -1, 0, 1, 2]:
-                ny, nx = py + dy, px + dx
+        # Grid patch + wall mask
+        for dy in range(-half, half+1):
+            for dx in range(-half, half+1):
+                ny, nx = py+dy, px+dx
                 if 0 <= ny < h and 0 <= nx < w:
                     features.append(float(grid[ny, nx]) / 9.0)
                 else:
                     features.append(-1.0)
-        
-        # 5×5 wall mask (25)
-        for dy in [-2, -1, 0, 1, 2]:
-            for dx in [-2, -1, 0, 1, 2]:
-                ny, nx = py + dy, px + dx
+        for dy in range(-half, half+1):
+            for dx in range(-half, half+1):
+                ny, nx = py+dy, px+dx
                 if 0 <= ny < h and 0 <= nx < w:
                     features.append(1.0 if int(grid[ny, nx]) in wall_colors else 0.0)
                 else:
                     features.append(1.0)
         
-        # Target direction (2)
-        max_dist = max(abs(tx - px) + abs(ty - py), 1)
-        features.append((tx - px) / max_dist / 10.0)
-        features.append((ty - py) / max_dist / 10.0)
+        # Target direction
+        max_dist = max(abs(tx-px)+abs(ty-py), 1)
+        features.append((tx-px)/max_dist/10.0)
+        features.append((ty-py)/max_dist/10.0)
         
-        # Stagnation (1)
-        features.append(min(stagnation / 15.0, 1.0))
+        # Edge distances (critical for boundary awareness)
+        features.append(px / max(w, 1))
+        features.append((w-1-px) / max(w, 1))
+        features.append(py / max(h, 1))
+        features.append((h-1-py) / max(h, 1))
+        
+        # Stagnation
+        features.append(min(stagnation/15.0, 1.0))
         
         return self.predict(np.array(features, dtype=np.float32))
