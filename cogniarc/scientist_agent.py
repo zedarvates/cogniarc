@@ -319,16 +319,16 @@ class ScientistAgent:
         # ═══ NEW: Micro-NN predictors (instant, <1ms) ═══
         self.action_predictor = None
         self.domain_predictor = None
+        self.pathfinder_nn = None  # 🆕 Nano-LLM pathfinder
         try:
-            from cogniarc.micro_predictors import ActionPredictor, DomainPredictor
+            from cogniarc.micro_predictors import ActionPredictor, DomainPredictor, PathfinderPredictor
             self.action_predictor = ActionPredictor()
             self.domain_predictor = DomainPredictor()
-            if self.action_predictor.available:
-                print(f"[MicroNN] Action predictor loaded")
-            if self.domain_predictor.available:
-                print(f"[MicroNN] Domain predictor loaded")
+            self.pathfinder_nn = PathfinderPredictor()
+            if self.pathfinder_nn.available:
+                print(f"[MicroNN] Pathfinder loaded (53→32→16→4)")
         except Exception as e:
-            pass  # Micro-NN is optional
+            pass
         
         # Legacy aliases (to be removed gradually)
         self._phase = self.state.phase
@@ -824,7 +824,27 @@ class ScientistAgent:
         
         tx, ty = target_pos
         
-        # Try A* pathfinding
+        # ═══ TIER 0: Nano-LLM Pathfinder (primary) ═══
+        if self.pathfinder_nn and self.pathfinder_nn.available:
+            grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+            if grid is not None and self.player:
+                wall_colors = getattr(self, '_pathfinder', None)
+                wall_set = wall_colors.wall_colors if wall_colors and hasattr(wall_colors, 'wall_colors') else set()
+                
+                action, conf = self.pathfinder_nn.predict_action(
+                    grid, self.player.x, self.player.y, tx, ty,
+                    wall_set, self.drives.stagnation_counter
+                )
+                
+                if conf > 0.3:  # Better than random
+                    print(f"  🤖 NanoPath: → {['','→','↓','←','↑'][action]} (conf={conf:.3f})")
+                    self.step(action)
+                    # Check if we reached the target
+                    if self.player.x == tx and self.player.y == ty:
+                        return True
+                    return True  # Made progress
+        
+        # ═══ TIER 1: A* pathfinding (fallback) ═══
         pathfinder = self.__init_pathfinder()
         pathfinder.walkable_overrides.add((tx, ty))
         pathfinder.update_from_observation(self.obs)

@@ -176,3 +176,113 @@ class DomainPredictor:
         probs = x[0]
         idx = np.argmax(probs)
         return self.DOMAINS[idx], float(probs[idx])
+
+
+class PathfinderPredictor:
+    """Nano-LLM pathfinder — replaces A* with learned navigation.
+    
+    Architecture: 53 → 32 → 16 → 4 (relu×2 + softmax)
+    Input:  5×5 grid patch + wall mask + target direction + stagnation
+    Output: [↑ ↓ ← →] action probabilities
+    
+    Trained on successful A* paths + synthetic wall-circumvention data.
+    <1ms inference, 0 tokens.
+    """
+    
+    ACTIONS = ['↑', '↓', '←', '→']  # action indices: 0=right, 1=down, 2=left, 3=up
+    ACTION_MAP = {0: 1, 1: 2, 2: 3, 3: 4}  # model_idx → game_action
+    
+    def __init__(self, model_path: str = None):
+        if model_path is None:
+            model_path = os.path.join(
+                os.path.dirname(__file__), '..', 'micro_nn', 'pathfinder.json'
+            )
+        
+        self._loaded = False
+        self.feature_mean = None
+        self.feature_std = None
+        
+        if os.path.exists(model_path):
+            try:
+                with open(model_path) as f:
+                    data = json.load(f)
+                self.weights = [np.array(w).reshape(data['layers'][i+1], data['layers'][i])
+                               for i, w in enumerate(data['weights'])]
+                self.biases = [np.array(b) for b in data['biases']]
+                self.activations = data['activations']
+                self.feature_mean = np.array(data.get('feature_mean', [0]*53))
+                self.feature_std = np.array(data.get('feature_std', [1]*53))
+                self._loaded = True
+            except Exception as e:
+                print(f"[Pathfinder] Failed to load: {e}")
+    
+    @property
+    def available(self) -> bool:
+        return self._loaded
+    
+    def _activate(self, x, name):
+        if name == 'relu': return np.maximum(0, x)
+        if name == 'softmax':
+            ex = np.exp(x - np.max(x))
+            return ex / ex.sum()
+        return x
+    
+    def predict(self, features: np.ndarray) -> Tuple[int, float]:
+        """Predict best action from 53 features.
+        
+        Returns:
+            (action_number 1-4, confidence 0-1)
+        """
+        if not self._loaded:
+            return 1, 0.25  # Default: move right
+        
+        # Normalize
+        x = (features - self.feature_mean) / (self.feature_std + 1e-8)
+        x = x.reshape(1, -1)
+        
+        for i in range(len(self.weights)):
+            x = x @ self.weights[i].T + self.biases[i]
+            x = self._activate(x, self.activations[i])
+        
+        probs = x[0]
+        idx = np.argmax(probs)
+        action = self.ACTION_MAP.get(idx, 1)
+        return action, float(probs[idx])
+    
+    def predict_action(self, grid: np.ndarray, px: int, py: int,
+                       tx: int, ty: int, wall_colors: set,
+                       stagnation: int = 0) -> Tuple[int, float]:
+        """High-level: predict best navigation action from game state.
+        
+        Extracts 5×5 patch features and predicts which direction to go.
+        """
+        h, w = grid.shape
+        features = []
+        
+        # 5×5 grid patch (25)
+        for dy in [-2, -1, 0, 1, 2]:
+            for dx in [-2, -1, 0, 1, 2]:
+                ny, nx = py + dy, px + dx
+                if 0 <= ny < h and 0 <= nx < w:
+                    features.append(float(grid[ny, nx]) / 9.0)
+                else:
+                    features.append(-1.0)
+        
+        # 5×5 wall mask (25)
+        for dy in [-2, -1, 0, 1, 2]:
+            for dx in [-2, -1, 0, 1, 2]:
+                ny, nx = py + dy, px + dx
+                if 0 <= ny < h and 0 <= nx < w:
+                    features.append(1.0 if int(grid[ny, nx]) in wall_colors else 0.0)
+                else:
+                    features.append(1.0)
+        
+        # Target direction (2)
+        max_dist = max(abs(tx - px) + abs(ty - py), 1)
+        features.append((tx - px) / max_dist / 10.0)
+        features.append((ty - py) / max_dist / 10.0)
+        
+        # Stagnation (1)
+        features.append(min(stagnation / 15.0, 1.0))
+        
+        return self.predict(np.array(features, dtype=np.float32))
