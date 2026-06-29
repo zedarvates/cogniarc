@@ -348,12 +348,14 @@ print(freq_map.archetype)        # Archetype.TRICKSTER (high) / Archetype.SAGE (
 
 ## ⚡ Nano-NN Models (Hugging Face)
 
-Two micro neural networks trained in pure NumPy, deployed in Rust (<400KB binary, <1ms inference). Zero LLM tokens — replace trivial agent decisions with deterministic classifiers.
+Four micro neural networks trained in pure NumPy, deployed in Rust (<400KB binary, <1ms inference). Zero LLM tokens.
 
 | Model | Architecture | Accuracy | HF |
 |-------|-------------|----------|-----|
-| **Domain Classifier** | 6→12→4 (relu+softmax) | 75% synth, 3/4 games | [cogniarc-nano-nn](https://huggingface.co/zedgamer/cogniarc-nano-nn) |
+| **Domain Classifier** | 6→12→4 (relu+softmax) | 75% synth | [cogniarc-nano-nn](https://huggingface.co/zedgamer/cogniarc-nano-nn) |
 | **Action Predictor** | 8→16→1 (relu+sigmoid) | 77.6% test | [cogniarc-nano-nn](https://huggingface.co/zedgamer/cogniarc-nano-nn) |
+| **Pathfinder** | 105→64→32→4 (relu+softmax) | 99.6% walls | [cogniarc-nano-nn](https://huggingface.co/zedgamer/cogniarc-nano-nn) |
+| **CAPTCHA Classifier** 🆕 | 64→32→16→6 (relu+softmax) | 100% test | [cogniarc-nano-nn](https://huggingface.co/zedgamer/cogniarc-nano-nn) |
 
 **Pattern:** train in Python (numpy) → export JSON → infer in Rust (serde only)
 
@@ -364,6 +366,9 @@ Two micro neural networks trained in pure NumPy, deployed in Rust (<400KB binary
 
 ./domain-classifier action_predictor.json 0.3 0.0 0.3 0.33 0 0.0 0 0.1
 # → 0.544 (success probable)
+
+./domain-classifier captcha_classifier.json <64 grayscale values>
+# → turnstile (conf=0.98)
 ```
 
 **Tiered escalation in ScientistAgent:**
