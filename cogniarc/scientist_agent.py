@@ -837,10 +837,14 @@ class ScientistAgent:
             if grid is not None and self.player:
                 wall_colors = getattr(self, '_pathfinder', None)
                 wall_set = wall_colors.wall_colors if wall_colors and hasattr(wall_colors, 'wall_colors') else set()
+                # Take MULTIPLE steps in same direction (burst mode)
+                # LS20 action mapping: 1=UP, 2=DOWN, 3=LEFT, 4=RIGHT
+                # Player moves 5 cells per step
+                ACTION_DXDY = {1:(0,-5), 2:(0,5), 3:(-5,0), 4:(5,0)}
                 
                 prev_action = None
                 burst_steps = 0
-                max_burst = 15
+                max_burst = 10  # 5× less because each step moves 5 cells
                 
                 while burst_steps < max_burst:
                     action, conf = self.pathfinder_nn.predict_action(
@@ -851,7 +855,7 @@ class ScientistAgent:
                     if conf < 0.5: break
                     
                     px, py = self.player.x, self.player.y
-                    dx, dy = {1:(1,0), 2:(0,1), 3:(-1,0), 4:(0,-1)}[action]
+                    dx, dy = ACTION_DXDY.get(action, (0,0))
                     nx, ny = px+dx, py+dy
                     if not (0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]): break
                     if int(grid[ny, nx]) in wall_set: break
@@ -873,13 +877,19 @@ class ScientistAgent:
         if self.drives.stagnation_counter >= 3:
             grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
             if grid is not None and self.player:
-                # Get wall colors from detected walls (set during detect_walls phase)
+                # Get wall colors — force detection if cache empty
                 wall_set = getattr(self, '_detected_wall_colors', set())
                 if not wall_set:
+                    self._detect_wall_colors()
                     pf = getattr(self, '_pathfinder', None)
-                    if pf and hasattr(pf, 'wall_colors'):
-                        wall_set = pf.wall_colors
+                    wall_set = pf.wall_colors if pf and hasattr(pf, 'wall_colors') else set()
+                    self._detected_wall_colors = wall_set
                 
+                # Also include color 5 (lock area barrier) and 11 if player gets blocked
+                # These are secondary wall colors not detected by the primary heuristic
+                wall_set = wall_set | {5, 11}
+                
+                print(f"  [DEBUG] wall_set={wall_set}, player=({self.player.x},{self.player.y}), target=({tx},{ty})")
                 from cogniarc.heuristic_path import heuristic_navigate
                 path = heuristic_navigate(grid, self.player.x, self.player.y, tx, ty, wall_set, max_steps=30)
                 
