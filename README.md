@@ -5,7 +5,7 @@
 [![Status](https://img.shields.io/badge/status-active-brightgreen.svg)]()
 [![ARC-AGI-3](https://img.shields.io/badge/ARC--AGI--3-human--skills-orange.svg)]()
 
-**ARC-AGI-3 Cognitive Architecture** — 6 human drives, 9 reasoning modes, SkillDAG, SocraticCritic, **V-JEPA World Model**, and human-like skill acquisition from zero.
+**ARC-AGI-3 Cognitive Architecture** — 6 human drives, 9 reasoning modes, SkillDAG, SocraticCritic, **V-JEPA World Model tool**, and human-like skill acquisition from zero.
 
 > **Discover, simulate, then solve.** World model as a tool, not the architecture.
 
