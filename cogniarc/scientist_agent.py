@@ -792,6 +792,9 @@ class ScientistAgent:
             self._walls_detected = True
             self.state.walls_detected = True
             self.state.set_assumption("walls_known", True)
+            # Cache wall colors for fast access
+            pf = getattr(self, '_pathfinder', None)
+            self._detected_wall_colors = pf.wall_colors if pf and hasattr(pf, 'wall_colors') else set()
             return True
         return False  # Already done
 
@@ -824,14 +827,17 @@ class ScientistAgent:
         
         tx, ty = target_pos
         
+        # Ensure pathfinder is initialized (needed for wall colors)
+        pf = self.__init_pathfinder()
+        
         # ═══ TIER 0: Nano-LLM Pathfinder (primary) ═══
-        if self.pathfinder_nn and self.pathfinder_nn.available:
+        nano_used = False
+        if self.pathfinder_nn and self.pathfinder_nn.available and self.drives.stagnation_counter < 5:
             grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
             if grid is not None and self.player:
                 wall_colors = getattr(self, '_pathfinder', None)
                 wall_set = wall_colors.wall_colors if wall_colors and hasattr(wall_colors, 'wall_colors') else set()
                 
-                # Take MULTIPLE steps in same direction (burst mode)
                 prev_action = None
                 burst_steps = 0
                 max_burst = 15
@@ -841,25 +847,19 @@ class ScientistAgent:
                         grid, self.player.x, self.player.y, tx, ty,
                         wall_set, self.drives.stagnation_counter
                     )
+                    if prev_action is not None and action != prev_action: break
+                    if conf < 0.5: break
                     
-                    if prev_action is not None and action != prev_action:
-                        break
-                    if conf < 0.5:
-                        break
-                    
-                    # Check if this step would hit a wall or boundary
                     px, py = self.player.x, self.player.y
                     dx, dy = {1:(1,0), 2:(0,1), 3:(-1,0), 4:(0,-1)}[action]
                     nx, ny = px+dx, py+dy
-                    
-                    if not (0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]):
-                        break  # Boundary
-                    if int(grid[ny, nx]) in wall_set:
-                        break  # Wall ahead — stop and re-evaluate
+                    if not (0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]): break
+                    if int(grid[ny, nx]) in wall_set: break
                     
                     prev_action = action
                     burst_steps += 1
                     self.step(action)
+                    nano_used = True
                     
                     if self.player.x == tx and self.player.y == ty:
                         print(f"  🤖 NanoPath: burst {burst_steps}×{['','→','↓','←','↑'][action]} → reached target!")
@@ -867,6 +867,28 @@ class ScientistAgent:
                 
                 if burst_steps > 0:
                     print(f"  🤖 NanoPath: burst {burst_steps}×{['','→','↓','←','↑'][prev_action]} (conf={conf:.3f})")
+                    return True
+        
+        # ═══ TIER 0b: Heuristic wall circumvention (when stuck) ═══
+        if self.drives.stagnation_counter >= 3:
+            grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+            if grid is not None and self.player:
+                # Get wall colors from detected walls (set during detect_walls phase)
+                wall_set = getattr(self, '_detected_wall_colors', set())
+                if not wall_set:
+                    pf = getattr(self, '_pathfinder', None)
+                    if pf and hasattr(pf, 'wall_colors'):
+                        wall_set = pf.wall_colors
+                
+                from cogniarc.heuristic_path import heuristic_navigate
+                path = heuristic_navigate(grid, self.player.x, self.player.y, tx, ty, wall_set, max_steps=30)
+                
+                if path:
+                    action, reason = path[0]
+                    print(f"  🧭 Heuristic: {reason} (stagnation={self.drives.stagnation_counter})")
+                    self.step(action)
+                    if self.player.x == tx and self.player.y == ty:
+                        return True
                     return True
         
         # ═══ TIER 1: A* pathfinding (fallback) ═══
