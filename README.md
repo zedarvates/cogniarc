@@ -258,6 +258,8 @@ cogniarc/                          # Cognitive solver (this repo)
 │   ├── arc_agent.py               # Main ARC solver entry point
 │   ├── scientist_agent.py         # 🧠 Discover → simulate → solve loop
 │   ├── world_model.py             # 🆕 V-JEPA 2.1 encoder + k-NN predictor
+│   ├── micro_predictors.py        # ⚡ Micro-NN predictors (Action + Domain)
+│   ├── grid_viz.py                # 🔍 Instant ASCII grid visualizer
 │   ├── audio_cartography.py       # 🔊 18 paramètres, 10 émotions, 10 archétypes
 │   ├── audio_perception.py        # 🎧 Son → compréhension du jeu
 │   ├── scientific_state.py        # Structured hypothesis/evidence tracking
@@ -331,12 +333,40 @@ print(freq_map.archetype)        # Archetype.TRICKSTER (high) / Archetype.SAGE (
 
 ---
 
+## ⚡ Nano-NN Models (Hugging Face)
+
+Two micro neural networks trained in pure NumPy, deployed in Rust (<400KB binary, <1ms inference). Zero LLM tokens — replace trivial agent decisions with deterministic classifiers.
+
+| Model | Architecture | Accuracy | HF |
+|-------|-------------|----------|-----|
+| **Domain Classifier** | 6→12→4 (relu+softmax) | 75% synth, 3/4 games | [cogniarc-nano-nn](https://huggingface.co/zedgamer/cogniarc-nano-nn) |
+| **Action Predictor** | 8→16→1 (relu+sigmoid) | 77.6% test | [cogniarc-nano-nn](https://huggingface.co/zedgamer/cogniarc-nano-nn) |
+
+**Pattern:** train in Python (numpy) → export JSON → infer in Rust (serde only)
+
+```bash
+# Rust inference — same binary, different JSON
+./domain-classifier domain_classifier.json 1.0 1.0 0.3 0.35 0.45 0.02
+# → movement (conf=1.00)
+
+./domain-classifier action_predictor.json 0.3 0.0 0.3 0.33 0 0.0 0 0.1
+# → 0.544 (success probable)
+```
+
+**Tiered escalation in ScientistAgent:**
+```
+A* fails → ⚡ Micro-NN (5µs) → if low conf → 🌍 V-JEPA (6s) → if fails → 🧱 Wall circumvention
+```
+
+---
+
 ## 🔗 Related Projects
 
 | Repo | Description |
 |------|-------------|
 | [hermes-agent](https://github.com/nous-research/hermes-agent) | Hermes Agent framework |
 | [arc-human-skills](https://github.com/zedarvates/arc-human-skills) | Human skills track (drawing/writing/reading/painting) |
+| [cogniarc-nano-nn](https://huggingface.co/zedgamer/cogniarc-nano-nn) 🆕 | Micro-NNs for ARC-AGI-3 (Rust, 394KB) |
 | [hermes-fusion](https://github.com/zedarvates/hermes-fusion) | Multi-LLM fusion engine (Rust + Python) |
 | [turboquant](https://github.com/zedarvates/turboquant) | Autonomous trading agent |
 | [ultimate-odycer](https://github.com/zedarvates/ultimate-odycer) | MMORPG server |
