@@ -48,22 +48,35 @@ CogniARC Solver
 
 ---
 
-## 🌍 World Model Tool (NEW — June 2026)
+## 🌍 World Model Tool (V-JEPA 2.1 + k-NN)
 
-> *"The world model is a tool, not the entire architecture. You plug it into your harness."*
-> — Inspired by "Einstein World Models" (Discover AI, 2026)
+> *"The world model is a tool, not the entire architecture."* — Yann LeCun, V-JEPA paper (2024)
 
-The `WorldModelTool` lets ScientistAgent simulate "what happens if I take action X?" without executing the action in the real environment.
+The `WorldModelTool` lets ScientistAgent answer **"what happens if I take action X?"** without executing it in the real environment. It memorizes observed transitions and replays them via nearest-neighbor lookup.
 
-### Architecture
+### Architecture & Sources
+
+| Component | Detail | Link |
+|-----------|--------|------|
+| **Encoder** | V-JEPA 2.1 ViT-B/16 (80M params, 384px, RoPE) | [arXiv:2402.04107](https://arxiv.org/abs/2402.04107), [GitHub](https://github.com/facebookresearch/jepa) |
+| **Inference** | `vjepa2_infer.py` — extracts 768-dim latent from ARC grids | [skill script](~/.hermes/skills/mlops/vjepa-encoder/scripts/vjepa2_infer.py) |
+| **Predictor** | k-NN (k=3) — cosine similarity on stored transitions | [world_model.py](./cogniarc/world_model.py) (330 loc) |
+| **Fallback** | Statistical encoding (mean/std histograms) if checkpoint unavailable | Same file, `FallbackEncoder` |
+| **Benchmark** | 10-run LS20 with persistent memory | [benchmark_wm.py](./scripts/benchmark_wm.py) |
+| **Checkpoint** | `vjepa2_vitb_384.pt` (~320MB, manual download) | HF: [facebook/v-jepa-2.1](https://huggingface.co/collections/facebook/v-jepa-21-67ff32a05c01dc9ff862c56b) |
+
+### How It Works
 
 ```
-Observation (ARC grid) → V-JEPA 2.1 ViT-B/16 (80M, pretrained) → 768-dim latent
-                                        ↓
-                              k-NN Predictor (k=3)
-                              "Which past transition with same action is most similar?"
-                                        ↓
-                           (predicted_latent, confidence 0-1)
+Observation (64×64 ARC grid)
+    ↓
+V-JEPA 2.1 ViT-B/16 encoder → 768-dim latent vector
+    ↓
+k-NN Predictor (k=3):
+  "Which stored transition (latent_t + action → latent_{t+1}) 
+   is most similar to my current latent?"
+    ↓
+(predicted_next_latent, confidence 0-1)
 ```
 
 ### Usage
@@ -71,28 +84,43 @@ Observation (ARC grid) → V-JEPA 2.1 ViT-B/16 (80M, pretrained) → 768-dim lat
 ```python
 from cogniarc import ScientistAgent
 
-# Agent with world model enabled
+# With V-JEPA checkpoint (320MB, ~6s to load)
 agent = ScientistAgent('ls20-9607627b', enable_world_model=True)
 
-# Every step() automatically records transitions
-agent.step(1)  # Move right → latent_before + action + latent_after memorized
+# Without checkpoint — uses fallback statistical encoder
+agent = ScientistAgent('ls20-9607627b', enable_world_model=True, 
+                        world_model_config={'checkpoint_path': None})
 
-# Simulate without executing
+# Every step() records transitions
+agent.step(1)  # latent_before + action + latent_after → stored
+
+# Simulate
 predicted, confidence = agent._world_model_simulate(action=1)
-print(f"Confidence: {confidence:.0%}")
+# → (768-dim latent, 0.73)
 
 # Report
 print(agent._world_model_report())
-# → "World model: 47 transitions memorized"
+# → "World model: 47 transitions, avg confidence 0.61"
 ```
 
 ### Key Features
-- **Pretrained encoder:** V-JEPA 2.1 ViT-B/16 (80M params, 384px, RoPE) — zero-shot understanding of visual scenes
-- **k-NN predictor:** Learns from real experience — no training needed
-- **Graceful degradation:** Falls back to statistical encoding if V-JEPA checkpoint unavailable
-- **Memory:** Up to 10,000 transitions, automatic eviction
+
 - **Token-free:** World model queries cost 0 LLM tokens
-- **Harness-compatible:** The world model is an optional tool — agent works without it
+- **k-NN predictor:** Learns from real experience — no training needed
+- **Graceful degradation:** Falls back to statistical encoding if V-JEPA unavailable
+- **Memory:** 10,000 transitions with automatic eviction
+- **Per-game persistence:** `.npz` cache in `~/.cache/cogniarc/world_model/`
+- **Harness-compatible:** Optional tool — agent works without it
+
+### Current Status
+
+| Metric | Value |
+|--------|-------|
+| Encoder loaded | ✅ V-JEPA 2.1 ViT-B/16 |
+| k-NN accuracy (LS20) | ~60% (needs more transitions) |
+| Inference time | ~6s (V-JEPA) / <1ms (fallback) |
+| Fallback quality | Statistical only — 0% real grid understanding |
+| Integration | ✅ Wired into ScientistAgent tier chain
 
 ---
 
