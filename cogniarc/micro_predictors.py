@@ -293,10 +293,10 @@ class PathfinderPredictor:
 
 
 class CaptchaPredictor:
-    """Micro-NN CAPTCHA type classifier — identifies CAPTCHA from 8×8 screenshot.
+    """Micro-NN CAPTCHA type classifier — identifies CAPTCHA from 16×16 screenshot.
     
-    Architecture: 64 → 32 → 16 → 6 (relu×2 + softmax)
-    Input:  8×8 downsampled grayscale (64 features)
+    Architecture: 256 → 64 → 32 → 6 (relu×2 + softmax)
+    Input:  16×16 downsampled grayscale (256 features)
     Output: recaptcha_v2 | hcaptcha | turnstile | text | math | none
     """
     
@@ -309,6 +309,7 @@ class CaptchaPredictor:
             )
         
         self._loaded = False
+        self.patch_size = 8
         if os.path.exists(model_path):
             try:
                 with open(model_path) as f:
@@ -318,6 +319,7 @@ class CaptchaPredictor:
                 self.biases = [np.array(b) for b in data['biases']]
                 self.activations = data['activations']
                 self.TYPES = data.get('types', self.TYPES)
+                self.patch_size = data.get('patch_size', 8)
                 self._loaded = True
             except Exception as e:
                 print(f"[Captcha] Failed to load: {e}")
@@ -353,20 +355,20 @@ class CaptchaPredictor:
     
     def classify_screenshot(self, screenshot: np.ndarray) -> tuple:
         """Classify a screenshot (any size, grayscale or RGB).
-        Downsamples to 8×8 for the classifier.
+        Downsamples to patch_size×patch_size for the classifier.
         """
         if len(screenshot.shape) == 3:
             gray = np.mean(screenshot, axis=2)
         else:
             gray = screenshot
         
-        # Downsample to 8×8
+        ps = self.patch_size
         h, w = gray.shape
-        downsampled = np.zeros((8, 8))
-        for i in range(8):
-            for j in range(8):
-                y0, y1 = i * h // 8, (i+1) * h // 8
-                x0, x1 = j * w // 8, (j+1) * w // 8
+        downsampled = np.zeros((ps, ps))
+        for i in range(ps):
+            for j in range(ps):
+                y0, y1 = i * h // ps, (i+1) * h // ps
+                x0, x1 = j * w // ps, (j+1) * w // ps
                 downsampled[i, j] = np.mean(gray[y0:max(y0+1, y1), x0:max(x0+1, x1)])
         
         downsampled = downsampled / 255.0
