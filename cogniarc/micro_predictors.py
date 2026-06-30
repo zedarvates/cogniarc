@@ -1,11 +1,61 @@
-"""Micro-NN predictors for ScientistAgent — instant action success prediction.
-Replaces V-JEPA world model queries (6s) with <1ms numpy inference.
+"""Predictors for ScientistAgent — pick logic vs micro-NN at the right time.
+
+Design principle (see scripts/benchmark_rules_vs_nn.py for the proof):
+  - When the mapping is a KNOWN rule (domain class, action success), explicit
+    logic (if/and/or) is exact, free, interpretable and *beats* the NN that was
+    trained to imitate it (+15 to +32 accuracy points on the same data).
+    → DomainPredictor and ActionPredictor are rule-first by default.
+  - When the mapping is UNKNOWN / perceptual (raw pixels → CAPTCHA type) or a
+    fast reactive prior on an unseen map (pathfinder patch), a NN earns its keep.
+    → CaptchaPredictor / PathfinderPredictor stay neural.
+
+Each rule-first predictor keeps the trained net loadable via mode="nn" so the
+two can still be compared, but defaults to mode="rule".
 """
 
 import json
 import os
 import numpy as np
 from typing import Optional, Tuple
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Logic rules — exact encodings of the (known) decision boundaries.
+# Operate on the same feature vectors the NNs consume.
+# ─────────────────────────────────────────────────────────────────────────────
+DOMAINS = ["movement", "rotation", "transform", "hybrid"]
+
+
+def domain_rule(features: np.ndarray) -> Tuple[str, float]:
+    """Classify game domain from 6 grid features via thresholds.
+
+    features = [w, h, n_colors, entropy, spatial_var, objects_ratio] (all 0-1)
+    Returns (domain_name, confidence). Mirrors train_domain.py's generator.
+    """
+    w, h, ncol, ent, svar, _objr = (float(x) for x in features)
+    if w < 0.4 and h < 0.4 and ncol > 0.5 and ent > 0.5:      # small + colorful + busy
+        return "transform", 0.95
+    if svar > 0.55 and ncol < 0.65 and abs(w - h) < 0.12:      # square-ish + ring-spread
+        return "rotation", 0.9
+    if w > 0.5 and h > 0.5 and ncol < 0.45 and ent < 0.55:     # large + sparse colors
+        return "movement", 0.9
+    return "hybrid", 0.6                                       # overlapping middle
+
+
+def action_success_rule(features: np.ndarray) -> float:
+    """Predict P(action succeeds) from 8 features via logic.
+
+    features = [dx, dy, dist, action_norm, wall, stag, near, steps]
+    Returns 0.0/1.0 (deterministic branches) — mirrors train_action.py.
+    """
+    dx, dy, _dist, action_norm, wall, stag, near, _steps = (float(x) for x in features)
+    action = round(action_norm * 3) + 1
+    toward = ((action == 1 and dx > 0) or (action == 2 and dy > 0)
+              or (action == 3 and dx < 0) or (action == 4 and dy < 0))
+    if near:            return 1.0   # noisy branch (70% success) → majority guess
+    if wall:            return 0.0   # wall blocks
+    if stag > 8 / 15.0: return 0.0   # too stuck
+    if toward:          return 1.0   # moving toward target
+    return 0.0                       # noisy branch (30% success) → majority guess
 
 
 class ActionPredictor:
@@ -16,14 +66,16 @@ class ActionPredictor:
     Output: success probability 0-1
     """
     
-    def __init__(self, model_path: Optional[str] = None):
+    def __init__(self, model_path: Optional[str] = None, mode: str = "rule"):
+        # mode="rule": exact logic (default, recommended). mode="nn": trained net.
+        self.mode = mode
         if model_path is None:
             model_path = os.path.join(
                 os.path.dirname(__file__), '..', 'micro_nn', 'action_predictor.json'
             )
-        
+
         self._loaded = False
-        if os.path.exists(model_path):
+        if mode == "nn" and os.path.exists(model_path):
             try:
                 with open(model_path) as f:
                     data = json.load(f)
@@ -37,8 +89,9 @@ class ActionPredictor:
     
     @property
     def available(self) -> bool:
-        return self._loaded
-    
+        # Rule mode is always available; nn mode needs the loaded checkpoint.
+        return True if self.mode == "rule" else self._loaded
+
     def _activate(self, x: np.ndarray, name: str) -> np.ndarray:
         if name == 'relu':
             return np.maximum(0, x)
@@ -48,19 +101,21 @@ class ActionPredictor:
             ex = np.exp(x - np.max(x))
             return ex / ex.sum()
         return x
-    
+
     def predict(self, features: np.ndarray) -> float:
         """Predict action success probability from 8 features.
-        
+
         Args:
             features: [dx, dy, dist, action_norm, wall_between, stagnation, near_target, steps]
-        
+
         Returns:
             success probability 0-1
         """
+        if self.mode == "rule":
+            return action_success_rule(features)
         if not self._loaded:
             return 0.5  # Neutral default
-        
+
         x = features.reshape(1, -1)
         for i in range(len(self.weights)):
             x = x @ self.weights[i].T + self.biases[i]
@@ -127,16 +182,18 @@ class DomainPredictor:
     Output: [movement, rotation, transform, hybrid] probabilities
     """
     
-    DOMAINS = ["movement", "rotation", "transform", "hybrid"]
-    
-    def __init__(self, model_path: Optional[str] = None):
+    DOMAINS = DOMAINS
+
+    def __init__(self, model_path: Optional[str] = None, mode: str = "rule"):
+        # mode="rule": exact logic (default, recommended). mode="nn": trained net.
+        self.mode = mode
         if model_path is None:
             model_path = os.path.join(
                 os.path.dirname(__file__), '..', 'micro_nn', 'domain_classifier.json'
             )
-        
+
         self._loaded = False
-        if os.path.exists(model_path):
+        if mode == "nn" and os.path.exists(model_path):
             try:
                 with open(model_path) as f:
                     data = json.load(f)
@@ -150,24 +207,26 @@ class DomainPredictor:
     
     @property
     def available(self) -> bool:
-        return self._loaded
-    
+        return True if self.mode == "rule" else self._loaded
+
     def _activate(self, x, name):
         if name == 'relu': return np.maximum(0, x)
         if name == 'softmax':
             ex = np.exp(x - np.max(x))
             return ex / ex.sum()
         return x
-    
+
     def predict(self, features: np.ndarray) -> Tuple[str, float]:
         """Predict domain from 6 grid features.
-        
+
         Returns:
             (domain_name, confidence)
         """
+        if self.mode == "rule":
+            return domain_rule(features)
         if not self._loaded:
             return "unknown", 0.0
-        
+
         x = features.reshape(1, -1)
         for i in range(len(self.weights)):
             x = x @ self.weights[i].T + self.biases[i]

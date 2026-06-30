@@ -14,8 +14,17 @@ Principles (adapted from Pokémon Player, not copied):
   - Benchmark tracking for LLM/agent comparison
 """
 
-import arc_agi
-from arcengine import GameAction
+# arc_agi / arcengine are only needed to actually drive a live game. Keep the
+# import optional so the rest of the package (TemporalReasoner, SpatialReasoner,
+# SocraticCritic, ...) stays importable without the ARC-AGI runtime installed.
+try:
+    import arc_agi
+    from arcengine import GameAction
+    ARC_RUNTIME_AVAILABLE = True
+except ImportError as _arc_import_error:
+    arc_agi = None
+    GameAction = None
+    ARC_RUNTIME_AVAILABLE = False
 import numpy as np
 from typing import Optional, Any, Dict, Set
 import time
@@ -232,7 +241,12 @@ class PKM:
 class ScientistAgent:
     """Discover game mechanics, then solve each level."""
     
-    def __init__(self, game_name: str, enable_benchmark: bool = True, enable_skill_tree: bool = True, enable_world_model: bool = False):
+    def __init__(self, game_name: str, enable_benchmark: bool = True, enable_skill_tree: bool = True, enable_world_model: bool = False, enable_nano_llm: bool = False):
+        if not ARC_RUNTIME_AVAILABLE:
+            raise RuntimeError(
+                "ScientistAgent requires the ARC-AGI runtime. Install it with "
+                "`pip install 'arc-agi>=0.9.9,<1.0'` (provides arc_agi + arcengine)."
+            )
         self.name = game_name
         self.pkm = PKM(game_name)
         self.arc = arc_agi.Arcade()
@@ -330,6 +344,23 @@ class ScientistAgent:
         except Exception as e:
             pass
         
+        # ═══ NEW: Nano-LLM HF tier (Qwen2.5-0.5B via Ollama, opt-in) ═══
+        # Sits between micro-NN and V-JEPA in the escalation chain. Wrapped in a
+        # safety harness that validates proposals against walls / known failures.
+        self.nano_llm = None
+        self.nano_harness = None
+        if enable_nano_llm:
+            try:
+                from cogniarc.nano_llm import NanoLLM, NanoLLMHarness
+                self.nano_llm = NanoLLM()
+                self.nano_harness = NanoLLMHarness(self.nano_llm)
+                if self.nano_llm.available:
+                    print(f"[NanoLLM] {self.nano_llm.model} online (Ollama)")
+                else:
+                    print(f"[NanoLLM] offline — {self.nano_llm._last_error}")
+            except Exception as e:
+                print(f"[NanoLLM] Failed to init: {e}")
+
         # Legacy aliases (to be removed gradually)
         self._phase = self.state.phase
         self._walls_detected = self.state.walls_detected
@@ -391,6 +422,37 @@ class ScientistAgent:
         predicted, confidence = self.world_model.predict(obs, action)
         return predicted, confidence
     
+    def _nano_propose_action(self, recent_history: str = "") -> Optional[int]:
+        """Nano-LLM tier: ask Qwen2.5-0.5B (via Ollama) for a safe next action.
+
+        Sits between the micro-NN tier and the V-JEPA world model in the
+        escalation chain. Proposals pass through NanoLLMHarness, which rejects
+        actions that hit known walls or repeat known failures. Returns the
+        validated action number, or None if the nano-LLM is unavailable.
+        """
+        if not self.nano_harness or not self.nano_llm or not self.nano_llm.available:
+            return None
+        if not self.obs.frame or len(self.obs.frame) == 0:
+            return None
+
+        available = list(self.obs.available_actions or [])
+        if not available:
+            return None
+
+        player_pos = getattr(self, '_player_pos', None)
+        wall_cells = getattr(self, '_wall_cells', None)
+        game_state = grid_to_text(self.obs.frame[0]) if 'grid_to_text' in globals() else str(self.obs.frame[0])
+
+        action, conf, reasoning, is_safe = self.nano_harness.propose_safe(
+            game_state=game_state,
+            available_actions=available,
+            player_pos=player_pos,
+            recent_history=recent_history,
+            wall_cells=wall_cells,
+        )
+        print(f"  🤖 NanoLLM: action={action} conf={conf:.2f} safe={is_safe} ({reasoning})")
+        return action if is_safe else None
+
     def _world_model_report(self) -> str:
         """Human-readable report of world model state."""
         if not self.world_model:
