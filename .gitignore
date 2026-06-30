@@ -1,6 +1,12 @@
 __pycache__/
 *.pyc
+*.egg-info/
+.venv/
 .DS_Store
 *.db
 *.scorecard
 environment_files/
+
+# Rust build artifacts (micro_nn)
+target/
+*.npz

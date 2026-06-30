@@ -1,3 +1,8 @@
-arc-agi>=1.0.0
+# Core runtime
+arc-agi>=0.9.9,<1.0   # latest published is 0.9.9; pulls in arcengine
 numpy>=1.24.0
 pillow>=10.0.0
+
+# Optional tiers (install on demand):
+#   torch, torchvision  -> V-JEPA world model (world_model.py)
+#   ollama              -> Nano-LLM HF tier (nano_llm.py)

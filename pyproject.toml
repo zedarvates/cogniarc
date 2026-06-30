@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cogniarc"
+version = "0.3.0"
+description = "ARC-AGI-3 cognitive architecture: drives, reasoning modes, SkillDAG, SocraticCritic, V-JEPA world model tool."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "zedarvates" }]
+keywords = ["arc-agi", "reasoning", "world-model", "cognitive-architecture"]
+
+dependencies = [
+    "arc-agi>=0.9.9,<1.0",
+    "numpy>=1.24.0",
+    "pillow>=10.0.0",
+]
+
+[project.optional-dependencies]
+# V-JEPA world model encoder (world_model.py)
+worldmodel = ["torch>=2.0", "torchvision>=0.15"]
+# Nano-LLM HF tier via Ollama (nano_llm.py)
+nanollm = ["ollama>=0.3"]
+# Test suite
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+cogniarc = "cogniarc.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/zedarvates/cogniarc"
+"Nano-NN models" = "https://huggingface.co/zedgamer/cogniarc-nano-nn"
+
+[tool.setuptools.packages.find]
+include = ["cogniarc*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

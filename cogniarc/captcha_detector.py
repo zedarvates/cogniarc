@@ -166,7 +166,7 @@ class CaptchaDetector:
         
         1. Detect CAPTCHA element via CSS (if browser context available)
         2. Crop the region from screenshot
-        3. Classify with nano-NN
+        3. Classify with micro-NN
         
         Returns:
             {
