@@ -1,0 +1,7 @@
+{
+  "_comment": "Generalization discipline: games used during development (hardcoded tags, thresholds, phase machine tuned against them) vs games never touched during dev. See docs/EVALUATION.md. Move a game from dev to holdout only if it was NEVER used to tune code; never tune against a holdout game once listed here.",
+  "dev_games": [
+    "ls20-9607627b"
+  ],
+  "holdout_games": []
+}

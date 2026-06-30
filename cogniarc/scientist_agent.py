@@ -73,6 +73,67 @@ class ReasoningMode(Enum):
     SOCRATIC = "socratic"             # Questionner hypothèses via SocraticCritic
 
 
+# ═══ Mode-driven decision functions ═══
+# These were previously hardcoded constants (3, 5) in solve_level()'s failure
+# handling, completely independent of `current_reasoning_mode` — the mode was
+# selected, logged, and printed but never actually changed agent behavior.
+# Pure functions (mode in, threshold out) so they're unit-testable without
+# instantiating ScientistAgent (which requires a live arc_agi runtime).
+
+# Modes where the agent has reason to actively doubt the current plan: escalate
+# sooner instead of repeating a failing deterministic skill.
+DOUBT_MODES = (ReasoningMode.COUNTERFACTUAL, ReasoningMode.SOCRATIC)
+# Modes pursuing a known deterministic target: tolerate more retries before
+# giving up, since the skill is likely to eventually succeed (e.g. A* retry).
+COMMIT_MODES = (ReasoningMode.PATHFINDING, ReasoningMode.ROTATION)
+
+
+def phase_attempts_threshold(mode: ReasoningMode, base: int = 3) -> int:
+    """How many failed attempts on a phase before triggering escalation."""
+    if mode in DOUBT_MODES:
+        return max(1, base - 1)
+    if mode in COMMIT_MODES:
+        return base + 1
+    return base
+
+
+def phase_escalation_threshold(mode: ReasoningMode, base: int = 5) -> int:
+    """Global hard-skip threshold (force-skip the level after this many
+    consecutive skill failures, regardless of which phase)."""
+    if mode in DOUBT_MODES:
+        return max(2, base - 2)
+    return base
+
+
+def reconcile_perception_with_phase(
+    phase_skill: Optional[str], perception_result: Optional[dict], mode: ReasoningMode
+) -> Optional[str]:
+    """Compare the perception stack's recommended skill against the phase
+    machine's chosen skill. Returns a human-readable disagreement message to
+    record via state.record_observation(), or None if they agree / there is
+    no recommendation.
+
+    Deliberately non-blocking (observes, does not override): the perception
+    stack (TemporalReasoner/SpatialReasoner/SymbolicInference) was previously
+    dead code — _perception_analyze() computed recommendations no caller ever
+    read. Wiring it as an override without held-out-game validation would risk
+    a working game-specific machine on unverified general perception. This
+    surfaces disagreement as data first; see docs/EVALUATION.md for the plan
+    to use that data to decide when perception should start steering instead
+    of just observing.
+    """
+    if not perception_result:
+        return None
+    recommended = perception_result.get("recommended_skills")
+    if not recommended:
+        return None
+    top = recommended[0] if isinstance(recommended, (list, tuple)) else recommended
+    if top and top != phase_skill:
+        return (f"Perception suggests '{top}' but phase machine chose "
+                f"'{phase_skill}' (mode={mode.value})")
+    return None
+
+
 @dataclass
 class ModeStrategy:
     """Stratégie associée à un mode de raisonnement."""
@@ -510,6 +571,17 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                 print(f"  ❌ No skill for phase: {self._phase}")
                 break
 
+            # ═══ Perception Stack: observe (non-blocking) disagreement with
+            # the phase machine's skill choice. See reconcile_perception_with_phase()
+            # docstring for why this informs rather than overrides for now. ═══
+            perception = self._perception_analyze(self.obs)
+            disagreement = reconcile_perception_with_phase(
+                skill_id, perception, self.current_reasoning_mode
+            )
+            if disagreement:
+                self.state.record_observation(disagreement, source="perception_reconcile")
+                print(f"  👁️ {disagreement}")
+
             # ═══ SocraticCritic: interrogate before each phase ═══
             hypothesis = self._build_phase_hypothesis()
             report = self.critic.quick_check(hypothesis, self.state)
@@ -544,8 +616,10 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                 self._phase_escalation_count += 1
                 print(f"  ⚠️ Skill {skill_id} failed in phase {self._phase} (attempt {self.state.phase_attempts})")
 
-                # Global escalation: if stuck too long, force skip level
-                if self._phase_escalation_count >= 5:
+                # Global escalation: if stuck too long, force skip level.
+                # Threshold is mode-driven: COUNTERFACTUAL/SOCRATIC modes signal
+                # active doubt about the current plan, so give up sooner.
+                if self._phase_escalation_count >= phase_escalation_threshold(self.current_reasoning_mode):
                     print(f"  🔴 Trop d'echecs ({self._phase_escalation_count}), force skip niveau...")
                     skip_to = self._try_skip_level()
                     if skip_to == "complete":
@@ -554,8 +628,11 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                     self.handle_transition()
                     break
 
-                # After 3 failed attempts on same phase, ask for escalation
-                if self.state.phase_attempts >= 3:
+                # After N failed attempts on same phase, ask for escalation.
+                # N is mode-driven: PATHFINDING/ROTATION trust the deterministic
+                # skill longer (it's likely to eventually succeed); doubt modes
+                # escalate sooner.
+                if self.state.phase_attempts >= phase_attempts_threshold(self.current_reasoning_mode):
                     escalation = self._escalate_phase_failure()
                     if escalation:
                         print(f"  🔀 Escalating: {escalation}")

@@ -181,6 +181,14 @@ python -m cogniarc.spatial_inference
 
 ## 📊 Benchmark Results (ARC-AGI-3)
 
+> ⚠️ **Dev-set numbers, not a generalization claim.** Every result below is on
+> LS20, the one game whose source (sprite tags, action mapping, wall colors)
+> directly informed the hardcoded discovery/phase logic in `scientist_agent_*.py`.
+> See [docs/EVALUATION.md](./docs/EVALUATION.md) for the dev/holdout discipline
+> and `python scripts/generalization_report.py` to check the (currently empty)
+> holdout comparison before trusting any solve rate as evidence of reasoning
+> rather than memorization.
+
 Results collected on **ls20-9607627b** (navigation game with obstacles).
 
 | Game | Level | Solver | Attempts | Solved | Rate | Notes |
