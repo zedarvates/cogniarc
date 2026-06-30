@@ -6,3 +6,7 @@ __pycache__/
 *.db
 *.scorecard
 environment_files/
+
+# Rust build artifacts (micro_nn)
+target/
+*.npz
