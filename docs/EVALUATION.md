@@ -88,3 +88,17 @@ floor", using `ObjectTracker`'s *learned* action directions. It is wired into
 recommended experiment; it does not yet force the action) — same
 observe-before-override discipline: letting it actually pick the agent's next
 move should be gated on a holdout game showing it helps rather than hurts.
+
+**Status of the program-synthesis item**: `cogniarc/program_synthesis.py`
+does breadth-first search over a small grid-transformation DSL (D4 symmetries
++ tiling) for the shortest composition mapping all input->output example
+pairs, then verifies the found program on a held-out test pair (ARC's
+train/test split in miniature — see `scripts/demo_program_synthesis.py`).
+Plus a standalone `infer_color_map` for the pure-recolouring rule family.
+This is a tested library primitive for the transform domain; it is *not* wired
+into the interactive ScientistAgent loop, because applying it there needs the
+live game (to get input->output pairs from action outcomes) and a holdout
+game to confirm the searched rule transfers rather than fits one game's
+quirks. The DSL is intentionally tiny; growing it (translate, crop, flood-
+fill, object-move, ...) is the obvious next step once there is a holdout game
+to measure whether a bigger search space helps or just overfits.
