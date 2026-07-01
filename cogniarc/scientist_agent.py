@@ -560,6 +560,14 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         # ═══ Initialize Perception Stack for temporal/spatial integration ═══
         self._init_perception_stack()
 
+        # ═══ Active experimentation (advisory): surface the most informative
+        # wall/floor disambiguation available, given learned action directions.
+        # Records a recommendation; does not (yet) steer the action. ═══
+        try:
+            self.suggest_wall_experiment()
+        except Exception as e:
+            print(f"  🔬 Active experiment suggestion skipped: {e}")
+
         # Benchmark tracking
         self.benchmark_start_time = time.time()
 

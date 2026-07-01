@@ -75,3 +75,16 @@ used as the *sole* discovery path for a game with no tags at all, because
 doing so without a holdout game to validate against would just be a new
 unverified guess. That validation is exactly what an added holdout game
 would give you — see "How to add a holdout game" above.
+
+**Status of the active-experimentation item**: `cogniarc/active_experiment.py`
+implements the disambiguate-then-observe loop — given competing hypotheses
+that predict discrete outcomes per action, it picks the action with the
+highest information gain (entropy of the predicted-outcome distribution),
+then refutes whichever hypothesis mispredicts the observed outcome. The
+worked example (`build_wall_floor_experiment`) turns "is colour X a wall or
+floor?" into "move toward a cell of colour X; blocked => wall, moved =>
+floor", using `ObjectTracker`'s *learned* action directions. It is wired into
+`solve_level()` in advisory mode only (`suggest_wall_experiment()` records the
+recommended experiment; it does not yet force the action) — same
+observe-before-override discipline: letting it actually pick the agent's next
+move should be gated on a holdout game showing it helps rather than hurts.

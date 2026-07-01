@@ -274,6 +274,68 @@ class DiscoveryMixin:
               f"(tags={sorted(tag_colors)}, adjacent={sorted(player_adjacent)}, "
               f"grid={sorted(grid_wall_candidates)}, tracker={sorted(tracker_walls)}, floor={floor_color})")
 
+    def suggest_wall_experiment(self):
+        """Active experimentation (advisory): recommend the single action that
+        would most quickly resolve an *ambiguous* wall/floor colour, using
+        ObjectTracker's learned action directions.
+
+        Returns (color, action, info_bits) for the best available experiment,
+        or None if there is nothing ambiguous to test right now. Advisory only:
+        this records the recommendation as an observation but does NOT force
+        the action — like the other perception wiring in this codebase, it
+        surfaces the decision for validation on a holdout game before being
+        allowed to steer (see docs/EVALUATION.md).
+        """
+        tracker = getattr(self, 'object_tracker', None)
+        if tracker is None or self.player is None:
+            return None
+        if not self.obs.frame or len(self.obs.frame) == 0:
+            return None
+
+        from .active_experiment import build_wall_floor_experiment, select_experiment
+
+        grid = self.obs.frame[0]
+        pf = getattr(self, '_pathfinder', None)
+        confirmed_walls = pf.wall_colors if pf and hasattr(pf, 'wall_colors') else set()
+        player_color = int(grid[self.player.y, self.player.x])
+
+        # Learned movement directions only (rotate/interact excluded).
+        action_dirs = {
+            a: tracker.action_direction(a)
+            for a in tracker.action_displacements
+            if tracker.is_movement_action(a)
+        }
+        action_dirs = {a: d for a, d in action_dirs.items() if d is not None}
+        if not action_dirs:
+            return None
+
+        # Ambiguous colours = present, not background, not the player, and not
+        # already confirmed as walls. Those are exactly the ones worth a test.
+        import numpy as np
+        present = set(int(c) for c in np.unique(grid))
+        ambiguous = present - {0, player_color} - set(confirmed_walls)
+
+        best = None
+        for color in ambiguous:
+            hyps, candidates = build_wall_floor_experiment(
+                color, action_dirs, (self.player.y, self.player.x), grid
+            )
+            picked = select_experiment(hyps, candidates)
+            if picked is None:
+                continue
+            action, info = picked
+            if info > 0 and (best is None or info > best[2]):
+                best = (color, action, info)
+
+        if best is not None:
+            color, action, info = best
+            msg = (f"Active experiment: action {action} would test whether "
+                   f"colour {color} is a wall (info gain {info:.2f} bit)")
+            if hasattr(self, 'state') and self.state is not None:
+                self.state.record_observation(msg, source="active_experiment")
+            print(f"  🔬 {msg}")
+        return best
+
     def _find_tagged_sprites(self, tag: str):
         """Find sprites with given tag in current level."""
         level = self.game.current_level if self.game else None
