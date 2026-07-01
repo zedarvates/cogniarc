@@ -247,16 +247,37 @@ class SkillsMixin:
             pathfinder.navigate_to((cx, cy), max_steps=100)
             return True  # Made progress toward changer
 
-        # At changer — cycle rotation using R+L (actions 4+3)
-        max_cycles = 20
-        for _ in range(max_cycles):
-            current_rot = getattr(self.game, 'cklxociuu', 0)
-            if current_rot == goal_rot:
-                return True
-            self.step(4)  # Right
-            self.step(3)  # Left
+        # At changer — search for the goal rotation instead of blindly
+        # spamming action 4 then 3 in a fixed loop. The transition function
+        # (what does each action actually do to the rotation counter, from
+        # each state?) is LEARNED from real interaction — never assumed — via
+        # next_probe_or_action(): it either takes an untried action to
+        # observe its effect ("probe") or replays a path already confirmed by
+        # real observation ("advance"). The table persists across calls
+        # (self._rotation_transition_table) so later phases/levels reuse
+        # what earlier ones learned instead of re-probing from scratch.
+        from .program_synthesis import next_probe_or_action
+        if not hasattr(self, '_rotation_transition_table'):
+            self._rotation_transition_table = {}
+        table = self._rotation_transition_table
+        rotation_actions = [3, 4]  # the two changer actions this skill uses
 
-        return False  # Failed to reach target rotation
+        max_actions = 20
+        for _ in range(max_actions):
+            current_rot = getattr(self.game, 'cklxociuu', 0)
+            mode, action = next_probe_or_action(table, current_rot, goal_rot, rotation_actions)
+            if mode == "done":
+                return True
+            if mode == "stuck":
+                # Every action tried from this state; the goal is provably
+                # unreachable with what's been learned so far — stop instead
+                # of spinning, unlike the old fixed-count loop.
+                return False
+            self.step(action)
+            new_rot = getattr(self.game, 'cklxociuu', 0)
+            table[(current_rot, action)] = new_rot
+
+        return getattr(self.game, 'cklxociuu', 0) == goal_rot
 
     def _advance_phase(self, success: bool):
         """Advance phase based on skill result. Syncs with ScientificState."""

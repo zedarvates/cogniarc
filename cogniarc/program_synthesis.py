@@ -12,10 +12,14 @@ Deliberately pure (numpy only, no arc_agi, no env): the whole search + verify
 loop runs on plain grid pairs, so it is fully unit-testable without a live
 runtime. See tests/test_program_synthesis.py.
 
-Scope note: this is the transform-domain solver (grid in -> grid out). It is a
-library primitive, not yet wired into the interactive ScientistAgent loop —
-that wiring needs the live game and a holdout game to validate against, per the
-observe-before-override discipline in docs/EVALUATION.md.
+Also includes `next_probe_or_action` / `plan_action_sequence`: the same
+"search, don't hardcode" idea applied to a small discrete interactive state
+(e.g. a rotation counter) whose transition function isn't known in advance
+and can only be learned by taking real actions and observing the result. This
+is the pure planner half of a search+execute loop; scientist_agent_skills.py
+wires it to real self.step() calls (see _skill_rotate_to_goal), replacing a
+previously hardcoded "always press action 4 then 3" cycle with actual search
+over whichever actions are available.
 """
 from collections import deque
 from dataclasses import dataclass
@@ -227,3 +231,109 @@ def apply_color_map(grid: Grid, mapping: Dict[int, int]) -> Grid:
     for old, new in mapping.items():
         out[grid == old] = new
     return out
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Online discrete-state search — for interactive properties (e.g. a rotation
+# counter) whose transition function must be LEARNED by taking real actions,
+# not assumed. Generalizes the "search for the shortest composition" idea from
+# static grids to a live, incrementally-discovered transition graph.
+# ─────────────────────────────────────────────────────────────────────────────
+State = int  # any hashable discrete state works; typed as int for clarity here
+TransitionTable = Dict[Tuple[State, int], State]  # (state, action) -> next_state
+
+
+def _bfs_known_path(
+    table: TransitionTable, start: State, goal: State, actions: Sequence[int],
+) -> Optional[List[int]]:
+    """Shortest action sequence start -> goal using ONLY edges already present
+    in `table` (i.e. transitions already observed by real interaction).
+    Returns None if goal is unreachable with current knowledge."""
+    if start == goal:
+        return []
+    visited = {start}
+    queue: deque = deque([(start, [])])
+    while queue:
+        state, path = queue.popleft()
+        for action in actions:
+            key = (state, action)
+            if key not in table:
+                continue  # edge not yet observed — can't traverse it blindly
+            nxt = table[key]
+            if nxt in visited:
+                continue
+            next_path = path + [action]
+            if nxt == goal:
+                return next_path
+            visited.add(nxt)
+            queue.append((nxt, next_path))
+    return None
+
+
+def next_probe_or_action(
+    table: TransitionTable, current_state: State, goal_state: State, actions: Sequence[int],
+) -> Tuple[str, Optional[int]]:
+    """Decide the single next action to take, given everything learned so far.
+
+    Returns (mode, action):
+      ("done", None)   — current_state already equals goal_state.
+      ("advance", a)   — BFS over already-observed transitions found a path;
+                          `a` is its first action. Taking it is planned, not
+                          a guess.
+      ("probe", a)     — no known path yet; `a` is an untried action from
+                          current_state whose effect needs to be observed
+                          (real active experimentation: try it, then learn).
+      ("stuck", None)  — every action from current_state has already been
+                          tried at least once from *some* state and still no
+                          path is known; the caller should stop rather than
+                          loop forever on a transition graph that provably
+                          doesn't connect current_state to goal_state.
+    """
+    if current_state == goal_state:
+        return ("done", None)
+
+    path = _bfs_known_path(table, current_state, goal_state, actions)
+    if path:
+        return ("advance", path[0])
+
+    untried_here = [a for a in actions if (current_state, a) not in table]
+    if untried_here:
+        return ("probe", untried_here[0])
+
+    # Every action from this exact state has been tried and none of them
+    # (transitively) reaches the goal with current knowledge.
+    return ("stuck", None)
+
+
+def plan_action_sequence(
+    transition: Callable[[State, int], State],
+    start_state: State,
+    goal_state: State,
+    actions: Sequence[int],
+    max_actions: int = 20,
+) -> Tuple[List[int], TransitionTable]:
+    """Reference/offline driver for `next_probe_or_action`, useful for tests
+    and for any case where `transition` can be called freely (e.g. a
+    simulator). Interactive callers (scientist_agent_skills.py) instead call
+    next_probe_or_action() themselves once per real self.step(), since a live
+    action can't be "tried and rolled back" the way this function assumes.
+
+    Returns (actions_taken, learned_table). Stops early on "done" or "stuck",
+    or after max_actions regardless.
+    """
+    table: TransitionTable = {}
+    state = start_state
+    taken: List[int] = []
+
+    for _ in range(max_actions):
+        mode, action = next_probe_or_action(table, state, goal_state, actions)
+        if mode == "done":
+            break
+        if mode == "stuck":
+            break
+        state_before = state
+        state = transition(state, action)
+        table[(state_before, action)] = state
+        taken.append(action)
+
+    return taken, table

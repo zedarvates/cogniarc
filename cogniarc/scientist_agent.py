@@ -565,7 +565,18 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         self.state.set_assumption("walls_known", self._walls_detected or self._check_source_available())
         self.state.set_assumption("actions_scouted", True)
         self.state.set_assumption("domain_identified", True)
-        self.state.set_assumption("goal_known", self._infer_goal_rotation() is not None)
+        goal_rotation_known = self._infer_goal_rotation() is not None
+        self.state.set_assumption("goal_known", goal_rotation_known)
+        # Tell SocraticCritic a rotation mechanism exists even without action 6
+        # (e.g. LS20's changer, cycled via two other actions) — built from
+        # already-discovered generic signals (rotation-changer mechanic tag,
+        # known goal rotation), not a new hardcoded assumption.
+        self.state.set_assumption(
+            "has_rotation_mechanism",
+            is_rotation
+            or bool(self.pkm.get('mechanics', 'rotation_changers', []))
+            or goal_rotation_known,
+        )
 
         # Record observations from discovery
         self.state.record_observation(

@@ -128,6 +128,40 @@ itself, make the phase machine solve SC25 (`navigate_to_changer` etc. are
 still LS20-specific concepts SC25 has no equivalent of) — that remains open
 work, tracked separately.
 
+### A second, deeper bug found by trying to pilot a real search (not advisory)
+
+Replacing `_skill_rotate_to_goal`'s hardcoded "press action 4, then action 3,
+up to 20 times" cycle with an actual search
+(`program_synthesis.next_probe_or_action` / `plan_action_sequence` — learn the
+rotation transition from real observations, then plan the shortest verified
+path to the goal state) surfaced a bug *underneath* the one it was meant to
+fix: `SocraticCritic._check_physical_constraints` hardcoded
+`has_rotation = 6 in available_actions`, so ANY hypothesis containing "rotat"
+or "turn" was flagged `PHYSICAL_CONSTRAINT` (severity 0.9, blocking) whenever
+action 6 wasn't available — which is always true for LS20, since it rotates
+via two other actions (3+4) at a changer object, never action 6. Every live
+run before this fix had `_resolve_blocking()` silently skip `rotate_to_goal`
+entirely (`"action 6" in blocking_text and self._phase in (...)  -> return
+"navigate_to_lock"`), so the new search code was written and unit-tested
+correctly but had never actually executed on a real game until this was
+found and fixed.
+
+Fix: `_check_physical_constraints` now also accepts
+`assumptions["has_rotation_mechanism"]` (a generic signal set from whatever
+was actually discovered — a rotation-changer mechanic tag, or a known goal
+rotation — not a new hardcode) as evidence that rotation is possible without
+action 6. `solve_level()` sets it from `self.pkm.get('mechanics',
+'rotation_changers', [])` and `self._infer_goal_rotation()`.
+
+**Verified live**: before the fix, LS20 runs never printed
+`Phase: rotate_to_goal -> Skill: rotate-to-goal` — `_resolve_blocking` always
+redirected straight to `navigate_to_lock`. After the fix, the same command
+(`python scripts/run_holdout.py --game ls20-9607627b --allow-dev --max-steps 100`)
+shows the rotate_to_goal phase actually attempted, the new search-based skill
+executing (no crash), and the phase machine advancing past it to
+`navigate_to_lock` on success — a real pilot, not an advisory suggestion that
+never runs.
+
 ## How to add a holdout game
 
 1. Pick a game never referenced anywhere in this repo (`git grep` its id to
