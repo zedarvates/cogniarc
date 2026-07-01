@@ -1,7 +1,32 @@
 {
-  "_comment": "Generalization discipline: games used during development (hardcoded tags, thresholds, phase machine tuned against them) vs games never touched during dev. See docs/EVALUATION.md. Move a game from dev to holdout only if it was NEVER used to tune code; never tune against a holdout game once listed here.",
+  "_comment": "Generalization discipline (see docs/EVALUATION.md). dev_games informed hardcoded tags/thresholds/features in the code (verified 2026-07-01 by git-grepping each game id across *.py/*.md/*.json — all have >=1 non-test reference; LS20 drives the phase machine, the rest appear in domain_classifier.get_known_game_features and README tables). holdout_games have ZERO references anywhere in the repo — genuinely untouched during development. RULE: never tune code against a holdout game; if you do, move it to dev_games honestly.",
   "dev_games": [
-    "ls20-9607627b"
+    "ls20-9607627b",
+    "vc33-5430563c",
+    "ft09-0d8bbf25",
+    "re86-8af5384d",
+    "tr87-cd924810",
+    "cd82-fb555c5d",
+    "r11l-495a7899",
+    "m0r0-492f87ba",
+    "lp85-305b61c3",
+    "lf52-271a04aa",
+    "g50t-5849a774",
+    "cn04-2fe56bfb",
+    "tu93-0768757b",
+    "tn36-ef4dde99",
+    "bp35-0a0ad940"
   ],
-  "holdout_games": []
+  "holdout_games": [
+    "wa30-ee6fef47",
+    "su15-1944f8ab",
+    "sp80-589a99af",
+    "sk48-d8078629",
+    "sc25-635fd71a",
+    "sb26-7fbdac44",
+    "s5i5-18d95033",
+    "ka59-38d34dbb",
+    "dc22-fdcac232",
+    "ar25-0c556536"
+  ]
 }

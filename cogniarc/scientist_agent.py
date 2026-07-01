@@ -450,40 +450,73 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
             self._perception_initialized = False
 
     def _perception_analyze(self, obs) -> dict:
-        """Run temporal + spatial analysis on current observation.
-        Returns a dict with perceived patterns and recommended skills.
-        Dynamic Workflow pattern: PIPELINE (perception → inference → suggestion)."""
+        """Run temporal + spatial analysis on the current observation.
+
+        Returns {temporal, spatial, symbols, recommended_skills} where present.
+        Advisory only (its output is surfaced, not forced) and fully defensive:
+        a perception failure must never crash the solve loop.
+
+        Correctness note (found by the first holdout run, sc25): this method
+        was dead code until wired in feat/wire-cognitive-architecture, and the
+        dead version was broken three ways — it called analyze() with an
+        argument (both reasoners' analyze() take none), it stored raw obs
+        objects instead of grids in the frame history, and it passed pattern
+        objects where infer() wants (type, confidence) tuples. All fixed here;
+        the whole thing is also wrapped so any residual API drift degrades to
+        an empty result rather than aborting the run.
+        """
         if not self._perception_initialized:
             return {"mode_action": None}
 
-        result = {}
+        # Extract the current grid; nothing to analyze without it.
+        if not (obs and hasattr(obs, 'frame') and obs.frame and len(obs.frame) > 0):
+            return {}
+        grid = obs.frame[0]
 
-        # Temporal analysis (if we have frame history)
-        if hasattr(self, '_frame_history'):
-            self._frame_history.append(obs)
-            if len(self._frame_history) >= 3:
-                frames = self._frame_history[-3:]
-                temporal_pattern = self._temporal.analyze(frames)
+        result: dict = {}
+        try:
+            # Frame history holds GRIDS (not obs objects).
+            history = getattr(self, '_frame_history', None)
+            if history is None:
+                history = self._frame_history = []
+            history.append(grid)
+            if len(history) > 8:  # bounded
+                del history[:-8]
+
+            # Temporal: analyze the recent grid sequence (needs >= 2 frames).
+            temporal_pattern = None
+            if len(history) >= 2:
+                from .temporal_inference import TemporalReasoner
+                temporal_pattern = TemporalReasoner(frames=list(history[-3:])).analyze()
                 result["temporal"] = temporal_pattern
-        else:
-            self._frame_history = [obs]
 
-        # Spatial analysis (current frame)
-        if obs and hasattr(obs, 'frame') and obs.frame and len(obs.frame) > 0:
-            grid = obs.frame[0]
-            spatial_pattern = self._spatial.analyze(grid)
+            # Spatial: analyze the current grid (SpatialReasoner(grid) segments
+            # in its constructor; analyze() then reads self.grid).
+            from .spatial_inference import SpatialReasoner
+            spatial_reasoner = SpatialReasoner(grid)
+            spatial_pattern = spatial_reasoner.analyze()
             result["spatial"] = spatial_pattern
 
-            # Symbolic inference: temporal + spatial → skill recommendation
-            if "temporal" in result:
-                symbols = self._symbolic.infer(
-                    temporal_pattern=result["temporal"],
-                    spatial_pattern=spatial_pattern,
-                )
-                result["symbols"] = symbols
-                skills = self._symbolic.skill_recommendations()
-                if skills:
-                    result["recommended_skills"] = skills
+            # Symbolic: infer() wants (type, confidence) tuples, not the objects.
+            symbols = self._symbolic.infer(
+                temporal_pattern=(
+                    (temporal_pattern.type, temporal_pattern.confidence)
+                    if temporal_pattern is not None else None
+                ),
+                spatial_pattern=(spatial_pattern.type, spatial_pattern.confidence),
+                regions=spatial_reasoner.regions,
+            )
+            result["symbols"] = symbols
+            skills = self._symbolic.skill_recommendations()
+            if skills:
+                # skill_recommendations() returns (name, confidence, reason)
+                # tuples; expose plain skill names for reconcile_*.
+                result["recommended_skills"] = [
+                    s[0] if isinstance(s, (list, tuple)) else s for s in skills
+                ]
+        except Exception as e:
+            # Advisory: never let perception abort the solve loop.
+            return {"perception_error": str(e)}
 
         return result
 
@@ -903,7 +936,10 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         # PHASE 3: Solve levels
         print(f"\n🎮 SOLVE PHASE (target: {self.obs.win_levels} levels)")
 
-        max_total = 400
+        # Total step budget. A holdout smoke run can lower this via
+        # _holdout_max_steps (set by scripts/run_holdout.py --max-steps) to keep
+        # remote-API usage bounded.
+        max_total = min(400, getattr(self, '_holdout_max_steps', 400) or 400)
         while self.obs.levels_completed < self.obs.win_levels and self.steps < max_total:
             prev_lvl = self.obs.levels_completed
 

@@ -26,10 +26,12 @@ class FakeSessionResult:
     games: List[FakeGameResult] = field(default_factory=list)
 
 
-def test_default_config_has_dev_game_and_no_holdout():
+def test_default_config_dev_and_holdout_are_disjoint():
     sets = load_game_sets()
-    assert "ls20-9607627b" in sets["dev_games"]
-    assert sets["holdout_games"] == []  # honest starting state
+    assert "ls20-9607627b" in sets["dev_games"]  # the phase-machine dev game
+    assert sets["holdout_games"], "expected pristine holdout games to be configured"
+    # A game must never be in both sets — that would defeat the whole point.
+    assert set(sets["dev_games"]).isdisjoint(sets["holdout_games"])
 
 
 def test_no_holdout_games_warns_explicitly():
