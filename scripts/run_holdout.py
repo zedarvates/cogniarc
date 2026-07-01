@@ -53,6 +53,10 @@ def main():
     parser.add_argument("--max-steps", type=int, default=None,
                         help="cap total steps per game (bounded smoke run)")
     parser.add_argument("--list", action="store_true", help="show dev/holdout classification and exit")
+    parser.add_argument("--allow-dev", action="store_true",
+                        help="permit running a DEV game (baseline measurement only — this is "
+                             "NOT a generalization result; it just populates the dev-side number "
+                             "for the gap comparison)")
     args = parser.parse_args()
 
     sets = load_game_sets()
@@ -66,10 +70,14 @@ def main():
 
     if args.game:
         if args.game in dev:
-            print(f"REFUSED: '{args.game}' is a dev game. Running it would not "
-                  f"measure generalization. Pick a holdout game:\n  {', '.join(holdout)}")
-            sys.exit(2)
-        if args.game not in holdout:
+            if not args.allow_dev:
+                print(f"REFUSED: '{args.game}' is a dev game. Running it would not "
+                      f"measure generalization. Pick a holdout game:\n  {', '.join(holdout)}\n"
+                      f"(or pass --allow-dev to record a dev baseline — not a generalization result)")
+                sys.exit(2)
+            print(f"NOTE: '{args.game}' is a DEV game — this run is a baseline measurement, "
+                  f"NOT evidence of generalization.")
+        elif args.game not in holdout:
             print(f"'{args.game}' is not in holdout_games. Add it to "
                   f"cogniarc/eval_games.json only if it was never used to tune code.")
             sys.exit(2)

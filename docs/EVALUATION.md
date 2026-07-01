@@ -39,9 +39,36 @@ holdout solve rates plus the **generalization gap** (dev rate − holdout
 rate). A large positive gap means the agent is overfit to known games'
 specifics rather than solving via transferable reasoning.
 
-If `holdout_games` is empty (the current state), the report says so
-explicitly instead of silently omitting the comparison — **an empty holdout
-set means no generalization claim can currently be made**, full stop.
+If `holdout_games` is empty, the report says so explicitly instead of
+silently omitting the comparison — an empty holdout set means no
+generalization claim can be made, full stop. (As of 2026-07-01 this is no
+longer the case: `arc_agi`'s API exposes 25 real environments, classified by
+git-grepping each game id across the repo — 15 dev / 10 pristine holdout. See
+"First measurements" below.)
+
+## First measurements (2026-07-01)
+
+```
+python scripts/run_holdout.py --game sc25-635fd71a --max-steps 30       # holdout
+python scripts/run_holdout.py --game ls20-9607627b --allow-dev --max-steps 60  # dev baseline
+```
+
+| Set | Attempts | Solve rate |
+|-----|----------|------------|
+| Dev (LS20, 60-step cap) | 2 | 0.0% |
+| Holdout (SC25, 30-step cap) | 5 | 0.0% |
+
+**Read this carefully — the 0.0%/0.0% gap is NOT evidence the agent
+generalizes.** Both numbers are floor effects of a step cap too low to solve
+even LS20: the README's own benchmark table shows `ScientistAgent (v3.2)` at
+0% on LS20 L1 even *without* an artificial cap (the maze-navigation phase
+machine gets stuck; BFS is the only solver that reaches 72%). A meaningful
+dev-vs-holdout comparison needs step budgets long enough for the dev game to
+show its *actual* (non-zero, tag-assisted) behavior — otherwise a 0%/0%
+"gap" just means neither run finished, and any future comparison against
+these two numbers should re-run both at a realistic budget (200+ steps, per
+`solve_level()`'s own `max_iterations`) rather than trust this smoke-test
+pair.
 
 ## How to add a holdout game
 
