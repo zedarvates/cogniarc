@@ -103,11 +103,21 @@ class DiscoveryMixin:
         for action_num in available:
             prev_pos = (self.player.x, self.player.y) if self.player else None
 
-            self.step(action_num)
+            self.step(action_num)  # also feeds self.object_tracker.observe()
 
             moved = False
             if self.player and prev_pos:
                 moved = (self.player.x, self.player.y) != prev_pos
+            elif getattr(self, 'object_tracker', None) is not None:
+                # Generic fallback: self.player is only ever found via a
+                # hardcoded attribute-name guess list ('gudziatsk', ...) that
+                # is LS20-specific — on a game whose internal object doesn't
+                # expose the player under one of those names, self.player
+                # stays None forever and `moved` used to silently stay False
+                # for every action (found via two real holdout runs, see
+                # docs/EVALUATION.md). ObjectTracker needs no attribute name:
+                # it identifies the mover from grid+action correlation alone.
+                moved = bool(self.object_tracker.last_step_player_moved)
 
             grid_changed = False
             if start_grid is not None and hasattr(self.obs, 'frame') and self.obs.frame:

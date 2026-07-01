@@ -139,3 +139,62 @@ def test_no_crash_on_completely_static_game():
     assert t.player_color is None
     assert t.wall_colors == set()
     assert "0 observations" not in t.report()
+
+
+# ── last_step_player_moved / current_position: the generic replacement for
+# self.player.x/.y attribute-name probing (see docs/EVALUATION.md — this
+# attribute-name guesslist was found broken on two real holdout games) ───────
+def test_last_step_player_moved_none_before_any_observation():
+    t = ObjectTracker()
+    assert t.last_step_player_moved is None
+
+
+def test_last_step_player_moved_true_after_a_move():
+    t = ObjectTracker()
+    g0 = grid(cells={(2, 1): 5})
+    g1 = grid(cells={(2, 2): 5})
+    t.observe(g0, action=1, grid_after=g1)
+    assert t.last_step_player_moved is True
+
+
+def test_last_step_player_moved_false_when_blocked():
+    t = ObjectTracker()
+    g0 = grid(cells={(2, 1): 5})
+    g1 = grid(cells={(2, 2): 5})
+    t.observe(g0, action=1, grid_after=g1)  # establish player + direction
+    g_blocked = grid(cells={(2, 2): 5, (2, 3): 3})
+    t.observe(g_blocked, action=1, grid_after=g_blocked)
+    assert t.last_step_player_moved is False
+
+
+def test_last_step_player_moved_none_without_player_candidate():
+    """A completely static game (nothing ever moves) has no player candidate,
+    so last_step_player_moved must stay None, not silently False — that
+    distinction is exactly what generic movement detection needs (unknown
+    vs. known-and-blocked)."""
+    t = ObjectTracker()
+    g = grid(cells={(1, 1): 2})
+    t.observe(g, action=1, grid_after=g)
+    assert t.last_step_player_moved is None
+
+
+def test_current_position_none_before_player_established():
+    t = ObjectTracker()
+    assert t.current_position(grid(cells={(2, 1): 5})) is None
+
+
+def test_current_position_tracks_player_after_move():
+    t = ObjectTracker()
+    g0 = grid(cells={(2, 1): 5})
+    g1 = grid(cells={(2, 2): 5})
+    t.observe(g0, action=1, grid_after=g1)
+    assert t.current_position(g1) == (2, 2)
+
+
+def test_current_position_none_if_player_color_absent_from_grid():
+    t = ObjectTracker()
+    g0 = grid(cells={(2, 1): 5})
+    g1 = grid(cells={(2, 2): 5})
+    t.observe(g0, action=1, grid_after=g1)  # player_color = 5 established
+    empty_grid = grid()  # no colour 5 anywhere
+    assert t.current_position(empty_grid) is None

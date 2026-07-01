@@ -87,6 +87,16 @@ class ObjectTracker:
         self.action_displacements: Dict[int, List[Tuple[float, float]]] = defaultdict(list)
         self.wall_color_votes: Counter = Counter()
         self.n_observations = 0
+        # Set by the most recent observe() call: True if the player-candidate
+        # region moved that step, False if it's known but didn't move, None if
+        # no player candidate is established yet. This is what lets callers
+        # detect "did the last action move the player?" WITHOUT any attribute
+        # name — the generic replacement for `self.player.x/.y` probing, which
+        # silently reports no-movement-ever on any game whose internal player
+        # object isn't named one of a hardcoded guess list (see
+        # scientist_agent.py's ['gudziatsk', 'player', 'agent', ...] probe,
+        # found broken on two real holdout games in docs/EVALUATION.md).
+        self.last_step_player_moved: Optional[bool] = None
 
     @property
     def player_color(self) -> Optional[int]:
@@ -148,13 +158,34 @@ class ObjectTracker:
         pc = self.player_color
         if pc is not None and pc in moved_this_step:
             self.action_displacements[action].append(moved_this_step[pc])
+            self.last_step_player_moved = True
         elif pc is not None:
             # Player-candidate region didn't move this step. If this action is
             # already confidently known to be a movement action, the cell it
             # was attempting to move into is wall evidence.
             self._record_wall_evidence_if_blocked(grid_before, regions_before, pc, action)
+            self.last_step_player_moved = False
+        else:
+            self.last_step_player_moved = None  # no player candidate yet
 
         self.n_observations += 1
+
+    def current_position(self, grid: np.ndarray) -> Optional[Tuple[int, int]]:
+        """Best-guess (row, col) of the player in `grid`, using the learned
+        player_color — no attribute name, no tag, works on any game once
+        enough moves have been observed to identify a mover.
+
+        Returns None if no player candidate has been established yet, or if
+        the player's color isn't present in this particular grid.
+        """
+        pc = self.player_color
+        if pc is None:
+            return None
+        regions = [r for r in segment_regions(grid) if r.color == pc]
+        if not regions:
+            return None
+        region = max(regions, key=lambda r: r.area)
+        return (int(round(region.center[0])), int(round(region.center[1])))
 
     def _record_wall_evidence_if_blocked(
         self, grid_before: np.ndarray, regions_before: List[Region], player_color: int, action: int

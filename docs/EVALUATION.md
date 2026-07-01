@@ -102,10 +102,31 @@ expose the player under one of those five names, `self.player` stays `None`
 for the entire run, and every `moved` check in `discover_available_actions()`
 silently degrades to `False` since it's gated on `if self.player`. This is a
 second hardcode, deeper than the sprite tags this doc already tracked, and it
-plausibly explains why both new games look "actionless" rather than merely
-"differently laid out." Flagged as a follow-up fix (find the player object
-generically — e.g. via `ObjectTracker.player_color`, which needs no attribute
-name at all — rather than growing the guess-list further).
+plausibly explained why both new games looked "actionless" rather than merely
+"differently laid out."
+
+### Fix verified live (2026-07-01)
+
+`ObjectTracker` gained `last_step_player_moved` (generic movement evidence,
+set by `observe()`) and `current_position()` (player `(row, col)` derived from
+`player_color`, no attribute name). `discover_available_actions()` now falls
+back to `object_tracker.last_step_player_moved` whenever `self.player` is
+`None`, instead of silently reporting `moved=False` forever.
+
+Before the fix, SC25 scouted as `movement: []`. After the fix, the *same*
+game, same scout logic, reports `movement: [2, 3, 4]`:
+
+```
+python scripts/run_holdout.py --game sc25-635fd71a --max-steps 20
+# discovery.action_types: {'movement': [2, 3, 4], 'interaction': [], 'blocked': [1]}
+```
+
+This is a real, live-verified fix, not a hypothesis: the agent can now see
+that SC25 has movement actions at all, which it previously could not detect
+on any game whose player object isn't LS20's `gudziatsk`. It does not, by
+itself, make the phase machine solve SC25 (`navigate_to_changer` etc. are
+still LS20-specific concepts SC25 has no equivalent of) — that remains open
+work, tracked separately.
 
 ## How to add a holdout game
 
