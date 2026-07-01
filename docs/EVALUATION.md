@@ -64,11 +64,48 @@ even LS20: the README's own benchmark table shows `ScientistAgent (v3.2)` at
 0% on LS20 L1 even *without* an artificial cap (the maze-navigation phase
 machine gets stuck; BFS is the only solver that reaches 72%). A meaningful
 dev-vs-holdout comparison needs step budgets long enough for the dev game to
-show its *actual* (non-zero, tag-assisted) behavior — otherwise a 0%/0%
-"gap" just means neither run finished, and any future comparison against
-these two numbers should re-run both at a realistic budget (200+ steps, per
-`solve_level()`'s own `max_iterations`) rather than trust this smoke-test
-pair.
+show its *actual* (non-zero, tag-assisted) behavior.
+
+### Follow-up run at a realistic budget (200 steps, matching `solve_level()`'s
+own `max_iterations`) — no longer a floor effect
+
+```
+python scripts/run_holdout.py --game ls20-9607627b --allow-dev --max-steps 200  # dev
+python scripts/run_holdout.py --game sc25-635fd71a --max-steps 200             # holdout
+python scripts/run_holdout.py --game wa30-ee6fef47  --max-steps 200             # holdout
+```
+
+| Set | Steps taken | Attempts | Solve rate |
+|-----|-------------|----------|------------|
+| Dev (LS20) | 159 (died — trapped, game over, did not hit the cap) | 0/0 levels | 0.0% |
+| Holdout (SC25) | 215 | 0/6 levels | 0.0% |
+| Holdout (WA30) | 213 | 0/9 levels | 0.0% |
+
+This time the dev run *ended on its own* (game over from being trapped) well
+under the 200-step cap — so 0% here is the agent's **actual** behavior on its
+own tuned game, not an artifact. It matches the README's own documented
+`ScientistAgent v3.2 = 0% on LS20 L1` exactly. **0% dev, 0% holdout is
+therefore a real (if unflattering) data point**: the phase machine is not
+merely failing to generalize past LS20 — with `enable_world_model`/
+`enable_nano_llm` off (this harness's defaults) it does not solve LS20 either;
+only the separate BFS solver does. There is no gap to report yet because there
+is no dev success to compare a holdout failure against.
+
+**Root cause surfaced by both holdout runs**: `discover_available_actions()`
+reported `movement: []` on *both* SC25 and WA30 — no action was ever detected
+as moving the player. Tracing why: `ScientistAgent.__init__` finds `self.player`
+by probing a hardcoded attribute-name list —
+`['gudziatsk', 'player', 'agent', '_player', '_agent']` — where `gudziatsk` is
+LS20's own obfuscated attribute name (`scientist_agent.py:282`, reused at
+`:539-540` for level-transition refresh). If a game's internal object doesn't
+expose the player under one of those five names, `self.player` stays `None`
+for the entire run, and every `moved` check in `discover_available_actions()`
+silently degrades to `False` since it's gated on `if self.player`. This is a
+second hardcode, deeper than the sprite tags this doc already tracked, and it
+plausibly explains why both new games look "actionless" rather than merely
+"differently laid out." Flagged as a follow-up fix (find the player object
+generically — e.g. via `ObjectTracker.player_color`, which needs no attribute
+name at all — rather than growing the guess-list further).
 
 ## How to add a holdout game
 
