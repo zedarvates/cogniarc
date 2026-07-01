@@ -145,6 +145,14 @@ class DiscoveryMixin:
         print(f"  🔍 Scout: {len(movement)} movement, {len(interaction)} interaction, {len(blocked)} blocked")
         return results
 
+    def _object_tracker_report(self) -> str:
+        """Human-readable report of ObjectTracker's generic, tag-free evidence
+        (player color, learned action directions, confirmed wall colors)."""
+        tracker = getattr(self, 'object_tracker', None)
+        if tracker is None:
+            return "ObjectTracker: disabled"
+        return tracker.report()
+
     def discover_properties(self):
         """Discover rotation and color properties."""
         rotations = []
@@ -226,6 +234,18 @@ class DiscoveryMixin:
                 if n < non_bg[0][1] * 0.5:  # Less than half the floor area
                     grid_wall_candidates.add(c)
 
+        # Method 4: ObjectTracker — colors confirmed by an actual observed
+        # blocked move (see object_perception.py). Generic: no tags, no
+        # source code, no hardcoded action->direction mapping. Always merged
+        # in (not just when other methods are silent): unlike methods 1-3,
+        # which infer walls from static color frequency/position, this is
+        # grounded in real interaction outcomes, so it only ever reinforces
+        # or extends the tag/heuristic-based result, never displaces it.
+        tracker_walls = set()
+        tracker = getattr(self, 'object_tracker', None)
+        if tracker is not None:
+            tracker_walls = tracker.wall_colors
+
         # Combine: prefer player-adjacent and grid analysis over tag-on-floor
         # If player-adjacent gives us clear walls, use those
         if player_adjacent:
@@ -239,6 +259,8 @@ class DiscoveryMixin:
             pathfinder.wall_colors.update(tag_colors)
             pathfinder.wall_colors.update(grid_wall_candidates)
 
+        pathfinder.wall_colors.update(tracker_walls)
+
         # Remove player's own color and background
         if self.player:
             pathfinder.wall_colors.discard(int(grid[self.player.y, self.player.x]))
@@ -250,7 +272,7 @@ class DiscoveryMixin:
 
         print(f"  🧱 Wall colors: {sorted(pathfinder.wall_colors)} "
               f"(tags={sorted(tag_colors)}, adjacent={sorted(player_adjacent)}, "
-              f"grid={sorted(grid_wall_candidates)}, floor={floor_color})")
+              f"grid={sorted(grid_wall_candidates)}, tracker={sorted(tracker_walls)}, floor={floor_color})")
 
     def _find_tagged_sprites(self, tag: str):
         """Find sprites with given tag in current level."""

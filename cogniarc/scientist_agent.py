@@ -375,14 +375,22 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
             except Exception as e:
                 print(f"[NanoLLM] Failed to init: {e}")
 
+        # ═══ NEW: ObjectTracker (generic player/action/wall inference) ═══
+        # Always on (cheap: pure numpy segmentation, no model to load). Feeds
+        # _detect_wall_colors() as reinforcing evidence — see
+        # scientist_agent_discovery.py and object_perception.py for why this
+        # is the generalizable counterpart to LS20's hardcoded sprite tags.
+        from cogniarc.object_perception import ObjectTracker
+        self.object_tracker = ObjectTracker()
+
         # Legacy aliases (to be removed gradually)
         self._phase = self.state.phase
         self._walls_detected = self.state.walls_detected
 
     def step(self, action_num: int):
-        # ═══ NEW: Record pre-step observation for world model ═══
+        # ═══ NEW: Record pre-step observation for world model + object tracker ═══
         obs_before = None
-        if self.world_model and self.obs.frame and len(self.obs.frame) > 0:
+        if (self.world_model or self.object_tracker) and self.obs.frame and len(self.obs.frame) > 0:
             obs_before = self.obs.frame[0].copy()
 
         self.obs = self.env.step(getattr(GameAction, f'ACTION{action_num}'))
@@ -395,6 +403,10 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                 action_num,
                 self.world_model.encode(self.obs.frame[0])
             )
+
+        # ═══ NEW: Record transition in object tracker (generic player/wall evidence) ═══
+        if self.object_tracker and obs_before is not None and self.obs.frame and len(self.obs.frame) > 0:
+            self.object_tracker.observe(obs_before, action_num, self.obs.frame[0])
         # Verify observation
         assert self.obs is not None, "Invalid observation: None returned"
         assert hasattr(self.obs, 'frame'), "Invalid observation: missing frame"

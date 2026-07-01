@@ -64,3 +64,14 @@ tags, program synthesis over composable skills instead of a fixed phase
 machine, active experimentation to disambiguate hypotheses). Treat this
 report as the scoreboard that tells you whether that work is paying off,
 not as a substitute for it.
+
+**Status of the object-centric-perception item**: `cogniarc/object_perception.py`
+(`ObjectTracker`) is a first concrete step — it infers player identity,
+per-action direction, and wall colors purely from grid+action correlation,
+with zero tags/source-reading/hardcoded direction mapping. It currently only
+*reinforces* `_detect_wall_colors()`'s tag-based result for LS20 (where
+source is available, so behavior there is unchanged); it has not yet been
+used as the *sole* discovery path for a game with no tags at all, because
+doing so without a holdout game to validate against would just be a new
+unverified guess. That validation is exactly what an added holdout game
+would give you — see "How to add a holdout game" above.

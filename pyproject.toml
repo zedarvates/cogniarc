@@ -16,6 +16,7 @@ dependencies = [
     "arc-agi>=0.9.9,<1.0",
     "numpy>=1.24.0",
     "pillow>=10.0.0",
+    "scipy>=1.10.0",
 ]
 
 [project.optional-dependencies]
