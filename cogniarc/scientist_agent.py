@@ -522,6 +522,16 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
 
     def solve_level(self, level_num: Optional[int] = None) -> bool:
         """Solve current level using phase-based skill execution with SocraticCritic."""
+
+        # ═══ Route to domain-specific strategy based on game type ═══
+        game_type = getattr(self, '_game_type', None)
+        if game_type == "painting":
+            from cogniarc.painting_strategy import PaintingStrategy
+            strategy = PaintingStrategy(self)
+            return strategy.solve_level(level_num)
+
+        # ── Navigation / puzzle / unknown: use the phase machine ──
+
         prev_lvl = self.obs.levels_completed
         if level_num is not None and prev_lvl + 1 != level_num:
             print(f"  ⚠️ Expected level {level_num}, at {prev_lvl + 1}")
@@ -966,9 +976,17 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
 
         # Take scout steps to build ObjectTracker observations (generic, no tags)
         scout_actions = list(self.obs.available_actions or [1, 2, 3, 4, 5, 6])
+        scout_grid_changes = []  # (n_pixels, n_colors) per action
         for _ in range(8):
             action = scout_actions[self.steps % len(scout_actions)]
+            grid_before = self.obs.frame[0].copy() if self.obs.frame and len(self.obs.frame) > 0 else None
             self.step(action)
+            grid_after = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+            if grid_before is not None and grid_after is not None:
+                from cogniarc.domain_classifier import _color_diversity
+                diff = int(np.sum(grid_before != grid_after))
+                colors = _color_diversity(grid_before, grid_after)
+                scout_grid_changes.append((diff, colors))
 
         ot = self.object_tracker
         if ot and ot.has_enough_observations():
@@ -997,9 +1015,15 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         self.discover_available_actions()
         self.discover_properties()
 
-        # PHASE 2: Scout (cheap actions to understand domain)
-        print("\n🔍 SCOUT PHASE")
-        print("  ✅ Scout complete (from discovery)")
+        # PHASE 2: Classify game type from scout observations
+        print("\n🎮 GAME TYPE CLASSIFICATION")
+        from cogniarc.domain_classifier import classify_game_type
+
+        # Build scout_results from discovery PKM
+        scout_results = self.pkm.get('discovery', 'scout_results', {}) or {}
+        game_type = classify_game_type(scout_results, scout_grid_changes)
+        self._game_type = game_type
+        print(f"  🎮 Detected: {game_type}")
 
         # PHASE 3: Solve levels
         print(f"\n🎮 SOLVE PHASE (target: {self.obs.win_levels} levels)")
