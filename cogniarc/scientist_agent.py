@@ -689,6 +689,24 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                 self._phase_escalation_count += 1
                 print(f"  ⚠️ Skill {skill_id} failed in phase {self._phase} (attempt {self.state.phase_attempts})")
 
+                # ═══ Nano-LLM tier: if phase stuck, ask the nano-LLM for a safe
+                # action proposal before escalating. Only fires after 2+ failures
+                # and when nano-LLM is available (opt-in via enable_nano_llm=True).
+                if self.state.phase_attempts >= 2 and self.nano_harness is not None:
+                    try:
+                        print("  🤖 Nano-LLM proposing action...")
+                        proposal = self._nano_propose_action()
+                        if proposal is not None:
+                            print(f"  🤖 Nano-LLM suggests action {proposal}")
+                            self.step(proposal)
+                            if self.obs.levels_completed > prev_lvl:
+                                print(f"  ✅ LEVEL {self.obs.levels_completed} COMPLETED via Nano-LLM!")
+                                self._record_level_skills(prev_lvl + 1)
+                                return True
+                            # Continue — the Nano-LLM step may have changed state
+                    except Exception as e:
+                        print(f"  🤖 Nano-LLM proposal failed: {e}")
+
                 # Global escalation: if stuck too long, force skip level.
                 # Threshold is mode-driven: COUNTERFACTUAL/SOCRATIC modes signal
                 # active doubt about the current plan, so give up sooner.
