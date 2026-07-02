@@ -1019,9 +1019,10 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         print("\n🎮 GAME TYPE CLASSIFICATION")
         from cogniarc.domain_classifier import classify_game_type
 
-        # Build scout_results from discovery PKM
+        # Build scout_results from discovery PKM, use ObjectTracker as override
         scout_results = self.pkm.get('discovery', 'scout_results', {}) or {}
-        game_type = classify_game_type(scout_results, scout_grid_changes)
+        ot_summary = ot.get_perception_summary() if ot and ot.has_enough_observations() else None
+        game_type = classify_game_type(scout_results, scout_grid_changes, ot_summary)
         self._game_type = game_type
         print(f"  🎮 Detected: {game_type}")
 

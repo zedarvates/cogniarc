@@ -17,17 +17,24 @@ GameType = str  # "navigation" | "painting" | "puzzle" | "unknown"
 class DomainClassifier:
     """Thin wrapper around classify_game_type for import compatibility.
 
-    domain_profiler.py instantiates DomainClassifier(env) — this
-    constructor accepts any arguments but ignores them; call .classify()
-    to use the pure function.
+    domain_profiler.py instantiates DomainClassifier(env) and calls
+    .classify() without args (old API). This wrapper stores env and
+    delegates to the pure function, computing scout data on the fly.
     """
 
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self, env=None, max_steps: int = 30):
+        self.env = env
+        self.max_steps = max_steps
 
-    @staticmethod
-    def classify(scout_results: dict, grid_changes: list) -> str:
-        return classify_game_type(scout_results, grid_changes)
+    def classify(self, scout_results: Optional[dict] = None,
+                 grid_changes: Optional[list] = None,
+                 ot_summary: Optional[dict] = None) -> str:
+        """Classify game type. Accepts old API (no args) and new API."""
+        if scout_results is None:
+            scout_results = {}
+        if grid_changes is None:
+            grid_changes = []
+        return classify_game_type(scout_results, grid_changes, ot_summary)
 
 
 # Re-export helpers from transforms so domain_profiler can import them.
@@ -56,6 +63,7 @@ def _color_diversity(grid_before: np.ndarray, grid_after: np.ndarray) -> int:
 def classify_game_type(
     scout_results: Dict[int, dict],
     grid_changes: List[Tuple[int, int]],
+    ot_summary: Optional[dict] = None,
 ) -> GameType:
     """Classify game type from scout-phase observations.
 
@@ -64,12 +72,30 @@ def classify_game_type(
             PKM discovery.scout_results during the scout phase.
         grid_changes: [(n_pixels_changed, n_colors_changed)] per action, in
             the same order actions were tested.
+        ot_summary: Optional ObjectTracker.get_perception_summary(). When
+            provided, overrides grid-based heuristics — if the tracker
+            identified >=3 movement directions with non-zero displacement,
+            the game is always classified as "navigation".
 
     Returns:
         One of "navigation", "painting", "puzzle", "unknown".
     """
-    if not grid_changes:
+    if not grid_changes and not ot_summary:
         return "unknown"
+
+    # ═══ ObjectTracker override: if tracker found clear movement directions,
+    # it's navigation regardless of how many pixels each action changes ═══
+    if ot_summary:
+        action_dirs = ot_summary.get("action_directions", {})
+        movement_count = sum(
+            1 for d in action_dirs.values()
+            if d is not None and (d[0] ** 2 + d[1] ** 2) ** 0.5 >= 0.5
+        )
+        if movement_count >= 3:
+            return "navigation"
+        # If tracker found 0 movement but has player color, it's likely painting
+        if ot_summary.get("player_color") is not None and movement_count == 0:
+            return "painting"
 
     n_movement = sum(
         1 for r in scout_results.values() if r.get("moved", False)
