@@ -12,6 +12,15 @@ Principles (adapted from Pokémon Player, not copied):
   - Cognitive drives guide exploration (novelty, simplicity, doubt, pleasure, caution, impulse)
   - Skill Tree enables cross-level and cross-game learning
   - Benchmark tracking for LLM/agent comparison
+
+This module holds orchestration only (init, the step loop, solve_level, phase
+resolution, benchmark/skill-session lifecycle, run). The previously
+monolithic ScientistAgent (~1600 lines, ~50 methods) was split by concern
+into mixins to make each part independently readable/testable:
+  - MLTiersMixin     (scientist_agent_ml_tiers.py)  — world model, nano-LLM
+  - DiscoveryMixin   (scientist_agent_discovery.py) — mechanics discovery
+  - SkillsMixin      (scientist_agent_skills.py)    — skill execution
+No behavior changed during the split — methods were relocated verbatim.
 """
 
 # arc_agi / arcengine are only needed to actually drive a live game. Keep the
@@ -37,11 +46,13 @@ try:
 except ImportError:
     BENCHMARK_AVAILABLE = False
 
-# Pathfinding
-from .pathfinding import Pathfinder, GridMap
-
 # Cognitive drives
 from .cognitive_player import CognitiveDrives, hash_grid
+
+# Mixins (see module docstring)
+from .scientist_agent_ml_tiers import MLTiersMixin
+from .scientist_agent_discovery import DiscoveryMixin
+from .scientist_agent_skills import SkillsMixin
 
 # ====== 9 REASONING MODES (NEW - AHOIS) ======
 from enum import Enum
@@ -52,155 +63,165 @@ from typing import Callable
 class ReasoningMode(Enum):
     """9 modes de raisonnement inspirés d'AHOIS."""
     EXPLORATION = "exploration"       # BFS/random → découvrir environnement
-    PATHFINDING = "pathfinding"       # A* vers cible identifiée
-    ROTATION = "rotation"             # Cycling action 6
-    TRANSFORMATION = "transformation" # Changer état/pixel
-    GOAL_INFERENCE = "goal_inference" # Hypothèse sur objectif
-    CAUSAL = "causal"                 # Cause-effet des actions
-    COUNTERFACTUAL = "counterfactual" # "Et si j'avais fait X ?"
-    ANALOGICAL = "analogical"         # Transférer pattern via SkillTree
-    SOCRATIC = "socratic"             # Critiquer hypothèses
+    PATHFINDING = "pathfinding"       # A* → naviguer vers cible connue
+    ROTATION = "rotation"             # Cycle rotation → atteindre orientation
+    TRANSFORMATION = "transformation" # Appliquer transform connue
+    GOAL_INFERENCE = "goal_inference" # Inférer objectif depuis observations
+    CAUSAL = "causal"                 # Raisonnement cause→effet
+    COUNTERFACTUAL = "counterfactual" # "Et si j'avais fait X au lieu de Y?"
+    ANALOGICAL = "analogical"         # Transférer skill d'un autre jeu/niveau
+    SOCRATIC = "socratic"             # Questionner hypothèses via SocraticCritic
+
+
+# ═══ Mode-driven decision functions ═══
+# These were previously hardcoded constants (3, 5) in solve_level()'s failure
+# handling, completely independent of `current_reasoning_mode` — the mode was
+# selected, logged, and printed but never actually changed agent behavior.
+# Pure functions (mode in, threshold out) so they're unit-testable without
+# instantiating ScientistAgent (which requires a live arc_agi runtime).
+
+# Modes where the agent has reason to actively doubt the current plan: escalate
+# sooner instead of repeating a failing deterministic skill.
+DOUBT_MODES = (ReasoningMode.COUNTERFACTUAL, ReasoningMode.SOCRATIC)
+# Modes pursuing a known deterministic target: tolerate more retries before
+# giving up, since the skill is likely to eventually succeed (e.g. A* retry).
+COMMIT_MODES = (ReasoningMode.PATHFINDING, ReasoningMode.ROTATION)
+
+
+def phase_attempts_threshold(mode: ReasoningMode, base: int = 3) -> int:
+    """How many failed attempts on a phase before triggering escalation."""
+    if mode in DOUBT_MODES:
+        return max(1, base - 1)
+    if mode in COMMIT_MODES:
+        return base + 1
+    return base
+
+
+def phase_escalation_threshold(mode: ReasoningMode, base: int = 5) -> int:
+    """Global hard-skip threshold (force-skip the level after this many
+    consecutive skill failures, regardless of which phase)."""
+    if mode in DOUBT_MODES:
+        return max(2, base - 2)
+    return base
+
+
+def reconcile_perception_with_phase(
+    phase_skill: Optional[str], perception_result: Optional[dict], mode: ReasoningMode
+) -> Optional[str]:
+    """Compare the perception stack's recommended skill against the phase
+    machine's chosen skill. Returns a human-readable disagreement message to
+    record via state.record_observation(), or None if they agree / there is
+    no recommendation.
+
+    Deliberately non-blocking (observes, does not override): the perception
+    stack (TemporalReasoner/SpatialReasoner/SymbolicInference) was previously
+    dead code — _perception_analyze() computed recommendations no caller ever
+    read. Wiring it as an override without held-out-game validation would risk
+    a working game-specific machine on unverified general perception. This
+    surfaces disagreement as data first; see docs/EVALUATION.md for the plan
+    to use that data to decide when perception should start steering instead
+    of just observing.
+    """
+    if not perception_result:
+        return None
+    recommended = perception_result.get("recommended_skills")
+    if not recommended:
+        return None
+    top = recommended[0] if isinstance(recommended, (list, tuple)) else recommended
+    if top and top != phase_skill:
+        return (f"Perception suggests '{top}' but phase machine chose "
+                f"'{phase_skill}' (mode={mode.value})")
+    return None
 
 
 @dataclass
 class ModeStrategy:
-    """Une stratégie = mode + conditions + heuristiques + fallback."""
+    """Stratégie associée à un mode de raisonnement."""
     mode: ReasoningMode
-    trigger_condition: str              # Description de quand ce mode s'active
-    heuristic: str                      # Logique de sélection d'action
-    success_criteria: str               # Qu'est-ce qui prouve que ça marche
-    failure_criteria: str               # Qu'est-ce qui prouve que ça marche PAS
-    fallback_mode: ReasoningMode = ReasoningMode.EXPLORATION
-    weight: float = 1.0                 # Poids dans le selector (ajustable)
+    description: str
+    trigger_condition: Callable[[dict], bool]
+    priority: int = 0  # Plus haut = prioritaire en cas de conflit
 
 
 class ReasonModeManager:
-    """Gère la sélection et la priorisation des 9 modes de raisonnement."""
-    
+    """Sélectionne et gère le mode de raisonnement actif.
+
+    9 modes inspirés d'AHOIS, sélection automatique basée sur le contexte
+    (stagnation, domaine détecté, disponibilité skill tree, etc.)
+    """
+
     def __init__(self):
-        self.strategies: dict[ReasoningMode, ModeStrategy] = {
-            ReasoningMode.EXPLORATION: ModeStrategy(
-                mode=ReasoningMode.EXPLORATION,
-                trigger_condition="Aucune info sur l'environnement. Premier pas ou après reset.",
-                heuristic="BFS + cognitive drives (novelty, impulse). Actions 1-4 pour couvrir la carte.",
-                success_criteria="Nouveaux états découverts, carte partiellement explorée.",
-                failure_criteria="50+ steps sans nouvelle tuile.",
-                fallback_mode=ReasoningMode.SOCRATIC,
-                weight=0.5,
+        self.current_mode = ReasoningMode.EXPLORATION
+        self.mode_history: list = []
+        self.strategies = self._build_strategies()
+
+    def _build_strategies(self) -> list:
+        return [
+            ModeStrategy(
+                ReasoningMode.SOCRATIC,
+                "Questionner les hypothèses bloquantes",
+                lambda ctx: ctx.get("doubt_active", False),
+                priority=10,
             ),
-            ReasoningMode.PATHFINDING: ModeStrategy(
-                mode=ReasoningMode.PATHFINDING,
-                trigger_condition="Cible identifiée (changer, lock). Carte partiellement connue.",
-                heuristic="A* avec walkable_overrides. Si mur, apprendre la couleur et réessayer.",
-                success_criteria="Position de la cible atteinte.",
-                failure_criteria="Path bloqué >3 tentatives. Aucun chemin trouvé.",
-                fallback_mode=ReasoningMode.EXPLORATION,
-                weight=1.0,
+            ModeStrategy(
+                ReasoningMode.COUNTERFACTUAL,
+                "Explorer alternative après échec répété",
+                lambda ctx: ctx.get("stagnation", 0) >= 5,
+                priority=9,
             ),
-            ReasoningMode.ROTATION: ModeStrategy(
-                mode=ReasoningMode.ROTATION,
-                trigger_condition="Action 6 disponible ET cible de rotation identifiée (changer).",
-                heuristic="Cycle action 6 (max 20×). Si changé → arrêter. Sinon après 20→ fallback.",
-                success_criteria="Level completed OU nouvel état après rotation.",
-                failure_criteria="20 cycles sans changement d'état.",
-                fallback_mode=ReasoningMode.EXPLORATION,
-                weight=0.8,
+            ModeStrategy(
+                ReasoningMode.ANALOGICAL,
+                "Transférer skill depuis jeu/niveau similaire",
+                lambda ctx: ctx.get("skill_tree_available", False) and ctx.get("stagnation", 0) >= 3,
+                priority=8,
             ),
-            ReasoningMode.TRANSFORMATION: ModeStrategy(
-                mode=ReasoningMode.TRANSFORMATION,
-                trigger_condition="Action 5+ disponible. Changement détecté entre frames adjacentes.",
-                heuristic="Appliquer actions transformation dans l'ordre. Comparer état avant/après.",
-                success_criteria="État significativement différent après transformation.",
-                failure_criteria="10 transformations sans effet visible.",
-                fallback_mode=ReasoningMode.GOAL_INFERENCE,
-                weight=0.6,
+            ModeStrategy(
+                ReasoningMode.CAUSAL,
+                "Identifier cause d'un échec de skill",
+                lambda ctx: ctx.get("last_skill_failed", False),
+                priority=7,
             ),
-            ReasoningMode.GOAL_INFERENCE: ModeStrategy(
-                mode=ReasoningMode.GOAL_INFERENCE,
-                trigger_condition="Aucune hypothèse de but. Ou Doute déclenché (reset theory).",
-                heuristic="GoalInferenceEngine.observe_only() → analyser rareté, symétrie, patterns.",
-                success_criteria="Hypothèse avec confidence > 0.5.",
-                failure_criteria="Toutes les hypothèses < 0.3.",
-                fallback_mode=ReasoningMode.EXPLORATION,
-                weight=0.7,
+            ModeStrategy(
+                ReasoningMode.ROTATION,
+                "Cycler rotation vers objectif connu",
+                lambda ctx: ctx.get("domain") == "rotation" and ctx.get("has_goal_hypothesis", False),
+                priority=6,
             ),
-            ReasoningMode.CAUSAL: ModeStrategy(
-                mode=ReasoningMode.CAUSAL,
-                trigger_condition="Action répétée sans changement. Ou stagnation > 3.",
-                heuristic="Enregistrer état avant action, comparer après. Si aucun changement → marquer cette action comme inefficace dans ce contexte.",
-                success_criteria="Corrélation action→effet identifiée.",
-                failure_criteria="Bruit trop fort (actions != effets consistants).",
-                fallback_mode=ReasoningMode.COUNTERFACTUAL,
-                weight=0.5,
+            ModeStrategy(
+                ReasoningMode.PATHFINDING,
+                "Naviguer vers cible identifiée",
+                lambda ctx: ctx.get("has_target", False),
+                priority=5,
             ),
-            ReasoningMode.COUNTERFACTUAL: ModeStrategy(
-                mode=ReasoningMode.COUNTERFACTUAL,
-                trigger_condition="Mode causal a échoué. Ou plusieurs modes suggèrent des chemins différents.",
-                heuristic="\"Et si j'avais pris action X au lieu de Y ?\" Simuler en mémoire (WorkingMemory). Choisir l'action avec le meilleur score simulé.",
-                success_criteria="Action simulée meilleure que l'action réelle.",
-                failure_criteria="Simulation incohérente avec la réalité observée.",
-                fallback_mode=ReasoningMode.EXPLORATION,
-                weight=0.4,
+            ModeStrategy(
+                ReasoningMode.TRANSFORMATION,
+                "Appliquer transformation de couleur/forme connue",
+                lambda ctx: ctx.get("domain") == "transform",
+                priority=4,
             ),
-            ReasoningMode.ANALOGICAL: ModeStrategy(
-                mode=ReasoningMode.ANALOGICAL,
-                trigger_condition="SkillTree disponible AVEC skills importées cross-game.",
-                heuristic="Chercher dans SkillTree des patterns de jeu similaire (même domaine). Apprendre de la stratégie du jeu source.",
-                success_criteria="Pattern transféré mène à un progrès.",
-                failure_criteria="Aucune skill importée pertinente trouvée.",
-                fallback_mode=ReasoningMode.SOCRATIC,
-                weight=0.6,
+            ModeStrategy(
+                ReasoningMode.GOAL_INFERENCE,
+                "Inférer objectif depuis observations",
+                lambda ctx: not ctx.get("has_goal_hypothesis", False) and ctx.get("domain_identified", True),
+                priority=3,
             ),
-            ReasoningMode.SOCRATIC: ModeStrategy(
-                mode=ReasoningMode.SOCRATIC,
-                trigger_condition="Stagnation, doute déclenché, ou mode courant en échec.",
-                heuristic="SocraticCritic.interrogate() → 6 opérations. Corriger hypothèses avant de ré-agir.",
-                success_criteria="Rapport critic sans BLOCKING + nouvelle hypothèse viable.",
-                failure_criteria="Toujours bloqué après critique (escalade vers exploration).",
-                fallback_mode=ReasoningMode.EXPLORATION,
-                weight=0.9,
+            ModeStrategy(
+                ReasoningMode.EXPLORATION,
+                "Explorer environnement (mode par défaut)",
+                lambda ctx: True,  # Toujours applicable (fallback)
+                priority=0,
             ),
-        }
-        self.current_mode: ReasoningMode = ReasoningMode.EXPLORATION
-        self.mode_history: list[dict] = []
-    
+        ]
+
     def select_mode(self, context: dict) -> ReasoningMode:
-        """Sélectionne le meilleur mode selon le contexte courant.
-        context peut contenir : stagnation, confidence, domain_type, available_actions, etc."""
-        stagnation = context.get("stagnation", 0)
-        domain = context.get("domain", "")
-        actions = context.get("available_actions", [])
-        skill_tree_available = context.get("skill_tree_available", False)
-        doubt_active = context.get("doubt_active", False)
-        
-        # Priorité haute: Socratic si doute ou stagnation longue
-        if doubt_active or stagnation > 8:
-            return ReasoningMode.SOCRATIC
-        
-        # Priorité: Pathfinding si on a des cibles connues
-        if context.get("has_target", False):
-            return ReasoningMode.PATHFINDING
-        
-        # Priorité: GoalInference si pas d'hypothèse
-        if not context.get("has_goal_hypothesis", False):
-            return ReasoningMode.GOAL_INFERENCE
-        
-        # Rotation si disponible
-        if 6 in actions and domain in ("rotation", "hybrid"):
-            return ReasoningMode.ROTATION
-        
-        # Analogical si SkillTree disponible
-        if skill_tree_available:
-            return ReasoningMode.ANALOGICAL
-        
-        # Causal si stagnation récente
-        if stagnation > 3:
-            return ReasoningMode.CAUSAL
-        
-        # Par défaut: explorer
-        return ReasoningMode.EXPLORATION
-    
+        """Sélectionne le mode de raisonnement le plus prioritaire applicable."""
+        applicable = [s for s in self.strategies if s.trigger_condition(context)]
+        applicable.sort(key=lambda s: -s.priority)
+        selected = applicable[0].mode if applicable else ReasoningMode.EXPLORATION
+        return selected
+
     def log_mode_switch(self, old_mode: ReasoningMode, new_mode: ReasoningMode, reason: str):
+        """Enregistre un changement de mode pour analyse post-mortem."""
         self.mode_history.append({
             "from": old_mode.value,
             "to": new_mode.value,
@@ -208,39 +229,32 @@ class ReasonModeManager:
         })
 
 
-# ====== PKM Memory ======
 class PKM:
-    """Structured knowledge per game. Prefix: PKM:<game>:<category>"""
+    """Persistent Knowledge Memory — structured per-game memory."""
+
     def __init__(self, game_id: str):
-        self.game = game_id
-        self.facts: dict[str, Any] = {}
-    
+        self.game_id = game_id
+        self.data: Dict[str, Dict[str, Any]] = {}
+
     def set(self, category: str, key: str, value):
-        full_key = f"{self.game}:{category}:{key}"
-        self.facts[full_key] = value
-    
+        self.data.setdefault(category, {})[key] = value
+
     def get(self, category: str, key: str, default=None):
-        full_key = f"{self.game}:{category}:{key}"
-        return self.facts.get(full_key, default)
-    
+        return self.data.get(category, {}).get(key, default)
+
     def get_all(self, category: str) -> dict:
-        prefix = f"{self.game}:{category}:"
-        return {k[len(prefix):]: v for k, v in self.facts.items() if k.startswith(prefix)}
-    
+        return self.data.get(category, {})
+
     def report(self) -> str:
-        lines = [f"PKM:{self.game} ({len(self.facts)} facts)"]
-        for k, v in sorted(self.facts.items()):
-            short_k = k.replace(f"{self.game}:", "")
-            if isinstance(v, str) and len(v) > 60:
-                v = v[:57] + "..."
-            lines.append(f"  {short_k} = {v}")
+        lines = [f"PKM[{self.game_id}]"]
+        for category, items in self.data.items():
+            lines.append(f"  {category}: {items}")
         return "\n".join(lines)
 
 
-# ====== Scientist Agent ======
-class ScientistAgent:
+class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
     """Discover game mechanics, then solve each level."""
-    
+
     def __init__(self, game_name: str, enable_benchmark: bool = True, enable_skill_tree: bool = True, enable_world_model: bool = False, enable_nano_llm: bool = False):
         if not ARC_RUNTIME_AVAILABLE:
             raise RuntimeError(
@@ -253,7 +267,7 @@ class ScientistAgent:
         self.env = self.arc.make(game_name)
         self.obs = self.env.reset()
         self.steps = 0
-        
+
         # Access internal game object
         self.game = None
         for attr in dir(self.env):
@@ -261,7 +275,7 @@ class ScientistAgent:
             if game_name.lower() in str(type(val)).lower():
                 self.game = val
                 break
-        
+
         # Find player object (different games use different attribute names)
         self.player = None
         if self.game:
@@ -269,22 +283,22 @@ class ScientistAgent:
                 if hasattr(self.game, attr_name):
                     self.player = getattr(self.game, attr_name)
                     break
-        
+
         # Cognitive drives for decision making
         self.drives = CognitiveDrives()
         self._hash_grid = hash_grid
-        
+
         # Skill Tree for cross-level/cross-game learning
         self.skill_tree = None
         if enable_skill_tree:
             from .skill_tree import SkillTree
             self.skill_tree = SkillTree.load_for_game(game_name)
-        
+
         # Benchmark tracking
         self.benchmark_tracker = None
         self.benchmark_session_id = None
         self.benchmark_start_time = None
-        
+
         if enable_benchmark and BENCHMARK_AVAILABLE:
             self.benchmark_tracker = BenchmarkTracker()
             self.benchmark_session_id = self.benchmark_tracker.start_session(
@@ -295,26 +309,26 @@ class ScientistAgent:
         # SkillDAG integration
         from cogniarc.skill_dag.skill_registry import SkillRegistry
         from cogniarc.skill_dag.skill_navigator import SkillNavigator
-        
+
         self.skill_registry = SkillRegistry("cogniarc/skill_dag/manifest.yaml")
         self.skill_navigator = SkillNavigator(self.skill_registry)
         self._pathfinder = None  # Lazy init
         self.current_level_idx = 0
-        
+
         # ═══ NEW: ScientificState + SocraticCritic + ReasonModeManager ═══
         from .scientific_state import ScientificState
         from .socratic_critic import SocraticCritic
-        
+
         self.state = ScientificState(
             game_name=game_name,
             available_actions=list(self.obs.available_actions or []),
         )
         self.critic = SocraticCritic(verbose=False)
-        
+
         # ═══ NEW: ReasonModeManager + Dynamic Workflows ═══
         self.mode_manager = ReasonModeManager()
         self.current_reasoning_mode: ReasoningMode = ReasoningMode.EXPLORATION
-        
+
         # ═══ NEW: World Model Tool (V-JEPA based simulator) ═══
         self.world_model = None
         if enable_world_model:
@@ -323,13 +337,13 @@ class ScientistAgent:
                 self.world_model = WorldModelTool(game_id=game_name)
                 if self.world_model.available:
                     mem = self.world_model.memory_size()
-                    print(f"[WorldModel] Loaded V-JEPA encoder" + 
+                    print(f"[WorldModel] Loaded V-JEPA encoder" +
                           (f" + {mem} prior transitions" if mem > 0 else " (fresh start)"))
                 else:
                     print(f"[WorldModel] Fallback encoder active (no V-JEPA checkpoint)")
             except Exception as e:
                 print(f"[WorldModel] Failed to init: {e}")
-        
+
         # ═══ NEW: Micro-NN predictors (instant, <1ms) ═══
         self.action_predictor = None
         self.domain_predictor = None
@@ -343,7 +357,7 @@ class ScientistAgent:
                 print(f"[MicroNN] Pathfinder loaded (53→32→16→4)")
         except Exception as e:
             pass
-        
+
         # ═══ NEW: Nano-LLM HF tier (Qwen2.5-0.5B via Ollama, opt-in) ═══
         # Sits between micro-NN and V-JEPA in the escalation chain. Wrapped in a
         # safety harness that validates proposals against walls / known failures.
@@ -361,19 +375,27 @@ class ScientistAgent:
             except Exception as e:
                 print(f"[NanoLLM] Failed to init: {e}")
 
+        # ═══ NEW: ObjectTracker (generic player/action/wall inference) ═══
+        # Always on (cheap: pure numpy segmentation, no model to load). Feeds
+        # _detect_wall_colors() as reinforcing evidence — see
+        # scientist_agent_discovery.py and object_perception.py for why this
+        # is the generalizable counterpart to LS20's hardcoded sprite tags.
+        from cogniarc.object_perception import ObjectTracker
+        self.object_tracker = ObjectTracker()
+
         # Legacy aliases (to be removed gradually)
         self._phase = self.state.phase
         self._walls_detected = self.state.walls_detected
-    
+
     def step(self, action_num: int):
-        # ═══ NEW: Record pre-step observation for world model ═══
+        # ═══ NEW: Record pre-step observation for world model + object tracker ═══
         obs_before = None
-        if self.world_model and self.obs.frame and len(self.obs.frame) > 0:
+        if (self.world_model or self.object_tracker) and self.obs.frame and len(self.obs.frame) > 0:
             obs_before = self.obs.frame[0].copy()
-        
+
         self.obs = self.env.step(getattr(GameAction, f'ACTION{action_num}'))
         self.steps += 1
-        
+
         # ═══ NEW: Record transition in world model ═══
         if self.world_model and obs_before is not None and self.obs.frame and len(self.obs.frame) > 0:
             self.world_model.remember(
@@ -381,6 +403,10 @@ class ScientistAgent:
                 action_num,
                 self.world_model.encode(self.obs.frame[0])
             )
+
+        # ═══ NEW: Record transition in object tracker (generic player/wall evidence) ═══
+        if self.object_tracker and obs_before is not None and self.obs.frame and len(self.obs.frame) > 0:
+            self.object_tracker.observe(obs_before, action_num, self.obs.frame[0])
         # Verify observation
         assert self.obs is not None, "Invalid observation: None returned"
         assert hasattr(self.obs, 'frame'), "Invalid observation: missing frame"
@@ -400,785 +426,11 @@ class ScientistAgent:
         self.state.last_state_hash = state_hash
 
         return self.obs
-    
-    # ═══════ WORLD MODEL TOOL ═══════
-    
-    def _world_model_simulate(self, action: int):
-        """Simulate the effect of an action using the world model.
-        
-        Queries the V-JEPA encoder + k-NN predictor:
-        "If I take action X from my current state, what state do I predict?"
-        
-        Returns:
-            (predicted_latent, confidence) or (None, 0.0) if world model unavailable
-        """
-        if not self.world_model:
-            return None, 0.0
-        
-        if not self.obs.frame or len(self.obs.frame) == 0:
-            return None, 0.0
-        
-        obs = self.obs.frame[0]
-        predicted, confidence = self.world_model.predict(obs, action)
-        return predicted, confidence
-    
-    def _nano_propose_action(self, recent_history: str = "") -> Optional[int]:
-        """Nano-LLM tier: ask Qwen2.5-0.5B (via Ollama) for a safe next action.
-
-        Sits between the micro-NN tier and the V-JEPA world model in the
-        escalation chain. Proposals pass through NanoLLMHarness, which rejects
-        actions that hit known walls or repeat known failures. Returns the
-        validated action number, or None if the nano-LLM is unavailable.
-        """
-        if not self.nano_harness or not self.nano_llm or not self.nano_llm.available:
-            return None
-        if not self.obs.frame or len(self.obs.frame) == 0:
-            return None
-
-        available = list(self.obs.available_actions or [])
-        if not available:
-            return None
-
-        player_pos = getattr(self, '_player_pos', None)
-        wall_cells = getattr(self, '_wall_cells', None)
-        game_state = grid_to_text(self.obs.frame[0]) if 'grid_to_text' in globals() else str(self.obs.frame[0])
-
-        action, conf, reasoning, is_safe = self.nano_harness.propose_safe(
-            game_state=game_state,
-            available_actions=available,
-            player_pos=player_pos,
-            recent_history=recent_history,
-            wall_cells=wall_cells,
-        )
-        print(f"  🤖 NanoLLM: action={action} conf={conf:.2f} safe={is_safe} ({reasoning})")
-        return action if is_safe else None
-
-    def _world_model_report(self) -> str:
-        """Human-readable report of world model state."""
-        if not self.world_model:
-            return "World model: disabled"
-        
-        mem = self.world_model.memory_size()
-        return f"World model: {mem} transitions memorized"
-    
-    def _predict_skill_action(self, skill_id: str) -> Optional[int]:
-        """Predict which action a skill will likely take (for world model pre-check).
-        
-        Maps skill IDs to their most probable action number.
-        Returns None if the skill doesn't involve a predictable action.
-        """
-        action_map = {
-            "navigate-to-target": None,  # Multi-action A* — too complex
-            "rotate-to-goal": 6,          # Rotation action
-            "interact-with-object": 5,    # Interact
-            "detect-walls-from-source": None,  # No step
-        }
-        
-        # Navigation: determine direction from phase
-        if skill_id == "navigate-to-target":
-            if self._phase == "navigate_to_changer":
-                # Predict direction toward changer
-                if self.player:
-                    changers = self._find_tagged_sprites('rhsxkxzdjz')
-                    if changers:
-                        ch = changers[0]
-                        cx, cy = getattr(ch, 'x', 0), getattr(ch, 'y', 0)
-                        px, py = self.player.x, self.player.y
-                        if cx > px: return 1  # right
-                        if cx < px: return 3  # left
-                        if cy > py: return 2  # down
-                        if cy < py: return 4  # up
-            elif self._phase == "navigate_to_lock":
-                if self.player:
-                    locks = self._find_tagged_sprites('rjlbuycveu')
-                    if locks:
-                        lk = locks[0]
-                        lx, ly = getattr(lk, 'x', 0), getattr(lk, 'y', 0)
-                        px, py = self.player.x, self.player.y
-                        if lx > px: return 1
-                        if lx < px: return 3
-                        if ly > py: return 2
-                        if ly < py: return 4
-        
-        return action_map.get(skill_id)
-    
-    # ------ DISCOVERY PHASE ------
-    
-    def discover_from_source(self) -> bool:
-        """Read game source code to discover mechanics (zero steps)."""
-        try:
-            # Try direct path first (game files are under environment_files/<game_id>/)
-            import os, glob
-            
-            # Extract base game id (ls20 from ls20-9607627b)
-            base_game = self.name.split('-')[0] if '-' in self.name else self.name
-            
-            # Try multiple path patterns
-            possible_paths = [
-                f"environment_files/{base_game}/*/{self.name}.py",
-                f"environment_files/{base_game}/*/{base_game}.py",
-                f"environment_files/{self.name}/*/{self.name}.py",
-                f"environment_files/{self.name}/*/{base_game}.py",
-            ]
-            
-            src = None
-            for pattern in possible_paths:
-                dirs = glob.glob(pattern)
-                if dirs:
-                    src = dirs[0]
-                    break
-            
-            if not src:
-                return False
-                
-            with open(src) as f:
-                code = f.read()
-        except:
-            return False
-        
-        # Parse tag-to-mechanic mapping from source
-        # Pattern: if "TAG" in sprite.tags: -> EFFECT
-        import re
-        mechanics = {
-            'walls': set(),
-            'locks': set(),
-            'rotation_changers': set(),
-            'color_changers': set(),
-            'shape_changers': set(),
-        }
-        
-        # Known patterns from LS20 source analysis
-        tag_contexts = {
-            'ihdgageizm': 'walls',
-            'rjlbuycveu': 'locks',
-            'rhsxkxzdjz': 'rotation_changers',
-            'soyhouuebz': 'color_changers',
-            'ttfwljgohq': 'shape_changers',
-        }
-        
-        for tag, mechanic in tag_contexts.items():
-            if tag in code:
-                mechanics[mechanic].add(tag)
-        
-        for cat, items in mechanics.items():
-            if items:
-                self.pkm.set('mechanics', cat, list(items))
-        
-        self.pkm.set('mechanics', 'source_analyzed', True)
-        total = sum(len(v) for v in mechanics.values())
-        print(f"  📖 Source: {total} mechanics identified")
-        return True
-
-    def discover_available_actions(self):
-        """Scout available actions and classify them (cheap, 1 step each)."""
-        available = list(self.obs.available_actions or [])
-        results = {}
-        
-        # Need initial grid for comparison
-        start_grid = None
-        if hasattr(self.obs, 'frame') and self.obs.frame:
-            start_grid = self.obs.frame[0].copy()
-        
-        for action_num in available:
-            prev_pos = (self.player.x, self.player.y) if self.player else None
-            
-            self.step(action_num)
-            
-            moved = False
-            if self.player and prev_pos:
-                moved = (self.player.x, self.player.y) != prev_pos
-            
-            grid_changed = False
-            if start_grid is not None and hasattr(self.obs, 'frame') and self.obs.frame:
-                grid_changed = not np.array_equal(self.obs.frame[0], start_grid)
-            
-            prop_changes = 0
-            if self.game:
-                for attr in ['cklxociuu', 'hiaauhahz']:
-                    if hasattr(self.game, attr):
-                        val = getattr(self.game, attr)
-                        if attr == 'cklxociuu':
-                            val %= 4
-                        if val != 0:
-                            prop_changes += 1
-            
-            results[action_num] = {
-                'moved': moved,
-                'grid_changed': grid_changed,
-                'prop_changes': prop_changes,
-            }
-        
-        self.pkm.set('discovery', 'scout_results', results)
-        
-        # Classify actions
-        movement = [a for a, r in results.items() if r['moved']]
-        interaction = [a for a, r in results.items() if not r['moved'] and r['prop_changes']]
-        blocked = [a for a, r in results.items() if not r['moved'] and not r['grid_changed']]
-        
-        self.pkm.set('discovery', 'action_types', {
-            'movement': movement,
-            'interaction': interaction,
-            'blocked': blocked,
-        })
-        
-        print(f"  🔍 Scout: {len(movement)} movement, {len(interaction)} interaction, {len(blocked)} blocked")
-        return results
-
-    def discover_properties(self):
-        """Discover rotation and color properties."""
-        rotations = []
-        colors = []
-        if self.game:
-            # Rotation
-            if hasattr(self.game, 'cklxociuu'):
-                val = getattr(self.game, 'cklxociuu')
-                rotations = [0, 90, 180, 270]
-                self.pkm.set('state', 'rotations', rotations)
-            # Color
-            if hasattr(self.game, 'hiaauhahz'):
-                val = getattr(self.game, 'hiaauhahz')
-                colors = [0, 1, 2, 3, 4, 5, 6, 7]  # standard ARC colors
-                self.pkm.set('state', 'colors', colors)
-    
-    # ------ NAVIGATION ------
-    
-    def __init_pathfinder(self):
-        """Initialize or get the pathfinder."""
-        if not hasattr(self, '_pathfinder') or self._pathfinder is None:
-            self._pathfinder = Pathfinder(self)
-        return self._pathfinder
-    
-    def _detect_wall_colors(self):
-        """Detect wall colors from analysis + local probing."""
-        if not self.game or not hasattr(self.obs, 'frame') or not self.obs.frame:
-            return
-        
-        pathfinder = self.__init_pathfinder()
-        grid = self.obs.frame[0]
-        
-        # Analyze grid: find most common colors
-        unique, counts = np.unique(grid, return_counts=True)
-        sorted_by_count = np.argsort(counts)[::-1]
-        color_freq = [(int(unique[idx]), int(counts[idx])) for idx in sorted_by_count]
-        # Skip background (0)
-        non_bg = [(c, n) for c, n in color_freq if c != 0]
-        
-        # The top non-bg color is usually the FLOOR
-        # Subsequent colors are walls, objects, or special tiles
-        floor_color = non_bg[0][0] if non_bg else None
-        
-        # Method 1: Tag-based — check if tag sprite color is wall or floor
-        wall_tags = self.pkm.get('mechanics', 'walls', [])
-        tag_colors = set()
-        for tag in wall_tags:
-            sprites = self._find_tagged_sprites(tag)
-            for s in sprites[:5]:
-                color = int(grid[s.y, s.x])
-                if color != floor_color:  # Not on floor = actual wall tile
-                    tag_colors.add(color)
-                # If on floor, check neighbors for the real wall color
-                for dx, dy in [(1,0), (-1,0), (0,1), (0,-1)]:
-                    nx, ny = s.x + dx, s.y + dy
-                    if 0 <= nx < grid.shape[1] and 0 <= ny < grid.shape[0]:
-                        nc = int(grid[ny, nx])
-                        if nc != color and nc != 0 and nc != floor_color:
-                            tag_colors.add(nc)
-        
-        # Method 2: Adjacent to player (non-invasively)
-        player_adjacent = set()
-        if self.player:
-            px, py = self.player.x, self.player.y
-            for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-                nx, ny = px + dx, py + dy
-                if 0 <= nx < grid.shape[1] and 0 <= ny < grid.shape[0]:
-                    c = int(grid[ny, nx])
-                    pc = int(grid[py, px])
-                    if c != pc and c != 0:  # Not where player stands, not bg
-                        player_adjacent.add(c)
-        
-        # Method 3: Grid analysis — second most common non-bg color is often wall
-        grid_wall_candidates = set()
-        if len(non_bg) >= 2:
-            # Colors that are less common than floor (top 2-4)
-            for c, n in non_bg[1:4]:
-                # If it's significantly less common than floor (>2x less)
-                if n < non_bg[0][1] * 0.5:  # Less than half the floor area
-                    grid_wall_candidates.add(c)
-        
-        # Combine: prefer player-adjacent and grid analysis over tag-on-floor
-        # If player-adjacent gives us clear walls, use those
-        if player_adjacent:
-            pathfinder.wall_colors.update(player_adjacent)
-            # Also add grid-analysis walls if they match player-adjacent
-            for c in grid_wall_candidates:
-                if c in player_adjacent or c in tag_colors:
-                    pathfinder.wall_colors.add(c)
-        else:
-            # Fallback: use tag-based + grid analysis
-            pathfinder.wall_colors.update(tag_colors)
-            pathfinder.wall_colors.update(grid_wall_candidates)
-        
-        # Remove player's own color and background
-        if self.player:
-            pathfinder.wall_colors.discard(int(grid[self.player.y, self.player.x]))
-        pathfinder.wall_colors.discard(0)
-        
-        # Lock walls so learn_walls() probing doesn't corrupt them
-        pathfinder.walls_locked = True
-        pathfinder.update_from_observation(self.obs)
-        
-        print(f"  🧱 Wall colors: {sorted(pathfinder.wall_colors)} "
-              f"(tags={sorted(tag_colors)}, adjacent={sorted(player_adjacent)}, "
-              f"grid={sorted(grid_wall_candidates)}, floor={floor_color})")
-    
-    def _find_tagged_sprites(self, tag: str):
-        """Find sprites with given tag in current level."""
-        level = self.game.current_level if self.game else None
-        if not level:
-            return []
-        sprites = getattr(level, '_sprites', [])
-        return [s for s in sprites if hasattr(s, 'tags') and s.tags and tag in s.tags]
-
-    def _check_adjacent_to_target(self) -> bool:
-        """Check if player adjacent to any interactive object."""
-        if not self.player:
-            return False
-        px, py = self.player.x, self.player.y
-        for tag in ['rhsxkxzdjz', 'rjlbuycveu']:
-            sprites = self._find_tagged_sprites(tag)
-            for s in sprites:
-                sx, sy = getattr(s, 'x', 0), getattr(s, 'y', 0)
-                if abs(px - sx) + abs(py - sy) == 1:
-                    return True
-        return False
-
-    def _check_source_available(self) -> bool:
-        """Check if game source file exists."""
-        import os
-        base_game = self.name.split('-')[0] if '-' in self.name else self.name
-        # Try multiple path patterns
-        possible_paths = [
-            f"environment_files/{base_game}/*/{self.name}.py",
-            f"environment_files/{base_game}/*/{base_game}.py",
-        ]
-        for pattern in possible_paths:
-            import glob
-            matches = glob.glob(pattern)
-            if matches:
-                return True
-        return False
-
-    def _infer_goal_rotation(self) -> Optional[int]:
-        """Infer goal rotation from level data."""
-        if self.game and hasattr(self.game, 'current_level'):
-            level = self.game.current_level
-            if hasattr(level, 'get_data'):
-                goal = level.get_data('GoalRotation')
-                if goal is not None:
-                    return int(goal)
-        return None
-
-    def _build_skill_context(self) -> Dict[str, Any]:
-        """Build context dict for skill selection."""
-        available_actions = list(self.obs.available_actions or [])
-        is_rotation_game = 6 in available_actions and not any(a in available_actions for a in [1, 2, 3, 4])
-        
-        return {
-            "has_player": self.player is not None,
-            "has_pathfinder": self.__init_pathfinder() is not None,
-            "has_changer": len(self._find_tagged_sprites('rhsxkxzdjz')) > 0,
-            "knows_goal_rotation": self._infer_goal_rotation() is not None,
-            "adjacent_to_target": self._check_adjacent_to_target(),
-            "available_actions": available_actions,
-            "source_available": self._check_source_available(),
-            "current_obs": True,
-            "skill_dag_loaded": True,
-            "is_rotation_game": is_rotation_game,
-        }
-
-    def _get_skill_for_phase(self) -> Optional[str]:
-        """Get the skill ID for the current phase."""
-        phase_skills = {
-            "detect_walls": "detect-walls-from-source",
-            "navigate_to_changer": "navigate-to-target",
-            "rotate_to_goal": "rotate-to-goal",
-            "navigate_to_lock": "navigate-to-target",
-            "interact": "interact-with-object",
-        }
-        return phase_skills.get(self._phase)
-
-    def _execute_skill(self, skill_id: str) -> bool:
-        """Execute a single skill by ID. Returns True if skill made progress."""
-        
-        # ═══ World Model pre-check: simulate before executing ═══
-        if self.world_model and self.world_model.memory_size() > 0:
-            # Determine which action this skill will likely take
-            predicted_action = self._predict_skill_action(skill_id)
-            if predicted_action is not None:
-                _, confidence = self._world_model_simulate(predicted_action)
-                if confidence > 0.5:
-                    print(f"  🌍 WM: skill={skill_id} action={predicted_action} confidence={confidence:.3f}")
-                elif confidence > 0.0:
-                    print(f"  🌍 WM: skill={skill_id} action={predicted_action} low confidence={confidence:.3f}")
-        
-        if skill_id == "detect-walls-from-source":
-            return self._skill_detect_walls()
-        
-        elif skill_id == "navigate-to-target":
-            return self._skill_navigate_to_target()
-        
-        elif skill_id == "rotate-to-goal":
-            return self._skill_rotate_to_goal()
-        
-        elif skill_id == "interact-with-object":
-            return self._skill_interact()
-        
-        elif skill_id == "select-skill-for-observation":
-            # Not used in phase machine
-            return True
-        
-        return False
-
-    def _skill_interact(self) -> bool:
-        """Execute interact-with-object skill."""
-        interact_action = 5
-        prev_level = self.obs.levels_completed
-        self.step(interact_action)
-        return self.obs.levels_completed > prev_level
-
-    def _skill_detect_walls(self) -> bool:
-        """Execute detect-walls-from-source skill."""
-        if not self._walls_detected:
-            self.__init_pathfinder()  # Ensure pathfinder is initialized
-            self._detect_wall_colors()
-            self._walls_detected = True
-            self.state.walls_detected = True
-            self.state.set_assumption("walls_known", True)
-            # Cache wall colors for fast access
-            pf = getattr(self, '_pathfinder', None)
-            self._detected_wall_colors = pf.wall_colors if pf and hasattr(pf, 'wall_colors') else set()
-            return True
-        return False  # Already done
-
-    def _skill_navigate_to_target(self) -> bool:
-        """Execute navigate-to-target skill. Falls back to world model if A* fails."""
-        target_pos = None
-        
-        # Phase 1: Navigate to changer
-        if self._phase == "navigate_to_changer":
-            changers = self._find_tagged_sprites('rhsxkxzdjz')
-            if changers:
-                ch = changers[0]
-                target_pos = (getattr(ch, 'x', 0), getattr(ch, 'y', 0))
-                
-                if self.player and self.player.x == target_pos[0] and self.player.y == target_pos[1]:
-                    return True  # At changer
-        
-        # Phase 2: Navigate to lock
-        elif self._phase == "navigate_to_lock":
-            locks = self._find_tagged_sprites('rjlbuycveu')
-            if locks:
-                lk = locks[0]
-                target_pos = (getattr(lk, 'x', 0), getattr(lk, 'y', 0))
-                
-                if self.player and self.player.x == target_pos[0] and self.player.y == target_pos[1]:
-                    return True  # At lock
-        
-        if target_pos is None:
-            return False
-        
-        tx, ty = target_pos
-        
-        # Ensure pathfinder is initialized (needed for wall colors)
-        pf = self.__init_pathfinder()
-        
-        # ═══ TIER 0: Micro-NN Pathfinder (primary) ═══
-        nano_used = False
-        if self.pathfinder_nn and self.pathfinder_nn.available and self.drives.stagnation_counter < 5:
-            grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
-            if grid is not None and self.player:
-                wall_colors = getattr(self, '_pathfinder', None)
-                wall_set = wall_colors.wall_colors if wall_colors and hasattr(wall_colors, 'wall_colors') else set()
-                # Take MULTIPLE steps in same direction (burst mode)
-                # LS20 action mapping: 1=UP, 2=DOWN, 3=LEFT, 4=RIGHT
-                # Player moves 5 cells per step
-                ACTION_DXDY = {1:(0,-5), 2:(0,5), 3:(-5,0), 4:(5,0)}
-                
-                prev_action = None
-                burst_steps = 0
-                max_burst = 10  # 5× less because each step moves 5 cells
-                
-                while burst_steps < max_burst:
-                    action, conf = self.pathfinder_nn.predict_action(
-                        grid, self.player.x, self.player.y, tx, ty,
-                        wall_set, self.drives.stagnation_counter
-                    )
-                    if prev_action is not None and action != prev_action: break
-                    if conf < 0.5: break
-                    
-                    px, py = self.player.x, self.player.y
-                    dx, dy = ACTION_DXDY.get(action, (0,0))
-                    nx, ny = px+dx, py+dy
-                    if not (0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]): break
-                    if int(grid[ny, nx]) in wall_set: break
-                    
-                    prev_action = action
-                    burst_steps += 1
-                    self.step(action)
-                    nano_used = True
-                    
-                    if self.player.x == tx and self.player.y == ty:
-                        print(f"  🤖 NanoPath: burst {burst_steps}×{['','→','↓','←','↑'][action]} → reached target!")
-                        return True
-                
-                if burst_steps > 0:
-                    print(f"  🤖 NanoPath: burst {burst_steps}×{['','→','↓','←','↑'][prev_action]} (conf={conf:.3f})")
-                    return True
-        
-        # ═══ TIER 0b: Heuristic wall circumvention (when stuck) ═══
-        if self.drives.stagnation_counter >= 3:
-            grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
-            if grid is not None and self.player:
-                # Get wall colors — force detection if cache empty
-                wall_set = getattr(self, '_detected_wall_colors', set())
-                if not wall_set:
-                    self._detect_wall_colors()
-                    pf = getattr(self, '_pathfinder', None)
-                    wall_set = pf.wall_colors if pf and hasattr(pf, 'wall_colors') else set()
-                    self._detected_wall_colors = wall_set
-                
-                # Also include color 5 (lock area barrier) and 11 if player gets blocked
-                # These are secondary wall colors not detected by the primary heuristic
-                wall_set = wall_set | {5, 11}
-                
-                print(f"  [DEBUG] wall_set={wall_set}, player=({self.player.x},{self.player.y}), target=({tx},{ty})")
-                from cogniarc.heuristic_path import heuristic_navigate
-                path = heuristic_navigate(grid, self.player.x, self.player.y, tx, ty, wall_set, max_steps=30)
-                
-                if path:
-                    action, reason = path[0]
-                    print(f"  🧭 Heuristic: {reason} (stagnation={self.drives.stagnation_counter})")
-                    self.step(action)
-                    if self.player.x == tx and self.player.y == ty:
-                        return True
-                    return True
-        
-        # ═══ TIER 1: A* pathfinding (fallback) ═══
-        pathfinder = self.__init_pathfinder()
-        pathfinder.walkable_overrides.add((tx, ty))
-        pathfinder.update_from_observation(self.obs)
-        astar_result = pathfinder.navigate_astar((tx, ty), max_steps=200, obs=self.obs)
-        
-        if astar_result:
-            return True
-        
-        # ═══ A* FAILED → Micro-NN or World Model fallback ═══
-        if self.action_predictor or (self.world_model and self.world_model.memory_size() > 0):
-            return self._world_model_navigate_fallback(tx, ty)
-        
-        return False
-    
-    def _world_model_navigate_fallback(self, tx: int, ty: int) -> bool:
-        """When A* fails, try to circumvent walls instead of forcing through.
-        
-        Strategy:
-        1. If stagnant (<3 fails): micro-NN suggests toward-target direction
-        2. If stagnant (≥3 fails): wall detected → try PERPENDICULAR escape
-        3. World Model V-JEPA as last resort
-        """
-        if not self.player:
-            return False
-        
-        px, py = self.player.x, self.player.y
-        stagnation = self.drives.stagnation_counter
-        
-        # Determine primary axis toward target
-        dx = tx - px
-        dy = ty - py
-        toward_vertical = abs(dy) > abs(dx)  # Target is more up/down than left/right
-        
-        # ═══ TIER 1: Stuck ≥ 3 times → WALL CIRCUMVENTION ═══
-        if stagnation >= 3:
-            wall_colors = getattr(self, '_pathfinder', None)
-            wall_set = wall_colors.wall_colors if wall_colors and hasattr(wall_colors, 'wall_colors') else set()
-            grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
-            
-            if grid is not None and wall_set:
-                # Check if toward-target cell is a wall
-                toward_action = None
-                if dy < 0 and py > 0: toward_action = 4  # up
-                elif dy > 0: toward_action = 2  # down
-                elif dx > 0: toward_action = 1  # right
-                elif dx < 0: toward_action = 3  # left
-                
-                # Try perpendicular escape: left/right if vertical target, up/down if horizontal
-                escape_actions = [1, 3] if toward_vertical else [2, 4]  # perpendicular
-                
-                for action in escape_actions:
-                    # Check if escape cell is walkable (not a wall)
-                    nx, ny = px, py
-                    if action == 1: nx = px + 1
-                    elif action == 3: nx = px - 1
-                    elif action == 2: ny = py + 1
-                    elif action == 4: ny = py - 1
-                    
-                    if 0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]:
-                        cell_color = grid[ny, nx]
-                        if cell_color not in wall_set:
-                            action_names = ['', 'right', 'down', 'left', 'up']
-                            print(f"  🧱 Wall blocked → escaping {action_names[action]} (cell {cell_color} is walkable)")
-                            self.step(action)
-                            return True
-                
-                # All perpendicular cells are walls → trapped
-                print(f"  🧱 Surrounded by walls at ({px},{py}) — cannot escape")
-                return False
-        
-        # ═══ TIER 2: Micro-NN (low stagnation) ═══
-        if self.action_predictor and self.action_predictor.available:
-            wall_colors = getattr(self, '_pathfinder', None)
-            wall_set = wall_colors.wall_colors if wall_colors and hasattr(wall_colors, 'wall_colors') else set()
-            grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
-            
-            if grid is not None:
-                best_action = None
-                best_conf = 0.0
-                
-                for action in [1, 2, 3, 4]:
-                    if action == 1 and px >= tx: continue
-                    if action == 3 and px <= tx: continue
-                    if action == 2 and py >= ty: continue
-                    if action == 4 and py <= ty: continue
-                    
-                    prob = self.action_predictor.predict_action(
-                        (px, py), (tx, ty), action, wall_set, grid,
-                        stagnation=stagnation, steps=self.steps
-                    )
-                    if prob > best_conf:
-                        best_conf = prob
-                        best_action = action
-                
-                if best_action is not None and best_conf > 0.5:
-                    print(f"  ⚡ MicroNN: A* failed → stepping {['','right','down','left','up'][best_action]} (prob={best_conf:.3f})")
-                    self.step(best_action)
-                    return True
-        
-        # ═══ TIER 3: World Model V-JEPA (last resort) ═══
-        if self.world_model and self.world_model.memory_size() > 0:
-            return self._world_model_navigate_fallback_vjepa(tx, ty)
-        
-        return False
-    
-    def _world_model_navigate_fallback_vjepa(self, tx: int, ty: int) -> bool:
-        """V-JEPA world model fallback (original implementation)."""
-        if not self.player:
-            return False
-        
-        px, py = self.player.x, self.player.y
-        best_action = None
-        best_conf = 0.0
-        
-        for action in [1, 2, 3, 4]:
-            if action == 1 and px >= tx: continue
-            if action == 3 and px <= tx: continue
-            if action == 2 and py >= ty: continue
-            if action == 4 and py <= ty: continue
-            
-            _, conf = self._world_model_simulate(action)
-            if conf > best_conf:
-                best_conf = conf
-                best_action = action
-        
-        if best_action is not None and best_conf > 0.3:
-            print(f"  🌍 WM fallback: A* failed → stepping {['','right','down','left','up'][best_action]} (conf={best_conf:.3f})")
-            self.step(best_action)
-            return True
-        
-        return False
-
-    def _skill_rotate_to_goal(self) -> bool:
-        """Execute rotate-to-goal skill. Loops until rotation matches goal."""
-        goal_rot = self._infer_goal_rotation()
-        if goal_rot is None:
-            return False
-        
-        current_rot = getattr(self.game, 'cklxociuu', 0) if self.game else 0
-        if current_rot == goal_rot:
-            return True  # Already rotated
-        
-        # Need to reach changer first
-        changers = self._find_tagged_sprites('rhsxkxzdjz')
-        if not changers:
-            return False
-        
-        ch = changers[0]
-        cx, cy = getattr(ch, 'x', 0), getattr(ch, 'y', 0)
-        
-        # Navigate to changer if not adjacent
-        if self.player and abs(self.player.x - cx) + abs(self.player.y - cy) > 1:
-            pathfinder = self.__init_pathfinder()
-            pathfinder.walkable_overrides.add((cx, cy))
-            pathfinder.navigate_to((cx, cy), max_steps=100)
-            return True  # Made progress toward changer
-        
-        # At changer — cycle rotation using R+L (actions 4+3)
-        max_cycles = 20
-        for _ in range(max_cycles):
-            current_rot = getattr(self.game, 'cklxociuu', 0)
-            if current_rot == goal_rot:
-                return True
-            self.step(4)  # Right
-            self.step(3)  # Left
-        
-        return False  # Failed to reach target rotation
-
-    def _advance_phase(self, success: bool):
-        """Advance phase based on skill result. Syncs with ScientificState."""
-        old_phase = self._phase
-        
-        if self._phase == "detect_walls" and success:
-            self._phase = "navigate_to_changer"
-        elif self._phase == "navigate_to_changer" and success:
-            self._phase = "rotate_to_goal"
-        elif self._phase == "rotate_to_goal" and success:
-            self._phase = "navigate_to_lock"
-        elif self._phase == "navigate_to_lock" and success:
-            # In LS20, locks are collected by walking ON them, not by interact (action 5).
-            # Skip interact phase — step onto the lock directly.
-            if self.player:
-                locks = self._find_tagged_sprites('rjlbuycveu')
-                if locks:
-                    lk = locks[0]
-                    lx, ly = getattr(lk, 'x', 0), getattr(lk, 'y', 0)
-                    if self.player.x == lx and self.player.y == ly:
-                        self._phase = "complete"  # Already on lock
-                    elif abs(self.player.x - lx) + abs(self.player.y - ly) == 1:
-                        # Adjacent: step onto lock
-                        if self.player.x < lx: action = 1
-                        elif self.player.x > lx: action = 3
-                        elif self.player.y < ly: action = 2
-                        else: action = 4
-                        print(f"  🔑 Stepping onto lock at ({lx},{ly}) — action {action}")
-                        self.step(action)
-                        self._phase = "complete"
-                    else:
-                        self._phase = "navigate_to_lock"  # Need more movement
-                else:
-                    self._phase = "interact"  # Fallback
-            else:
-                self._phase = "interact"
-        elif self._phase == "interact" and success:
-            self._phase = "complete"
-        
-        # Sync with ScientificState
-        if self._phase != old_phase:
-            self.state.phase = self._phase
-            self.state.phase_attempts = 0
 
     # ------ SOLVE PHASE ------
-    
+
     # ═══ Perception Stack Integration (AHOIS) ═══
-    
+
     def _init_perception_stack(self):
         """Initialize TemporalReasoner, SpatialReasoner, and SymbolicInference
         for use during solve_level(). Called at the start of each level."""
@@ -1186,7 +438,7 @@ class ScientistAgent:
             from .temporal_inference import TemporalReasoner
             from .spatial_inference import SpatialReasoner
             from .symbolic_inference import SymbolicInference
-            
+
             self._temporal = TemporalReasoner()
             self._spatial = SpatialReasoner()
             self._symbolic = SymbolicInference()
@@ -1196,51 +448,84 @@ class ScientistAgent:
             self._spatial = None
             self._symbolic = None
             self._perception_initialized = False
-    
+
     def _perception_analyze(self, obs) -> dict:
-        """Run temporal + spatial analysis on current observation.
-        Returns a dict with perceived patterns and recommended skills.
-        Dynamic Workflow pattern: PIPELINE (perception → inference → suggestion)."""
+        """Run temporal + spatial analysis on the current observation.
+
+        Returns {temporal, spatial, symbols, recommended_skills} where present.
+        Advisory only (its output is surfaced, not forced) and fully defensive:
+        a perception failure must never crash the solve loop.
+
+        Correctness note (found by the first holdout run, sc25): this method
+        was dead code until wired in feat/wire-cognitive-architecture, and the
+        dead version was broken three ways — it called analyze() with an
+        argument (both reasoners' analyze() take none), it stored raw obs
+        objects instead of grids in the frame history, and it passed pattern
+        objects where infer() wants (type, confidence) tuples. All fixed here;
+        the whole thing is also wrapped so any residual API drift degrades to
+        an empty result rather than aborting the run.
+        """
         if not self._perception_initialized:
             return {"mode_action": None}
-        
-        result = {}
-        
-        # Temporal analysis (if we have frame history)
-        if hasattr(self, '_frame_history'):
-            self._frame_history.append(obs)
-            if len(self._frame_history) >= 3:
-                frames = self._frame_history[-3:]
-                temporal_pattern = self._temporal.analyze(frames)
+
+        # Extract the current grid; nothing to analyze without it.
+        if not (obs and hasattr(obs, 'frame') and obs.frame and len(obs.frame) > 0):
+            return {}
+        grid = obs.frame[0]
+
+        result: dict = {}
+        try:
+            # Frame history holds GRIDS (not obs objects).
+            history = getattr(self, '_frame_history', None)
+            if history is None:
+                history = self._frame_history = []
+            history.append(grid)
+            if len(history) > 8:  # bounded
+                del history[:-8]
+
+            # Temporal: analyze the recent grid sequence (needs >= 2 frames).
+            temporal_pattern = None
+            if len(history) >= 2:
+                from .temporal_inference import TemporalReasoner
+                temporal_pattern = TemporalReasoner(frames=list(history[-3:])).analyze()
                 result["temporal"] = temporal_pattern
-        else:
-            self._frame_history = [obs]
-        
-        # Spatial analysis (current frame)
-        if obs and hasattr(obs, 'frame') and obs.frame and len(obs.frame) > 0:
-            grid = obs.frame[0]
-            spatial_pattern = self._spatial.analyze(grid)
+
+            # Spatial: analyze the current grid (SpatialReasoner(grid) segments
+            # in its constructor; analyze() then reads self.grid).
+            from .spatial_inference import SpatialReasoner
+            spatial_reasoner = SpatialReasoner(grid)
+            spatial_pattern = spatial_reasoner.analyze()
             result["spatial"] = spatial_pattern
-            
-            # Symbolic inference: temporal + spatial → skill recommendation
-            if "temporal" in result:
-                symbols = self._symbolic.infer(
-                    temporal_pattern=result["temporal"],
-                    spatial_pattern=spatial_pattern,
-                )
-                result["symbols"] = symbols
-                skills = self._symbolic.skill_recommendations()
-                if skills:
-                    result["recommended_skills"] = skills
-        
+
+            # Symbolic: infer() wants (type, confidence) tuples, not the objects.
+            symbols = self._symbolic.infer(
+                temporal_pattern=(
+                    (temporal_pattern.type, temporal_pattern.confidence)
+                    if temporal_pattern is not None else None
+                ),
+                spatial_pattern=(spatial_pattern.type, spatial_pattern.confidence),
+                regions=spatial_reasoner.regions,
+            )
+            result["symbols"] = symbols
+            skills = self._symbolic.skill_recommendations()
+            if skills:
+                # skill_recommendations() returns (name, confidence, reason)
+                # tuples; expose plain skill names for reconcile_*.
+                result["recommended_skills"] = [
+                    s[0] if isinstance(s, (list, tuple)) else s for s in skills
+                ]
+        except Exception as e:
+            # Advisory: never let perception abort the solve loop.
+            return {"perception_error": str(e)}
+
         return result
-    
+
     def solve_level(self, level_num: Optional[int] = None) -> bool:
         """Solve current level using phase-based skill execution with SocraticCritic."""
         prev_lvl = self.obs.levels_completed
         if level_num is not None and prev_lvl + 1 != level_num:
             print(f"  ⚠️ Expected level {level_num}, at {prev_lvl + 1}")
-        
+
         # Update current level index
         self.current_level_idx = prev_lvl
         self._walls_detected = False  # Reset for new level
@@ -1249,12 +534,12 @@ class ScientistAgent:
         self.state.phase = "detect_walls"
         self.state.phase_attempts = 0
         self._phase_escalation_count = 0  # Global: force skip apres X echecs
-        
+
         # Refresh player reference (game may recreate player sprite per level)
         if self.game and hasattr(self.game, 'gudziatsk') and self.game.gudziatsk:
             self.player = self.game.gudziatsk
             self.state.set_assumption("player_found", True)
-        
+
         # Skill Tree: detect new level
         if self.skill_tree:
             self.skill_tree.detect_new_level(self.obs)
@@ -1262,32 +547,43 @@ class ScientistAgent:
                 skill = self.skill_tree.get(skill_name)
                 if skill and skill.action_id:
                     print(f"  🔓 Skill available: {skill_name}")
-        
+
         self.discover_properties()
-        
+
         # ═══ Populate ScientificState from discovered info ═══
         available = list(self.obs.available_actions or [])
         self.state.available_actions = available
         is_movement = any(a in available for a in [1, 2, 3, 4])
         is_rotation = 6 in available
-        
+
         if is_movement:
             self.state.domain_type = "movement" if not is_rotation else "hybrid"
         elif is_rotation:
             self.state.domain_type = "rotation"
         self.state.domain_confidence = 0.7
-        
+
         self.state.set_assumption("walls_known", self._walls_detected or self._check_source_available())
         self.state.set_assumption("actions_scouted", True)
         self.state.set_assumption("domain_identified", True)
-        self.state.set_assumption("goal_known", self._infer_goal_rotation() is not None)
-        
+        goal_rotation_known = self._infer_goal_rotation() is not None
+        self.state.set_assumption("goal_known", goal_rotation_known)
+        # Tell SocraticCritic a rotation mechanism exists even without action 6
+        # (e.g. LS20's changer, cycled via two other actions) — built from
+        # already-discovered generic signals (rotation-changer mechanic tag,
+        # known goal rotation), not a new hardcoded assumption.
+        self.state.set_assumption(
+            "has_rotation_mechanism",
+            is_rotation
+            or bool(self.pkm.get('mechanics', 'rotation_changers', []))
+            or goal_rotation_known,
+        )
+
         # Record observations from discovery
         self.state.record_observation(
             f"Domain={self.state.domain_type}, movement={is_movement}, rotation={is_rotation}",
             source="discovery"
         )
-        
+
         # ═══ Select reasoning mode via ReasonModeManager ═══
         mode_context = {
             "stagnation": self.drives.stagnation_counter,
@@ -1304,13 +600,21 @@ class ScientistAgent:
                 f"solve_level() init: domain={self.state.domain_type}")
             self.current_reasoning_mode = new_mode
             print(f"  🧠 Reasoning Mode: {new_mode.value}")
-        
+
         # ═══ Initialize Perception Stack for temporal/spatial integration ═══
         self._init_perception_stack()
-        
+
+        # ═══ Active experimentation (advisory): surface the most informative
+        # wall/floor disambiguation available, given learned action directions.
+        # Records a recommendation; does not (yet) steer the action. ═══
+        try:
+            self.suggest_wall_experiment()
+        except Exception as e:
+            print(f"  🔬 Active experiment suggestion skipped: {e}")
+
         # Benchmark tracking
         self.benchmark_start_time = time.time()
-        
+
         # Decision loop
         max_iterations = 200
         for iteration in range(max_iterations):
@@ -1318,29 +622,40 @@ class ScientistAgent:
                 print(f"  ✅ LEVEL {self.obs.levels_completed} COMPLETED!")
                 self._record_level_skills(prev_lvl + 1)
                 return True
-            
+
             # Stop if frame is empty (level transition)
             if not hasattr(self.obs, 'frame') or not self.obs.frame or len(self.obs.frame) == 0:
                 print(f"  ⏸ Frame empty - level transition")
                 break
-            
+
             # Get skill for current phase
             skill_id = self._get_skill_for_phase()
-            
+
             if not skill_id:
                 print(f"  ❌ No skill for phase: {self._phase}")
                 break
-            
+
+            # ═══ Perception Stack: observe (non-blocking) disagreement with
+            # the phase machine's skill choice. See reconcile_perception_with_phase()
+            # docstring for why this informs rather than overrides for now. ═══
+            perception = self._perception_analyze(self.obs)
+            disagreement = reconcile_perception_with_phase(
+                skill_id, perception, self.current_reasoning_mode
+            )
+            if disagreement:
+                self.state.record_observation(disagreement, source="perception_reconcile")
+                print(f"  👁️ {disagreement}")
+
             # ═══ SocraticCritic: interrogate before each phase ═══
             hypothesis = self._build_phase_hypothesis()
             report = self.critic.quick_check(hypothesis, self.state)
             self.state.add_critic_report(report)
-            
+
             if report.unresolved():
                 # Print critic warnings (non-blocking: show but proceed)
                 for issue in report.unresolved()[:3]:  # max 3
                     print(f"  🤔 {issue}")
-            
+
             if report.blocking:
                 # 🚫 Le critic bloque → on CHERCHE une vraie alternative
                 print(f"  🚫 SocraticCritic BLOCKING: {report.blocking_issues()[0].question[:60]}...")
@@ -1353,10 +668,10 @@ class ScientistAgent:
                     continue  # Retry with new phase
                 else:
                     print(f"     Aucune alternative - execution risquee")
-            
+
             print(f"  🔄 Phase: {self._phase} -> Skill: {skill_id}")
             success = self._execute_skill(skill_id)
-            
+
             if success:
                 self._advance_phase(success)
                 print(f"  ✅ Phase complete: {self._phase}")
@@ -1365,8 +680,10 @@ class ScientistAgent:
                 self._phase_escalation_count += 1
                 print(f"  ⚠️ Skill {skill_id} failed in phase {self._phase} (attempt {self.state.phase_attempts})")
 
-                # Global escalation: if stuck too long, force skip level
-                if self._phase_escalation_count >= 5:
+                # Global escalation: if stuck too long, force skip level.
+                # Threshold is mode-driven: COUNTERFACTUAL/SOCRATIC modes signal
+                # active doubt about the current plan, so give up sooner.
+                if self._phase_escalation_count >= phase_escalation_threshold(self.current_reasoning_mode):
                     print(f"  🔴 Trop d'echecs ({self._phase_escalation_count}), force skip niveau...")
                     skip_to = self._try_skip_level()
                     if skip_to == "complete":
@@ -1374,28 +691,31 @@ class ScientistAgent:
                     # Burn remaining steps pour forcer game over
                     self.handle_transition()
                     break
-                
-                # After 3 failed attempts on same phase, ask for escalation
-                if self.state.phase_attempts >= 3:
+
+                # After N failed attempts on same phase, ask for escalation.
+                # N is mode-driven: PATHFINDING/ROTATION trust the deterministic
+                # skill longer (it's likely to eventually succeed); doubt modes
+                # escalate sooner.
+                if self.state.phase_attempts >= phase_attempts_threshold(self.current_reasoning_mode):
                     escalation = self._escalate_phase_failure()
                     if escalation:
                         print(f"  🔀 Escalating: {escalation}")
                         self._phase = escalation
                         self.state.phase = escalation
                         self.state.phase_attempts = 0
-                
+
             # Brief pause to let state settle
             if self.obs.levels_completed > prev_lvl:
                 break
-        
+
         result = self.obs.levels_completed > prev_lvl
         self._record_benchmark(self.current_level_idx, result)
-        
+
         # ═══ Auto-save world model memory ═══
         if self.world_model and self.world_model.memory_size() > 0:
             self.world_model.save()
             print(f"  💾 WM saved: {self.world_model.memory_size()} transitions for {self.name}")
-        
+
         return result
 
     def _build_phase_hypothesis(self) -> str:
@@ -1509,7 +829,7 @@ class ScientistAgent:
         if self.skill_tree:
             # Skills are recorded during execution via skill_tree.unlock()
             pass
-    
+
     def _record_benchmark(self, level: int, solved: bool):
         """Record benchmark result for this level attempt."""
         if not self.benchmark_tracker or not self.benchmark_session_id:
@@ -1528,30 +848,30 @@ class ScientistAgent:
         )
         # Flush to disk after each level
         self.benchmark_tracker.flush()
-    
+
     def end_benchmark_session(self):
         """End and persist the benchmark session."""
         if self.benchmark_tracker and self.benchmark_session_id:
             self.benchmark_tracker.end_session()
             self.benchmark_session_id = None
-    
+
     def end_skill_session(self):
         """Export skill tree for this game and attempt cross-game import."""
         if not self.skill_tree:
             return
-        
+
         # Export game-specific tree
         game_tree = self.skill_tree.export_for_game(self.name)
         print(f"\n🌳 Skill Tree exported for {self.name}: {len(game_tree.skills)} skills")
         print(game_tree.report())
-        
+
         # Try to import from other games in the same domain
         from .domain_profiler import DomainProfiler
         from .skill_tree import SkillTree
         try:
             dp = DomainProfiler(self.env)
             profile = dp.build_profile()
-            
+
             # Look for other games in same domain
             cache_dir = Path.home() / ".cache" / "cogniarc" / "games"
             if cache_dir.exists():
@@ -1564,16 +884,16 @@ class ScientistAgent:
                             print(f"  📥 Imported {imported} skills from {other_game}")
         except Exception as e:
             print(f"  ⚠️ Cross-game import failed: {e}")
-    
+
     # ------ TRANSITION ------
-    
+
     def handle_transition(self):
         """Handle level transition. If trapped, burn remaining steps to trigger lose()."""
         if not self.player:
             return
-        
+
         pos = (self.player.x, self.player.y)
-        
+
         # Test if we can move
         can_move = False
         for act in [1, 2, 3, 4]:
@@ -1582,15 +902,15 @@ class ScientistAgent:
             if self.player.x != prev[0] or self.player.y != prev[1]:
                 can_move = True
                 break
-        
+
         if can_move:
             return  # We're free
-        
+
         # Trapped — burn steps
         print(f"  🪤 Trapped at {pos}! Burning steps for reset...")
         burn_start = self.steps
         prev_lvl = self.obs.levels_completed
-        
+
         while self.steps - burn_start < 60:
             self.step(3)  # any blocked direction
             if self.obs.levels_completed != prev_lvl:
@@ -1604,40 +924,43 @@ class ScientistAgent:
             if prev != pos:
                 print(f"  🆓 Freed! Now at ({self.player.x},{self.player.y})")
                 break
-        
+
         print(f"  Burned {self.steps - burn_start} steps")
-    
+
     # ------ MAIN LOOP ------
-    
+
     def run(self):
         print(f"🔬 Scientist Agent — {self.name}")
         print(f"   Start: lvl={self.obs.levels_completed}/{self.obs.win_levels}")
-        
+
         # PHASE 1: Discover
         print("\n📖 DISCOVERY PHASE")
         self.discover_from_source()
         self.discover_available_actions()
         self.discover_properties()
-        
+
         # PHASE 2: Scout (cheap actions to understand domain)
         print("\n🔍 SCOUT PHASE")
         # Already discovered in discover_available_actions()
         print("  ✅ Scout complete (from discovery)")
-        
+
         # PHASE 3: Solve levels
         print(f"\n🎮 SOLVE PHASE (target: {self.obs.win_levels} levels)")
-        
-        max_total = 400
+
+        # Total step budget. A holdout smoke run can lower this via
+        # _holdout_max_steps (set by scripts/run_holdout.py --max-steps) to keep
+        # remote-API usage bounded.
+        max_total = min(400, getattr(self, '_holdout_max_steps', 400) or 400)
         while self.obs.levels_completed < self.obs.win_levels and self.steps < max_total:
             prev_lvl = self.obs.levels_completed
-            
+
             # Try to solve current level
             solved = self.solve_level()
-            
+
             if not solved:
                 # Try transition handling
                 self.handle_transition()
-                
+
                 if self.obs.levels_completed == prev_lvl:
                     # Still stuck — try random exploration
                     print(f"  🎲 Stuck, trying random exploration...")
@@ -1646,23 +969,23 @@ class ScientistAgent:
                         if self.obs.levels_completed > prev_lvl:
                             print(f"  ✅ Random find! Level {self.obs.levels_completed}")
                             break
-            
+
             # Check game over
             if hasattr(self.obs, 'state'):
                 state = str(self.obs.state)
                 if 'GAME_OVER' in state or 'LOSS' in state:
                     print(f"  💀 Game over at level {self.obs.levels_completed}")
                     break
-        
+
         # FINAL
         print(f"\n{'='*50}")
         print(f"🏆 {self.obs.levels_completed}/{self.obs.win_levels} levels, {self.steps} steps")
         print(f"State: {self.obs.state}")
         print(f"\n{self.pkm.report()}")
-        
+
         # Skill Tree summary
         self.end_skill_session()
-        
+
         # Benchmark summary
         self.end_benchmark_session()
 

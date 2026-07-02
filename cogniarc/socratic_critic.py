@@ -151,7 +151,7 @@ class SocraticCritic:
         # Run all 6 checks
         report.issues.extend(self._check_clarity(hypothesis))
         report.issues.extend(self._check_assumptions(hypothesis, assumptions))
-        report.issues.extend(self._check_physical_constraints(hypothesis, domain_type, available_actions))
+        report.issues.extend(self._check_physical_constraints(hypothesis, domain_type, available_actions, assumptions))
         report.issues.extend(self._check_causality(hypothesis, evidence))
         report.issues.extend(self._check_counterexamples(hypothesis, observations))
         report.issues.extend(self._check_falsification(hypothesis, domain_type))
@@ -265,15 +265,24 @@ class SocraticCritic:
 
     def _check_physical_constraints(self, hypothesis: str,
                                     domain_type: str,
-                                    available_actions: List[int]) -> List[SocraticIssue]:
+                                    available_actions: List[int],
+                                    assumptions: Optional[Dict[str, bool]] = None) -> List[SocraticIssue]:
         """
         Verify that the hypothesis is consistent with available actions and domain.
         """
         issues = []
+        assumptions = assumptions or {}
 
         # Movement actions exist?
         has_movement = any(a in available_actions for a in [1, 2, 3, 4])
-        has_rotation = 6 in available_actions
+        # Rotation isn't always a dedicated action 6 — some games rotate via a
+        # different mechanic entirely (e.g. cycling two other actions at a
+        # "changer" object, as LS20 does). Assuming action-6-or-nothing here
+        # was itself a hardcoded, game-specific assumption; the caller can set
+        # assumptions["has_rotation_mechanism"] from whatever it has actually
+        # discovered (a rotation-changer mechanic, a known goal rotation, ...)
+        # instead of this check silently blocking every non-action-6 game.
+        has_rotation = 6 in available_actions or bool(assumptions.get("has_rotation_mechanism", False))
 
         hyp_lower = hypothesis.lower()
 

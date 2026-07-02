@@ -189,6 +189,61 @@ class TestSocraticCritic:
         report = critic.quick_check("Navigate to target and use the switch", state)
         assert len(report.issues) > 0
 
+    def test_rotation_blocked_without_action6_or_alternate_mechanism(self):
+        """Baseline: rotation hypothesis + no action 6 + no alternate
+        mechanism known -> still blocked, as before this fix."""
+        critic = SocraticCritic()
+        report = critic.interrogate(
+            hypothesis="Use the rotation changer to cycle rotation",
+            domain_type="movement",
+            available_actions=[1, 2, 3, 4],  # no action 6
+            evidence=[],
+            assumptions={},  # no has_rotation_mechanism signal
+            observations={},
+        )
+        constraints = [i for i in report.issues if i.type == SocraticIssueType.PHYSICAL_CONSTRAINT]
+        assert any("rotat" in i.question.lower() for i in constraints)
+
+    def test_rotation_not_blocked_with_alternate_mechanism_assumption(self):
+        """The fix: a discovered non-action-6 rotation mechanism (e.g. LS20's
+        changer, cycled via actions 3+4) must silence the false-positive
+        'you have no way to rotate' block. Found live: this check was
+        blocking LS20's own rotate_to_goal phase on every run, since LS20
+        rotates via actions 3+4 at a changer object, never action 6."""
+        critic = SocraticCritic()
+        report = critic.interrogate(
+            hypothesis="Use the rotation changer to cycle rotation",
+            domain_type="movement",
+            available_actions=[1, 2, 3, 4],  # still no action 6
+            evidence=[],
+            assumptions={"has_rotation_mechanism": True},  # discovered generically
+            observations={},
+        )
+        rotation_blocks = [
+            i for i in report.issues
+            if i.type == SocraticIssueType.PHYSICAL_CONSTRAINT and "rotat" in i.question.lower()
+        ]
+        assert rotation_blocks == []
+
+    def test_action6_alone_still_satisfies_rotation_check(self):
+        """Backward compatibility: games that DO use action 6 for rotation
+        must keep working exactly as before, with no assumptions needed."""
+        critic = SocraticCritic()
+        report = critic.interrogate(
+            hypothesis="Rotate using the dedicated action",
+            domain_type="rotation",
+            available_actions=[6],
+            evidence=[],
+            assumptions={},
+            observations={},
+        )
+        rotation_blocks = [
+            i for i in report.issues
+            if i.type == SocraticIssueType.PHYSICAL_CONSTRAINT and "rotat" in i.question.lower()
+        ]
+        assert rotation_blocks == []
+
+
     def test_blocking_severity(self):
         critic = SocraticCritic()
         report = critic.interrogate(
