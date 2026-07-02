@@ -341,17 +341,17 @@ class SkillsMixin:
 
         # ── GENERIC phase flow (ObjectTracker-enabled) ──
         if self._phase == "detect_walls" and success:
-            # Check if we have rotation mechanism info (tag or inferred)
-            has_rotation = (
-                getattr(self, 'state', None) is not None
-                and self.state.assumptions.get("has_rotation_mechanism", False)
-            )
+            # Generic path: ObjectTracker has data AND no tagged changer sprites exist.
+            # The changer sprite check is the hard discriminator: if the game has
+            # no 'rhsxkxzdjz' tagged sprites, the legacy LS20 rotation path cannot
+            # work, so we must use the generic navigate_to_target instead.
             ot = getattr(self, 'object_tracker', None)
-            if ot is not None and not has_rotation:
+            has_tagged_changer = len(self._find_tagged_sprites('rhsxkxzdjz')) > 0
+            if ot is not None and ot.has_enough_observations() and not has_tagged_changer:
                 # Generic: go straight to navigation
                 self._phase = "navigate_to_target"
             else:
-                # Legacy path: try changer-based rotation first
+                # Legacy path: try changer-based rotation first (LS20 or tagged game)
                 self._phase = "navigate_to_changer"
 
         elif self._phase == "navigate_to_target" and success:
