@@ -116,10 +116,10 @@ class SkillsMixin:
     def _navigate_one_step(self) -> Optional[int]:
         """Take one navigation step using ObjectTracker's learned action directions.
 
-        Picks the action that maximises movement in any reachable direction
-        (learned, not assumed). Returns the action taken, or None if no
-        movement action is known.
+        Uses ObjectTracker.current_position() instead of self.player.x/.y,
+        so it works on ANY game (no hardcoded attribute name lookup).
 
+        Returns the action taken, or None if no movement action is known.
         Falls back to trying all available movement actions sequentially.
         """
         ot = getattr(self, 'object_tracker', None)
@@ -127,15 +127,21 @@ class SkillsMixin:
             summary = ot.get_perception_summary()
             action_dirs = summary.get("action_directions", {})
             if action_dirs:
-                # Take the first known movement action that actually moves us
-                for action in sorted(action_dirs.keys()):
-                    if self.player:
-                        prev_pos = (self.player.x, self.player.y)
-                    self.step(action)
-                    if self.player and (self.player.x, self.player.y) != prev_pos:
-                        return action
-                # All known actions failed — try any available and record wall
-                return None
+                # Get current position from ObjectTracker (generic, no attribute name)
+                grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+                if grid is not None:
+                    current_pos = ot.current_position(grid)
+                    for action in sorted(action_dirs.keys()):
+                        prev_pos = current_pos
+                        self.step(action)
+                        # Re-check position after step
+                        grid_after = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+                        if grid_after is not None:
+                            new_pos = ot.current_position(grid_after)
+                            if new_pos is not None and new_pos != prev_pos:
+                                return action
+                    # All known actions failed
+                    return None
 
         # Fallback: try all available movement actions
         available = list(self.obs.available_actions or [])
