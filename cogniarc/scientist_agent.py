@@ -255,7 +255,7 @@ class PKM:
 class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
     """Discover game mechanics, then solve each level."""
 
-    def __init__(self, game_name: str, enable_benchmark: bool = True, enable_skill_tree: bool = True, enable_world_model: bool = False, enable_nano_llm: bool = False):
+    def __init__(self, game_name: str, enable_benchmark: bool = True, enable_skill_tree: bool = True, enable_world_model: bool = False, enable_nano_llm: bool = True):
         if not ARC_RUNTIME_AVAILABLE:
             raise RuntimeError(
                 "ScientistAgent requires the ARC-AGI runtime. Install it with "
