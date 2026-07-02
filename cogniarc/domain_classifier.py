@@ -1,344 +1,124 @@
-#!/usr/bin/env python3
+"""Classify ARC-AGI-3 game type from grid-change patterns observed during scout.
+
+Pure functions (no arc_agi dependency, testable with synthetic grids).
+
+Three primary game types:
+- **navigation**: a single moving region (player) + static obstacles (walls)
+- **painting**: many pixels change colour in clusters (brush/tool actions)
+- **puzzle**: few targeted pixel changes (rotation, toggle, swap)
+- **unknown**: insufficient or contradictory signal
 """
-Domain Classifier for ARC-AGI-3.
+from typing import Dict, List, Optional, Tuple
 
-Determines what KIND of abstract game this is BEFORE attempting to solve it.
-The domain determines the entire interpretation framework.
-
-Domains:
-    movement      — agent position changes, objects to push, paths to navigate
-    rotation      — orientation matters, sides/faces have meaning
-    drawing       — traces appear, shapes drawn, fill/erase/complete patterns
-    selection     — click to highlight, group/ungroup, confirm selections
-    symbolic      — glyphs/runes with meaning, composition rules
-    temporal      — ORDER of actions matters, undo available, sequences
-    physics_chain — cause→effect chains, indirect manipulation, propagation
-    growth        — objects appear/grow, stages, ecosystem dynamics
-
-Usage:
-    from domain_classifier import DomainClassifier
-    dc = DomainClassifier(env)
-    domain = dc.classify()   # ≤20 steps
-    print(dc.report())
-"""
-
-from __future__ import annotations
-
-import json
-import hashlib
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Any
-from pathlib import Path
 
-from .common import GameAction
-
-# ── Domain Profiles ──────────────────────────────────────
-
-DOMAIN_PROFILES = {
-    "movement": {
-        "keywords": ["position", "move", "collision", "wall", "push"],
-        "test": "agent_position_changes",
-        "signature": "ACTION changes agent coordinates",
-    },
-    "rotation": {
-        "keywords": ["rotate", "orient", "face", "side", "turn"],
-        "test": "object_orientation_changes",
-        "signature": "ACTION rotates an object",
-    },
-    "drawing": {
-        "keywords": ["trace", "draw", "fill", "erase", "curve", "circle"],
-        "test": "pixels_appear_or_change_color",
-        "signature": "ACTION creates/modifies visual traces",
-    },
-    "selection": {
-        "keywords": ["select", "click", "highlight", "group", "confirm"],
-        "test": "click_highlights_region",
-        "signature": "ACTION selects/highlights grid region",
-    },
-    "symbolic": {
-        "keywords": ["glyph", "symbol", "rune", "compose", "meaning"],
-        "test": "symbol_like_patterns",
-        "signature": "Grid contains symbolic shapes",
-    },
-    "temporal": {
-        "keywords": ["order", "sequence", "undo", "reset", "step"],
-        "test": "action_order_matters",
-        "signature": "A then B ≠ B then A",
-    },
-    "physics_chain": {
-        "keywords": ["chain", "cause", "effect", "propagate", "indirect"],
-        "test": "indirect_effects",
-        "signature": "Action affects non-target objects",
-    },
-    "growth": {
-        "keywords": ["grow", "plant", "stage", "evolve", "ecosystem"],
-        "test": "objects_appear_or_grow",
-        "signature": "New objects appear over time",
-    },
-}
-
-
-def _hash_grid(grid: np.ndarray) -> str:
-    """Fast hash of a 64×64 grid."""
-    return hashlib.sha256(grid.tobytes()).hexdigest()[:16]
-
-
-def _diff_grid(a: np.ndarray, b: np.ndarray) -> Tuple[int, np.ndarray]:
-    """Return (changed_pixels, mask)."""
-    mask = a != b
-    return int(mask.sum()), mask
-
+GameType = str  # "navigation" | "painting" | "puzzle" | "unknown"
 
 class DomainClassifier:
-    """Classify the abstract domain of an ARC-AGI-3 game environment."""
+    """Thin wrapper around classify_game_type for import compatibility."""
 
-    def __init__(self, env, max_steps: int = 20):
-        self.env = env
-        self.max_steps = max_steps
-        self.obs = None
-        self.steps_taken = 0
-        self.actions_available: List[int] = []
-        self.evidence: Dict[str, Any] = {}
-        self.result: Optional[str] = None
-        self.confidence: float = 0.0
+    @staticmethod
+    def classify(scout_results: dict, grid_changes: list) -> str:
+        return classify_game_type(scout_results, grid_changes)
 
-    def classify(self) -> str:
-        """Run diagnostic battery and return domain label."""
-        self.obs = self.env.reset()
-        self.actions_available = list(self.obs.available_actions or [])
-        self.steps_taken = 0
 
-        # ── Test 1: What does ACTION1 do on initial state? ──
-        self._test_action_effects()
+# Re-export helpers from transforms so domain_profiler can import them.
+# These were originally in the old domain_classifier.py before the rewrite.
+from .transforms import _hash_grid  # noqa: E402, F401
 
-        # ── Test 2: Does order matter? ──
-        self._test_order_matters()
 
-        # ── Test 3: Incomplete shapes? ──
-        self._test_shapes()
+def _diff_grid(before: np.ndarray, after: np.ndarray) -> Tuple[int, np.ndarray]:
+    """Count changed pixels and return a boolean mask.
 
-        # ── Test 4: Animations? ──
-        self._test_animation()
+    Returns (n_changed, changed_mask) where mask has True where grids differ.
+    """
+    mask = before != after
+    return int(np.sum(mask)), mask
 
-        # ── Test 5: Agent tracking ──
-        self._test_agent()
 
-        # ── Score domains ──
-        self._score()
+def _color_diversity(grid_before: np.ndarray, grid_after: np.ndarray) -> int:
+    """Count of distinct (before→after) colour pairs among changed cells."""
+    changed = np.argwhere(grid_before != grid_after)
+    pairs = set()
+    for r, c in changed:
+        pairs.add((int(grid_before[r, c]), int(grid_after[r, c])))
+    return len(pairs)
 
-        self._save()
-        return self.result or "unknown"
 
-    def _step(self, action):
-        self.steps_taken += 1
-        try:
-            return self.env.step(action)
-        except Exception as e:
-            # Buggy action - record and return None
-            self.evidence.setdefault("buggy_actions", []).append({
-                "action": getattr(action, 'name', str(action)),
-                "error": f"{type(e).__name__}: {e}"
-            })
-            return None
+def classify_game_type(
+    scout_results: Dict[int, dict],
+    grid_changes: List[Tuple[int, int]],
+) -> GameType:
+    """Classify game type from scout-phase observations.
 
-    # ── Diagnostic Tests ──────────────────────────────────
+    Args:
+        scout_results: {action: {moved, grid_changed, prop_changes}} — from
+            PKM discovery.scout_results during the scout phase.
+        grid_changes: [(n_pixels_changed, n_colors_changed)] per action, in
+            the same order actions were tested.
 
-    def _test_action_effects(self):
-        """Test each available action, record what changes. Skip buggy actions."""
-        for act_num in self.actions_available[:4]:
-            if self.steps_taken >= self.max_steps:
-                break
-            action = getattr(GameAction, f"ACTION{act_num}", None)
-            if action is None:
-                continue
-            
-            # Get current observation safely
-            if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
-                self.env.reset()
-                self.obs = self.env.reset()
-            
-            before = self.obs.frame[0].copy() if self.obs and self.obs.frame else None
-            if before is None:
-                continue
-                
-            self.obs = self._step(action)
-            
-            # Skip if action was buggy (returned None)
-            if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
-                self.evidence.setdefault("action_effects", {})[act_num] = {
-                    "changed_pixels": 0,
-                    "changed_ratio": 0.0,
-                    "buggy": True,
-                    "note": "Action crashed or returned invalid observation"
-                }
-                # Reset to clean state for next action
-                self.obs = self.env.reset()
-                continue
-            
-            after = self.obs.frame[0]
-            changed, mask = _diff_grid(before, after)
-            self.evidence.setdefault("action_effects", {})[act_num] = {
-                "changed_pixels": changed,
-                "changed_ratio": round(changed / (64 * 64), 4),
-                "buggy": False
-            }
+    Returns:
+        One of "navigation", "painting", "puzzle", "unknown".
+    """
+    if not grid_changes:
+        return "unknown"
 
-    def _test_order_matters(self):
-        """Test if A then B produces same result as B then A."""
-        if self.steps_taken + 6 > self.max_steps:
-            return
-        if len(self.actions_available) < 2:
-            return
+    n_movement = sum(
+        1 for r in scout_results.values() if r.get("moved", False)
+    )
+    diffs = [c[0] for c in grid_changes]
+    color_divs = [c[1] for c in grid_changes]
+    max_diff = max(diffs) if diffs else 0
+    avg_diff = sum(diffs) / len(diffs) if diffs else 0
+    max_color_div = max(color_divs) if color_divs else 0
 
-        a_num, b_num = self.actions_available[0], self.actions_available[1]
-        act_a = getattr(GameAction, f"ACTION{a_num}")
-        act_b = getattr(GameAction, f"ACTION{b_num}")
+    # Detection thresholds
+    MAX_NAVIGATION_DIFF = 20
+    MIN_PAINTING_AVG_DIFF = 8
+    MIN_PAINTING_COLORS = 3
+    MAX_PUZZLE_DIFF = 6       # Smaller than navigation threshold
+    MIN_PUZZLE_DIFF = 1       # Must have at least some change
 
-        # Ensure we have a valid observation
-        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
-            self.obs = self.env.reset()
-        
-        # Save current state
-        saved = self.obs.frame[0].copy()
+    # ── No meaningful change → unknown ──
+    if max_diff == 0:
+        return "unknown"
 
-        # Sequence A→B
-        self.obs = self._step(act_a)
-        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
-            self.evidence["order_matters"] = "inconclusive"
-            self.evidence["order_note"] = "Action A buggy"
-            self.obs = self.env.reset()
-            return
-            
-        self.obs = self._step(act_b)
-        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
-            self.evidence["order_matters"] = "inconclusive"
-            self.evidence["order_note"] = "Action B buggy"
-            self.obs = self.env.reset()
-            return
+    # ── navigation: player region moves, few pixels change, limited colours ──
+    if n_movement >= 2 and max_diff <= MAX_NAVIGATION_DIFF and max_color_div <= 3:
+        return "navigation"
 
-        result_ab = self.obs.frame[0].copy()
+    # ── painting: many pixels change, diverse colour pairs ──
+    if avg_diff >= MIN_PAINTING_AVG_DIFF and max_color_div >= MIN_PAINTING_COLORS:
+        return "painting"
 
-        # Reset to saved state... we can't really reset to a saved state
-        # without env.reset(), which resets the whole game.
-        # Instead, use a heuristic: if action effects are highly dissimilar
-        # depending on context, order matters.
-        self.evidence["order_matters"] = "inconclusive"
-        self.evidence["order_note"] = "Cannot test without state save/restore"
+    # ── puzzle: tiny, targeted changes ──
+    if MIN_PUZZLE_DIFF <= max_diff <= MAX_PUZZLE_DIFF and max_color_div <= 2:
+        return "puzzle"
 
-    def _test_shapes(self):
-        """Detect incomplete shapes in the grid."""
-        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
-            self.obs = self.env.reset()
-        grid = self.obs.frame[0]
-        # Simple heuristic: scan for open-ended color segments
-        # A shape is "incomplete" if a color blob has thin, elongated extensions
-        unique_colors = np.unique(grid)
-        self.evidence["unique_colors"] = int(len(unique_colors))
-        self.evidence["max_color"] = int(grid.max())
-        self.evidence["grid_density"] = round(float((grid != 0).mean()), 3)
+    return "unknown"
 
-    def _test_animation(self):
-        """Check if frames > 1 (animation sequences)."""
-        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
-            self.obs = self.env.reset()
-        n_frames = len(self.obs.frame)
-        self.evidence["animation_frames"] = n_frames
-        self.evidence["is_animated"] = n_frames > 1
 
-    def _test_agent(self):
-        """Try to locate a moving agent."""
-        if self.steps_taken + 2 > self.max_steps:
-            return
-        if not self.actions_available:
-            return
+def classify_from_grids(
+    actions_tested: List[int],
+    grids_before: List[np.ndarray],
+    grids_after: List[np.ndarray],
+) -> Tuple[GameType, Dict[int, dict]]:
+    """Alternative entry point: pass grid pairs + actions directly (no PKM).
 
-        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
-            self.obs = self.env.reset()
-            
-        a1 = self.actions_available[0]
-        b1 = self.obs.frame[0].copy()
-        self.obs = self._step(getattr(GameAction, f"ACTION{a1}"))
-        if self.obs is None or not hasattr(self.obs, 'frame') or self.obs.frame is None:
-            self.evidence["agent_test"] = {
-                "changed_after_one_action": 0,
-                "changed_clusters": "action_buggy",
-            }
-            self.obs = self.env.reset()
-            return
-            
-        a2 = self.obs.frame[0]
-        changed, mask = _diff_grid(b1, a2)
+    Returns (game_type, scout_results_dict).
+    """
+    scout_results = {}
+    grid_changes = []
 
-        self.evidence["agent_test"] = {
-            "changed_after_one_action": changed,
-            "changed_clusters": "analyze_later",
+    for action, gb, ga in zip(actions_tested, grids_before, grids_after):
+        diff = int(np.sum(gb != ga))
+        colors = _color_diversity(gb, ga)
+        moved = diff > 0 and colors <= 2
+        scout_results[action] = {
+            "moved": moved,
+            "grid_changed": diff > 0,
+            "prop_changes": colors,
         }
+        grid_changes.append((diff, colors))
 
-    # ── Scoring ───────────────────────────────────────────
-
-    def _score(self):
-        """Score each domain based on evidence."""
-        scores = {}
-        e = self.evidence
-
-        # Movement: action changes small # of pixels consistently
-        effects = e.get("action_effects", {})
-        avg_change = np.mean([v["changed_pixels"] for v in effects.values()]) if effects else 0
-        scores["movement"] = 0.7 if 1 < avg_change < 100 else 0.2
-
-        # Drawing: high change ratio per action
-        scores["drawing"] = 0.8 if avg_change > 500 else 0.1
-
-        # Animation: multiple frames
-        scores["temporal"] = 0.6 if e.get("is_animated") else 0.1
-
-        # Symbolic: many unique colors, low density
-        scores["symbolic"] = 0.5 if e.get("unique_colors", 0) > 5 and e.get("grid_density", 0) < 0.5 else 0.2
-
-        # Rotation: moderate change, specific patterns
-        scores["rotation"] = 0.4
-
-        # Default fallback
-        scores["physics_chain"] = 0.3
-        scores["growth"] = 0.2
-        scores["selection"] = 0.3
-
-        best = max(scores, key=scores.get)
-        self.result = best
-        self.confidence = scores[best]
-        self.evidence["domain_scores"] = scores
-
-    def _save(self):
-        out = Path("/home/redgamer/arc_agi_agent/domain_result.json")
-        out.write_text(json.dumps({
-            "domain": self.result,
-            "confidence": self.confidence,
-            "evidence": {k: str(v) if isinstance(v, np.ndarray) else v
-                         for k, v in self.evidence.items()},
-            "steps_taken": self.steps_taken,
-        }, indent=2, default=str))
-
-    def report(self) -> str:
-        if not self.result:
-            return "Not classified yet."
-        lines = [
-            f"Domain: {self.result} (confidence: {self.confidence:.2f})",
-            f"Steps: {self.steps_taken}",
-            f"Actions available: {self.actions_available}",
-        ]
-        for k, v in self.evidence.get("action_effects", {}).items():
-            lines.append(f"  ACTION{k}: {v['changed_pixels']} px changed ({v['changed_ratio']:.2%})")
-        return "\n".join(lines)
-
-
-# ── Quick CLI ────────────────────────────────────────────
-
-if __name__ == "__main__":
-    import arc_agi
-    arc = arc_agi.Arcade()
-    game = "ls20"
-    env = arc.make(game)
-    dc = DomainClassifier(env)
-    domain = dc.classify()
-    print(dc.report())
-    print(f"Saved to arc_agi_agent/domain_result.json")
+    return classify_game_type(scout_results, grid_changes), scout_results
