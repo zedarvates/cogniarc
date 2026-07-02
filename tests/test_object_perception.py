@@ -198,3 +198,44 @@ def test_current_position_none_if_player_color_absent_from_grid():
     t.observe(g0, action=1, grid_after=g1)  # player_color = 5 established
     empty_grid = grid()  # no colour 5 anywhere
     assert t.current_position(empty_grid) is None
+
+
+# ── get_perception_summary / has_enough_observations ──────────────────────────
+
+def test_get_perception_summary():
+    t = ObjectTracker()
+    g0 = grid(cells={(2, 1): 5})
+    g1 = grid(cells={(2, 2): 5})
+    g2 = grid(cells={(2, 3): 5})
+    t.observe(g0, action=1, grid_after=g1)
+    t.observe(g1, action=1, grid_after=g2)
+
+    summary = t.get_perception_summary()
+    assert summary["player_color"] == 5
+    assert 1 in summary["action_directions"]
+    assert summary["n_observations"] >= 2
+    assert summary["player_moved_last_step"] is not None
+    assert isinstance(summary["wall_colors"], set)
+
+
+def test_has_enough_observations():
+    t = ObjectTracker()
+    assert not t.has_enough_observations()
+
+    g0 = grid(cells={(2, 1): 5})
+    g1 = grid(cells={(2, 2): 5})
+    g2 = grid(cells={(2, 3): 5})
+    g3 = grid(cells={(2, 4): 5})
+    t.observe(g0, action=1, grid_after=g1)
+    t.observe(g1, action=1, grid_after=g2)
+    t.observe(g2, action=1, grid_after=g3)
+
+    assert t.has_enough_observations()
+
+
+def test_has_enough_observations_fails_without_movement():
+    """Static region never establishes a player candidate at all."""
+    t = ObjectTracker()
+    g = grid(cells={(2, 1): 5})
+    t.observe(g, action=1, grid_after=g.copy())
+    assert not t.has_enough_observations()

@@ -215,6 +215,45 @@ class ObjectTracker:
             if blocked_color != player_color:
                 self.wall_color_votes[blocked_color] += 1
 
+    def get_perception_summary(self) -> dict:
+        """Return a structured dict consumable by the phase machine.
+
+        Keys:
+          - player_color: int or None
+          - action_directions: {action_num: (dr, dc)} for movement actions
+          - wall_colors: set[int] — colours with >= min_wall_votes
+          - n_observations: int
+          - player_moved_last_step: bool or None
+        """
+        action_dirs = {
+            a: self.action_direction(a)
+            for a in self.action_displacements
+            if self.action_direction(a) is not None
+        }
+        return {
+            "player_color": self.player_color,
+            "action_directions": action_dirs,
+            "wall_colors": set(self.wall_colors),
+            "n_observations": self.n_observations,
+            "player_moved_last_step": self.last_step_player_moved,
+        }
+
+    def has_enough_observations(self, min_player: int = 3, min_directions: int = 1) -> bool:
+        """Return True if enough data has been collected to be useful.
+
+        Args:
+            min_player: minimum observations before player_color is trusted.
+            min_directions: minimum known action directions.
+        """
+        if self.player_color is None:
+            return False
+        known_dirs = sum(1 for a in self.action_displacements if self.action_direction(a) is not None)
+        return (
+            self.n_observations >= min_player
+            and known_dirs >= min_directions
+            and self.color_move_count[self.player_color] >= 1
+        )
+
     def report(self) -> str:
         pc = self.player_color
         return (
