@@ -15,7 +15,15 @@ import numpy as np
 GameType = str  # "navigation" | "painting" | "puzzle" | "unknown"
 
 class DomainClassifier:
-    """Thin wrapper around classify_game_type for import compatibility."""
+    """Thin wrapper around classify_game_type for import compatibility.
+
+    domain_profiler.py instantiates DomainClassifier(env) — this
+    constructor accepts any arguments but ignores them; call .classify()
+    to use the pure function.
+    """
+
+    def __init__(self, *args, **kwargs):
+        pass
 
     @staticmethod
     def classify(scout_results: dict, grid_changes: list) -> str:
