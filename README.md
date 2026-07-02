@@ -108,7 +108,7 @@ print(agent._world_model_report())
 - **Token-free:** World model queries cost 0 LLM tokens
 - **k-NN predictor:** Learns from real experience — no training needed
 - **Graceful degradation:** Falls back to statistical encoding if V-JEPA unavailable
-- **Memory:** 10,000 transitions with automatic eviction
+- **Memory:** 10,000 transitions with automatic eviction, stored in preallocated numpy ring buffers (no per-call rebuild)
 - **Per-game persistence:** `.npz` cache in `~/.cache/cogniarc/world_model/`
 - **Harness-compatible:** Optional tool — agent works without it
 
@@ -118,7 +118,8 @@ print(agent._world_model_report())
 |--------|-------|
 | Encoder loaded | ✅ V-JEPA 2.1 ViT-B/16 |
 | k-NN accuracy (LS20) | ~60% (needs more transitions) |
-| Inference time | ~6s (V-JEPA) / <1ms (fallback) |
+| Encoder inference time | ~6s (V-JEPA) / <1ms (fallback) |
+| k-NN `predict()` time | ~9.7ms at 10k transitions/768-dim (was ~13.4ms — vectorized via einsum, see `cogniarc/world_model.py`) |
 | Fallback quality | Statistical only — 0% real grid understanding |
 | Integration | ✅ Wired into ScientistAgent tier chain
 
@@ -181,20 +182,34 @@ python -m cogniarc.spatial_inference
 
 ## 📊 Benchmark Results (ARC-AGI-3)
 
-> ⚠️ **Dev-set numbers, not a generalization claim.** Every result below is on
-> LS20, the one game whose source (sprite tags, action mapping, wall colors)
-> directly informed the hardcoded discovery/phase logic in `scientist_agent_*.py`.
-> See [docs/EVALUATION.md](./docs/EVALUATION.md) for the dev/holdout discipline
-> and `python scripts/generalization_report.py` to check the (currently empty)
-> holdout comparison before trusting any solve rate as evidence of reasoning
-> rather than memorization.
+> ⚠️ **Read the dev/holdout split before trusting any number below.** `arc_agi`
+> exposes 25 real environments; [`cogniarc/eval_games.json`](./cogniarc/eval_games.json)
+> classifies 15 as **dev** (referenced somewhere in the code — LS20 drives the
+> phase machine directly) and 10 as **holdout** (zero references anywhere in
+> the repo, verified by `git grep`). Full methodology, the live-verified bugs
+> this measurement found, and the honest reading of every result:
+> [docs/EVALUATION.md](./docs/EVALUATION.md). Reproduce with
+> `python scripts/run_holdout.py --list` / `python scripts/generalization_report.py`.
 
-Results collected on **ls20-9607627b** (navigation game with obstacles).
+### ScientistAgent: dev vs. holdout (2026-07-01, 200-step budget, `enable_world_model`/`enable_nano_llm` off)
+
+| Set | Game | Attempts | Solved | Rate | Notes |
+|-----|------|----------|--------|------|-------|
+| Dev | `ls20-9607627b` | 1 run (159/200 steps used) | 0/0 levels | **0%** | Died (trapped → reset) before hitting the step cap — a real result, not a floor effect |
+| Holdout | `sc25-635fd71a` | 1 run (215 steps) | 0/6 levels | **0%** | Click-based game; phase machine assumes LS20-style navigation, has no equivalent concept |
+| Holdout | `wa30-ee6fef47` | 1 run (213 steps) | 0/9 levels | **0%** | Same pattern |
+
+**No generalization gap to report yet — there's no dev success to compare a holdout failure against.** The phase machine doesn't solve its own tuned game (LS20) under this harness either; only the separate deterministic BFS solver reaches non-zero on LS20 (see table below). This is the headline finding of the 2026-06-30/07-01 audit: prior architecture documentation (drives, reasoning modes, SocraticCritic) sounded general but the actual decision loop was a single-game phase machine — this table is the empirical proof, not an assertion.
+
+**Two real, live-verified fixes came out of running this measurement** (details + before/after in [docs/EVALUATION.md](./docs/EVALUATION.md)):
+1. **Generic player detection** — `self.player` was only ever found via a hardcoded attribute-name guess list (`gudziatsk`, LS20's own obfuscated name). On both holdout games this silently made every action look like "no movement." Fixed via `ObjectTracker` (grid+action correlation, no attribute name needed) — confirmed live: SC25's scouted `movement` list went from `[]` to `[2, 3, 4]`, same game, same code path, just fixed.
+2. **SocraticCritic rotation false-block** — the critic hardcoded "rotation requires action 6," so it silently blocked LS20's own `rotate_to_goal` phase on *every* run (LS20 rotates via actions 3+4, never action 6) — meaning a newly-added real search-based rotation planner had never actually executed until this bug was found and fixed.
+
+### Legacy BFS solver (deterministic, no learning)
 
 | Game | Level | Solver | Attempts | Solved | Rate | Notes |
 |------|-------|--------|----------|--------|------|-------|
-| `ls20-9607627b` | L1 | BFS (v2) | 76 | **55** | **72%** | Deterministic transforms, ~0.02s |
-| `ls20-9607627b` | L1 | ScientistAgent (v3.2) | 10+ | 0 | 0% | 🚧 Phase machine + micro-NN — maze blocking |
+| `ls20-9607627b` | L1 | BFS (v2) | 76 | **55** | **72%** | Deterministic transforms, ~0.02s — dev-only, tuned to LS20 |
 | `ls20-9607627b` | L2 | BFS (v2) | 22 | 0 | 0% | Unsolved |
 
 ### LS20 Mechanics (discovered 2026-06-28)
@@ -212,25 +227,28 @@ Results collected on **ls20-9607627b** (navigation game with obstacles).
 
 | Metric | Value |
 |--------|-------|
-| **LLM tokens consumed** | **0** per game |
-| Architecture (BFS) | BFS + deterministic transforms → 72% L1 |
-| Architecture (Agent) | Phase machine + SocraticCritic + micro-NN + WM → 🚧 |
+| **LLM tokens consumed** | **0** per game (BFS and ScientistAgent both; nano-LLM tier is opt-in and off by default) |
+| Architecture (BFS) | BFS + deterministic transforms → 72% L1 — **dev-only**, no holdout claim |
+| Architecture (Agent) | Phase machine + SocraticCritic + micro-NN + WM → **0% dev, 0% holdout** (measured 2026-07-01) |
 | L1 challenge | Maze navigation + changer rotation cycling |
 | L2 challenge | Unsolved — needs advanced spatial reasoning |
 
-> **0 tokens used.** The BFS solver achieves 72% on L1 via transform mapping.
-> The ScientistAgent discovers mechanics correctly but maze navigation is WIP.
+> **0 tokens used**, on every solver here. But "0% dev, 0% holdout" means the
+> ScientistAgent architecture doesn't currently solve *anything* end-to-end —
+> BFS's 72% is a separate, simpler, dev-tuned solver, not the cognitive
+> architecture this repo is really about. See docs/EVALUATION.md.
 
 ### Performance Evolution
 
 | Date | Version | Modules | L1 Resolution |
 |------|---------|---------|---------------|
 | 2026-06-14 | v1 (simple BFS) | arc_agent.py | ❌ Failed |
-| 2026-06-15 | v2 (BFS + transforms) | +transforms.py | ✅ 72% |
+| 2026-06-15 | v2 (BFS + transforms) | +transforms.py | ✅ 72% (dev-only) |
 | 2026-06-25 | v3 (Perception) | +temporal, spatial, attention, symbolic | 🚧 In progress |
 | 2026-06-27 | v3.1 (AHOIS) | +ScientificState, SocraticCritic, 9 modes | 🚧 In progress |
 | 2026-06-28 | v3.2 (World Model + micro-NN) | +WorldModelTool, micro-NN, heuristic path, grid_viz | 🚧 0% L1 (mechanics discovered) |
 | 2026-06-28 | 🎯 Mechanics discovered | LS20: actions {UP,DOWN,LEFT,RIGHT}, 5-cell jumps, walls {3,5,11}, changer cycles rotation | — |
+| 2026-06-30/07-01 | v3.3 (audit + measurement) | Rule-first micro-NN, God-object split, dev/holdout harness (10 pristine holdout games), generic `ObjectTracker` perception, active experimentation, program synthesis DSL, 2 live-verified bug fixes (player detection, rotation-search + critic block) | 📊 **0% dev, 0% holdout — first honest empirical baseline** |
 
 ---
 
@@ -304,10 +322,18 @@ python -m arc_human_skills.trainer --headless --max-sessions 1 --domains drawing
 ```
 cogniarc/                          # Cognitive solver (this repo)
 ├── cogniarc/
-│   ├── arc_agent.py               # Main ARC solver entry point
-│   ├── scientist_agent.py         # 🧠 Discover → simulate → solve loop
-│   ├── world_model.py             # 🆕 V-JEPA 2.1 encoder + k-NN predictor
-│   ├── micro_predictors.py        # ⚡ Micro-NN predictors (Action + Domain)
+│   ├── arc_agent.py                # Main ARC solver entry point
+│   ├── scientist_agent.py          # 🧠 Core orchestration: init/step/solve_level/phases (852 lines, down from 1610 — split into mixins below)
+│   ├── scientist_agent_discovery.py# Mechanics discovery: source reading, wall detection, sprite tags
+│   ├── scientist_agent_skills.py   # Skill execution: navigate/rotate/interact + phase advance
+│   ├── scientist_agent_ml_tiers.py # World-model + nano-LLM escalation tiers
+│   ├── object_perception.py        # 🆕 Generic player/wall/action-direction inference — no tags, no hardcoded mapping
+│   ├── active_experiment.py        # 🆕 Pick the action that best disambiguates competing hypotheses (info-gain scoring)
+│   ├── program_synthesis.py        # 🆕 BFS program search over a grid-transform DSL + online discrete-state search (used to plan LS20 rotation for real)
+│   ├── generalization.py           # 🆕 Dev-vs-holdout report (see eval_games.json, docs/EVALUATION.md)
+│   ├── eval_games.json             # 🆕 15 dev / 10 pristine-holdout game classification
+│   ├── world_model.py             # V-JEPA 2.1 encoder + k-NN predictor (vectorized storage)
+│   ├── micro_predictors.py        # ⚡ Rule-first Domain/Action predictors (NN mode kept for comparison) + NN Pathfinder/CAPTCHA
 │   ├── grid_viz.py                # 🔍 Instant ASCII grid visualizer
 │   ├── audio_cartography.py       # 🔊 18 paramètres, 10 émotions, 10 archétypes
 │   ├── audio_perception.py        # 🎧 Son → compréhension du jeu
@@ -320,12 +346,17 @@ cogniarc/                          # Cognitive solver (this repo)
 │   ├── spatial_inference.py       # 🗺️ Space as region relations
 │   ├── attention.py               # Focus follows changes
 │   ├── symbolic_inference.py      # Perception → SkillDAG bridge
-│   ├── audio_cartography.py        # 🔊 18 audio params → emotion → archetype
-│   ├── audio_perception.py         # Audio analysis → cognitive drives
 │   ├── skill_dag/                 # SkillDAG v2 (atomic skills)
 │   ├── benchmark_tracker.py       # JSONL experiment tracking
 │   └── goal_inference.py          # Goal hypothesis from observation
-├── tests/                         # 31 passing
+├── scripts/
+│   ├── run_holdout.py             # 🆕 Run ScientistAgent on holdout games; refuses dev games by default
+│   ├── generalization_report.py   # 🆕 Dev-vs-holdout solve-rate report
+│   ├── benchmark_rules_vs_nn.py   # Logic-vs-micro-NN accuracy comparison
+│   └── demo_program_synthesis.py  # 🆕 synthesize -> verify-on-holdout demo
+├── docs/
+│   └── EVALUATION.md              # 🆕 Dev/holdout discipline + every empirical result this session found
+├── tests/                         # 127 passing
 └── README.md
 
 arc-human-skills/                  # Human skills (separate repo)
