@@ -27,6 +27,11 @@ class SkillsMixin:
         available_actions = list(self.obs.available_actions or [])
         is_rotation_game = 6 in available_actions and not any(a in available_actions for a in [1, 2, 3, 4])
 
+        # Use ObjectTracker for generic context when available
+        ot = getattr(self, 'object_tracker', None)
+        ot_ready = ot is not None and ot.has_enough_observations()
+        ot_summary = ot.get_perception_summary() if ot_ready else {}
+
         return {
             "has_player": self.player is not None,
             "has_pathfinder": self._init_pathfinder() is not None,
@@ -38,12 +43,16 @@ class SkillsMixin:
             "current_obs": True,
             "skill_dag_loaded": True,
             "is_rotation_game": is_rotation_game,
+            "ot_ready": ot_ready,
+            "ot_known_directions": len(ot_summary.get("action_directions", {})),
+            "ot_player_color": ot_summary.get("player_color"),
         }
 
     def _get_skill_for_phase(self) -> Optional[str]:
         """Get the skill ID for the current phase."""
         phase_skills = {
             "detect_walls": "detect-walls-from-source",
+            "navigate_to_target": "navigate-to-target",
             "navigate_to_changer": "navigate-to-target",
             "rotate_to_goal": "rotate-to-goal",
             "navigate_to_lock": "navigate-to-target",
@@ -104,30 +113,73 @@ class SkillsMixin:
             return True
         return False  # Already done
 
-    def _skill_navigate_to_target(self) -> bool:
-        """Execute navigate-to-target skill. Falls back to world model if A* fails."""
-        target_pos = None
+    def _navigate_one_step(self) -> Optional[int]:
+        """Take one navigation step using ObjectTracker's learned action directions.
 
-        # Phase 1: Navigate to changer
+        Picks the action that maximises movement in any reachable direction
+        (learned, not assumed). Returns the action taken, or None if no
+        movement action is known.
+
+        Falls back to trying all available movement actions sequentially.
+        """
+        ot = getattr(self, 'object_tracker', None)
+        if ot is not None and ot.has_enough_observations():
+            summary = ot.get_perception_summary()
+            action_dirs = summary.get("action_directions", {})
+            if action_dirs:
+                # Take the first known movement action that actually moves us
+                for action in sorted(action_dirs.keys()):
+                    if self.player:
+                        prev_pos = (self.player.x, self.player.y)
+                    self.step(action)
+                    if self.player and (self.player.x, self.player.y) != prev_pos:
+                        return action
+                # All known actions failed — try any available and record wall
+                return None
+
+        # Fallback: try all available movement actions
+        available = list(self.obs.available_actions or [])
+        movement = [a for a in available if a in [1, 2, 3, 4]]
+        if not movement:
+            return None
+        action = movement[self.steps % len(movement)]
+        self.step(action)
+        return action
+
+    def _skill_navigate_to_target(self) -> bool:
+        """Execute navigate-to-target skill using ObjectTracker-based generic
+        navigation. Falls back to tag-based pathfinding for known games.
+
+        Generic path: use ObjectTracker action directions to move around,
+        recording wall/floor evidence with each step.
+        Tag-based path: A* with known wall colours (legacy, LS20-specific).
+        """
+        # Phase-specific tag-based target (legacy LS20)
+        target_pos = None
         if self._phase == "navigate_to_changer":
             changers = self._find_tagged_sprites('rhsxkxzdjz')
             if changers:
                 ch = changers[0]
                 target_pos = (getattr(ch, 'x', 0), getattr(ch, 'y', 0))
-
                 if self.player and self.player.x == target_pos[0] and self.player.y == target_pos[1]:
-                    return True  # At changer
-
-        # Phase 2: Navigate to lock
+                    return True
         elif self._phase == "navigate_to_lock":
             locks = self._find_tagged_sprites('rjlbuycveu')
             if locks:
                 lk = locks[0]
                 target_pos = (getattr(lk, 'x', 0), getattr(lk, 'y', 0))
-
                 if self.player and self.player.x == target_pos[0] and self.player.y == target_pos[1]:
-                    return True  # At lock
+                    return True
 
+        # GENERIC path: use ObjectTracker if tags don't give us a target
+        ot = getattr(self, 'object_tracker', None)
+        if ot is not None and ot.has_enough_observations() and target_pos is None:
+            action = self._navigate_one_step()
+            if action is not None:
+                return True
+            return False
+
+        # LEGACY path: A* with known wall colours (LS20-specific)
         if target_pos is None:
             return False
 
@@ -280,27 +332,47 @@ class SkillsMixin:
         return getattr(self.game, 'cklxociuu', 0) == goal_rot
 
     def _advance_phase(self, success: bool):
-        """Advance phase based on skill result. Syncs with ScientificState."""
+        """Advance phase based on skill result. Syncs with ScientificState.
+
+        Generic phase flow: detect_walls → navigate_to_target → interact → complete
+        Legacy LS20 flow: uses tag-based changer/lock phases via fallback.
+        """
         old_phase = self._phase
 
+        # ── GENERIC phase flow (ObjectTracker-enabled) ──
         if self._phase == "detect_walls" and success:
-            self._phase = "navigate_to_changer"
+            # Check if we have rotation mechanism info (tag or inferred)
+            has_rotation = (
+                getattr(self, 'state', None) is not None
+                and self.state.assumptions.get("has_rotation_mechanism", False)
+            )
+            ot = getattr(self, 'object_tracker', None)
+            if ot is not None and not has_rotation:
+                # Generic: go straight to navigation
+                self._phase = "navigate_to_target"
+            else:
+                # Legacy path: try changer-based rotation first
+                self._phase = "navigate_to_changer"
+
+        elif self._phase == "navigate_to_target" and success:
+            # Navigated somewhere — try interact
+            self._phase = "interact"
+
+        # ── LEGACY LS20 phase flow ──
         elif self._phase == "navigate_to_changer" and success:
             self._phase = "rotate_to_goal"
         elif self._phase == "rotate_to_goal" and success:
             self._phase = "navigate_to_lock"
         elif self._phase == "navigate_to_lock" and success:
             # In LS20, locks are collected by walking ON them, not by interact (action 5).
-            # Skip interact phase — step onto the lock directly.
             if self.player:
                 locks = self._find_tagged_sprites('rjlbuycveu')
                 if locks:
                     lk = locks[0]
                     lx, ly = getattr(lk, 'x', 0), getattr(lk, 'y', 0)
                     if self.player.x == lx and self.player.y == ly:
-                        self._phase = "complete"  # Already on lock
+                        self._phase = "complete"
                     elif abs(self.player.x - lx) + abs(self.player.y - ly) == 1:
-                        # Adjacent: step onto lock
                         if self.player.x < lx: action = 1
                         elif self.player.x > lx: action = 3
                         elif self.player.y < ly: action = 2
@@ -309,11 +381,12 @@ class SkillsMixin:
                         self.step(action)
                         self._phase = "complete"
                     else:
-                        self._phase = "navigate_to_lock"  # Need more movement
+                        self._phase = "navigate_to_lock"
                 else:
-                    self._phase = "interact"  # Fallback
+                    self._phase = "interact"
             else:
                 self._phase = "interact"
+
         elif self._phase == "interact" and success:
             self._phase = "complete"
 
