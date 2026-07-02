@@ -933,15 +933,45 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         print(f"🔬 Scientist Agent — {self.name}")
         print(f"   Start: lvl={self.obs.levels_completed}/{self.obs.win_levels}")
 
-        # PHASE 1: Discover
+        # PHASE 1: Discover — generic ObjectTracker first, then fallback
         print("\n📖 DISCOVERY PHASE")
-        self.discover_from_source()
+        print("  Generic perception: scouting via ObjectTracker...")
+
+        # Take scout steps to build ObjectTracker observations (generic, no tags)
+        scout_actions = list(self.obs.available_actions or [1, 2, 3, 4, 5, 6])
+        for _ in range(8):
+            action = scout_actions[self.steps % len(scout_actions)]
+            self.step(action)
+
+        ot = self.object_tracker
+        if ot and ot.has_enough_observations():
+            summary = ot.get_perception_summary()
+            print(f"  🎯 Player color: {summary['player_color']}")
+            dirs_str = ', '.join(f"{a}→{d}" for a, d in sorted(summary['action_directions'].items()))
+            print(f"  🧭 Learned directions: {dirs_str}")
+            walls = summary['wall_colors']
+            if walls:
+                print(f"  🧱 Wall evidence: {sorted(walls)}")
+            self.state.set_assumption("walls_known", bool(walls))
+            self.state.set_assumption("player_found", summary['player_color'] is not None)
+            self.state.set_assumption("actions_scouted", True)
+            self._walls_detected = bool(walls)
+            self.state.walls_detected = bool(walls)
+            self.state.record_observation(
+                f"ObjectTracker: player={summary['player_color']}, "
+                f"directions={dirs_str}, walls={sorted(walls)}",
+                source="discovery"
+            )
+        else:
+            # Fallback: source-code tag detection (LS20-specific)
+            print("  ⚠️ ObjectTracker insufficient, fallback to source discovery...")
+            self.discover_from_source()
+
         self.discover_available_actions()
         self.discover_properties()
 
         # PHASE 2: Scout (cheap actions to understand domain)
         print("\n🔍 SCOUT PHASE")
-        # Already discovered in discover_available_actions()
         print("  ✅ Scout complete (from discovery)")
 
         # PHASE 3: Solve levels
