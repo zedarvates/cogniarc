@@ -604,13 +604,22 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         # ═══ Initialize Perception Stack for temporal/spatial integration ═══
         self._init_perception_stack()
 
-        # ═══ Active experimentation (advisory): surface the most informative
-        # wall/floor disambiguation available, given learned action directions.
-        # Records a recommendation; does not (yet) steer the action. ═══
+        # ═══ Active experimentation: if there's an ambiguous wall/floor colour
+        # with high info gain, execute the discriminating action instead of
+        # continuing the phase machine. This is the "steering" upgrade over the
+        # previous advisory-only version. ═══
         try:
-            self.suggest_wall_experiment()
+            experiment_action = self.suggest_wall_experiment(min_info_bits=1.0)
+            if experiment_action is not None:
+                print(f"  🔬 Executing active experiment: action {experiment_action}")
+                self.step(experiment_action)
+                if self.obs.levels_completed > prev_lvl:
+                    print(f"  ✅ LEVEL {self.obs.levels_completed} COMPLETED via experiment!")
+                    self._record_level_skills(prev_lvl + 1)
+                    return True
+                # Continue to phase machine loop — the experiment was just one step
         except Exception as e:
-            print(f"  🔬 Active experiment suggestion skipped: {e}")
+            print(f"  🔬 Active experiment skipped: {e}")
 
         # Benchmark tracking
         self.benchmark_start_time = time.time()

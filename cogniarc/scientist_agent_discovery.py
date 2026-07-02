@@ -16,6 +16,7 @@ Mixed into ScientistAgent; relies on attributes set up in its __init__
 (self.game, self.player, self.pkm, self.obs, self.name, self._pathfinder).
 """
 import numpy as np
+from typing import Optional
 
 from .pathfinding import Pathfinder
 
@@ -284,17 +285,17 @@ class DiscoveryMixin:
               f"(tags={sorted(tag_colors)}, adjacent={sorted(player_adjacent)}, "
               f"grid={sorted(grid_wall_candidates)}, tracker={sorted(tracker_walls)}, floor={floor_color})")
 
-    def suggest_wall_experiment(self):
-        """Active experimentation (advisory): recommend the single action that
-        would most quickly resolve an *ambiguous* wall/floor colour, using
-        ObjectTracker's learned action directions.
+    def suggest_wall_experiment(self, min_info_bits: float = 1.0) -> Optional[int]:
+        """Return the action number that best resolves wall/floor ambiguity,
+        or None if nothing ambiguous is worth testing.
 
-        Returns (color, action, info_bits) for the best available experiment,
-        or None if there is nothing ambiguous to test right now. Advisory only:
-        this records the recommendation as an observation but does NOT force
-        the action — like the other perception wiring in this codebase, it
-        surfaces the decision for validation on a holdout game before being
-        allowed to steer (see docs/EVALUATION.md).
+        Unlike the advisory version, this returns ONLY the action (not a
+        (color, action, info) tuple) when info_gain >= min_info_bits, making
+        it directly usable as a steering command by solve_level().
+
+        Args:
+            min_info_bits: minimum Shannon entropy (bits) to justify executing
+                           the experiment. Higher = more conservative.
         """
         tracker = getattr(self, 'object_tracker', None)
         if tracker is None or self.player is None:
@@ -320,7 +321,7 @@ class DiscoveryMixin:
             return None
 
         # Ambiguous colours = present, not background, not the player, and not
-        # already confirmed as walls. Those are exactly the ones worth a test.
+        # already confirmed as walls.
         import numpy as np
         present = set(int(c) for c in np.unique(grid))
         ambiguous = present - {0, player_color} - set(confirmed_walls)
@@ -337,14 +338,16 @@ class DiscoveryMixin:
             if info > 0 and (best is None or info > best[2]):
                 best = (color, action, info)
 
-        if best is not None:
+        if best is not None and best[2] >= min_info_bits:
             color, action, info = best
-            msg = (f"Active experiment: action {action} would test whether "
-                   f"colour {color} is a wall (info gain {info:.2f} bit)")
+            msg = (f"Active experiment: action {action} tests colour {color} "
+                   f"(info gain {info:.2f} bit)")
             if hasattr(self, 'state') and self.state is not None:
                 self.state.record_observation(msg, source="active_experiment")
             print(f"  🔬 {msg}")
-        return best
+            return action  # Return action directly, not the tuple
+
+        return None  # Nothing worth testing
 
     def _find_tagged_sprites(self, tag: str):
         """Find sprites with given tag in current level."""
