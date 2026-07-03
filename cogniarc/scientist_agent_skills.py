@@ -132,10 +132,17 @@ class SkillsMixin:
         they solve a lot of levels.' This skill analyzes the environment and forms
         a testable goal hypothesis without game-specific knowledge.
         
-        In REFINE mode: generates an ALTERNATIVE hypothesis (never the same twice).
+        Never repeats a previously failed hypothesis (tracks via _failed_hypotheses).
         """
         is_refine = (self._phase == "refine")
         prev_hypothesis = str(self.state.current_hypothesis) if self.state.current_hypothesis else ""
+        
+        # Track failed hypotheses across goal invalidations
+        if not hasattr(self, '_failed_hypotheses'):
+            self._failed_hypotheses = set()
+        if prev_hypothesis and self._phase == "observe" and self.state.phase_attempts == 0:
+            # We're back at observe after a GOAL INVALID — remember the failed hypothesis
+            self._failed_hypotheses.add(prev_hypothesis)
         
         # Gather evidence
         ot = getattr(self, 'object_tracker', None)
@@ -159,26 +166,22 @@ class SkillsMixin:
             for s in changer_sprites:
                 targets.append(("changer", (getattr(s, 'x', 0), getattr(s, 'y', 0))))
         
-        # ── REFINE mode: generate ALTERNATIVE hypothesis ──
+        # ── Select hypothesis (avoid previously failed ones) ──
         if is_refine and targets:
-            # Check if previous hypothesis was about the same target
             primary = targets[0]
             primary_text = f"Navigate to {primary[0]} at ({primary[1][0]},{primary[1][1]})"
             
-            if primary_text in prev_hypothesis:
-                # Same target failed — try alternative approaches
+            if primary_text in prev_hypothesis or primary_text in self._failed_hypotheses:
+                # Same target failed — try alternative
                 if len(targets) > 1:
-                    # Try next target
                     alt = targets[1]
                     hypothesis_text = f"Navigate to {alt[0]} at ({alt[1][0]},{alt[1][1]})"
                     confidence = 0.4
                 elif player_pos:
-                    # Only one target — try intermediate waypoint (go left then up for LS20 wall)
                     tx, ty = primary[1]
                     px, py = player_pos
-                    # Heuristic: if same column but target is above, try going LEFT first
                     if tx == px and ty < py:
-                        mid_x = max(0, px - 15)  # Go 15 cells left
+                        mid_x = max(0, px - 15)
                         hypothesis_text = f"Navigate to intermediate waypoint at ({mid_x},{py}) to bypass wall, then to {primary[0]} at ({tx},{ty})"
                         confidence = 0.35
                     else:
@@ -188,13 +191,24 @@ class SkillsMixin:
                     hypothesis_text = "Explore environment to find alternative path"
                     confidence = 0.2
             else:
-                # Different target — use it
                 hypothesis_text = primary_text
                 confidence = 0.5
         elif targets:
-            target_type, (tx, ty) = targets[0]
-            hypothesis_text = f"Navigate to {target_type} at ({tx},{ty})"
-            confidence = 0.6
+            # Skip already-failed targets
+            viable = [(t, p) for t, p in targets 
+                      if f"Navigate to {t} at ({p[0]},{p[1]})" not in self._failed_hypotheses]
+            if viable:
+                target_type, (tx, ty) = viable[0]
+                hypothesis_text = f"Navigate to {target_type} at ({tx},{ty})"
+                confidence = 0.6
+            elif targets:
+                # All failed — try first one anyway with lower confidence
+                target_type, (tx, ty) = targets[0]
+                hypothesis_text = f"Navigate to {target_type} at ({tx},{ty})"
+                confidence = 0.3
+            else:
+                hypothesis_text = "Explore environment"
+                confidence = 0.2
         elif player_pos:
             hypothesis_text = f"Explore environment from ({player_pos[0]},{player_pos[1]})"
             confidence = 0.3

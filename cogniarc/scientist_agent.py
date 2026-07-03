@@ -451,6 +451,10 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         its current theory and re-explore from scratch."""
         if hasattr(self, 'state') and self.state:
             if self.state.current_hypothesis:
+                # Remember failed hypothesis before erasing it
+                if not hasattr(self, '_failed_hypotheses'):
+                    self._failed_hypotheses = set()
+                self._failed_hypotheses.add(str(self.state.current_hypothesis))
                 self.state.refute_current_hypothesis("GoalSanityChecker: invalid goal")
             self.state.uncertainty = 1.0
         # Reset pathfinding caches and wall detection
