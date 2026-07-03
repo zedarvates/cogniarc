@@ -305,6 +305,29 @@ class SkillsMixin:
         # Ensure pathfinder is initialized (needed for wall colors)
         pf = self._init_pathfinder()
 
+        # ═══ UNSTICK: if player out of grid or on wall, step off first ═══
+        if self.player:
+            grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+            if grid is not None:
+                wall_set = getattr(self, '_detected_wall_colors', set())
+                px, py = self.player.x, self.player.y
+                in_grid = (0 <= py < grid.shape[0] and 0 <= px < grid.shape[1])
+                player_color = int(grid[py, px]) if in_grid else -1
+                if not in_grid or player_color in wall_set:
+                    reason = "out of grid" if not in_grid else f"on wall color {player_color}"
+                    print(f"  🔓 Unstick: player {reason} at ({px},{py}) → stepping off")
+                    for action, dx, dy in [(1, 0, -5), (3, -5, 0), (4, 5, 0), (2, 0, 5)]:
+                        nx, ny = px + dx, py + dy
+                        if 0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]:
+                            if int(grid[ny, nx]) not in (wall_set | {0}):
+                                self.step(action)
+                                return True
+                    for action, dx, dy in [(1, 0, -5), (3, -5, 0), (4, 5, 0), (2, 0, 5)]:
+                        nx, ny = px + dx, py + dy
+                        if 0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]:
+                            self.step(action)
+                            return True
+
         # ═══ TIER 0: Micro-NN Pathfinder (primary) ═══
         nano_used = False
         if self.pathfinder_nn and self.pathfinder_nn.available and self.drives.stagnation_counter < 5:
@@ -348,8 +371,8 @@ class SkillsMixin:
                     print(f"  🤖 NanoPath: burst {burst_steps}×{['','→','↓','←','↑'][prev_action]} (conf={conf:.3f})")
                     return True
 
-        # ═══ TIER 0b: Heuristic wall circumvention (when stuck) ═══
-        if self.drives.stagnation_counter >= 3:
+        # ═══ TIER 0b: Heuristic wall circumvention (activated early) ═══
+        if self.drives.stagnation_counter >= 1:
             grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
             if grid is not None and self.player:
                 # Get wall colors — force detection if cache empty
@@ -390,6 +413,39 @@ class SkillsMixin:
         # can't move there. And the human would just give it a go and see what happens."
         if self.player and tx is not None:
             px, py = self.player.x, self.player.y
+            
+            # ═══ UNSTICK: if player is out of grid or on wall, step off first ═══
+            grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+            if grid is not None:
+                wall_set = getattr(self, '_detected_wall_colors', set())
+                in_grid = (0 <= py < grid.shape[0] and 0 <= px < grid.shape[1])
+                player_color = int(grid[py, px]) if in_grid else -1
+                if not in_grid or player_color in wall_set:
+                    reason = "out of grid" if not in_grid else f"on wall color {player_color}"
+                    print(f"  🔓 Player stuck ({reason}) at ({px},{py}), stepping off...")
+                    for action, dx, dy in [(1, 0, -5), (3, -5, 0), (4, 5, 0), (2, 0, 5)]:
+                        nx, ny = px + dx, py + dy
+                        if 0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]:
+                            if int(grid[ny, nx]) not in (wall_set | {0}):
+                                self.step(action)
+                                return True
+                    for action, dx, dy in [(1, 0, -5), (3, -5, 0), (4, 5, 0), (2, 0, 5)]:
+                        nx, ny = px + dx, py + dy
+                        if 0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]:
+                            self.step(action)
+                            return True
+            
+            # Try heuristic wall circumvention
+            if grid is not None:
+                from cogniarc.heuristic_path import heuristic_navigate
+                wall_set = getattr(self, '_detected_wall_colors', set()) | {5, 11}
+                path = heuristic_navigate(grid, px, py, tx, ty, wall_set, max_steps=30)
+                if path:
+                    action, reason = path[0]
+                    print(f"  🧭 Heuristic: {reason}")
+                    self.step(action)
+                    return True
+            
             # If same column blocked, try going left first
             if tx == px:
                 # Waypoint: go 15 cells left, then path to target from there
