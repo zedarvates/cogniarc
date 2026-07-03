@@ -328,6 +328,16 @@ class SkillsMixin:
                             self.step(action)
                             return True
 
+        # ═══ TIER -1: Random exploration when stuck (Tufa Labs: "just give it a go") ═══
+        if self.drives.stagnation_counter >= 5:
+            import random
+            actions = [a for a in [1, 2, 3, 4] if a in (self.obs.available_actions or [1,2,3,4])]
+            if actions:
+                action = random.choice(actions)
+                print(f"  🎲 Random explore: action {action} (stagnation={self.drives.stagnation_counter})")
+                self.step(action)
+                return True
+
         # ═══ TIER 0: Micro-NN Pathfinder (primary) ═══
         nano_used = False
         if self.pathfinder_nn and self.pathfinder_nn.available and self.drives.stagnation_counter < 5:
