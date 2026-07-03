@@ -135,7 +135,11 @@ class SkillsMixin:
         Never repeats a previously failed hypothesis (tracks via _failed_hypotheses).
         """
         is_refine = (self._phase == "refine")
-        prev_hypothesis = str(self.state.current_hypothesis) if self.state.current_hypothesis else ""
+        prev_hypothesis = (
+            str(self.state.current_hypothesis.description)
+            if self.state.current_hypothesis and hasattr(self.state.current_hypothesis, 'description')
+            else str(self.state.current_hypothesis) if self.state.current_hypothesis else ""
+        )
         
         # Track failed hypotheses across goal invalidations
         if not hasattr(self, '_failed_hypotheses'):
@@ -415,6 +419,34 @@ class SkillsMixin:
         # ═══ A* FAILED → Micro-NN or World Model fallback ═══
         if self.action_predictor or (self.world_model and self.world_model.memory_size() > 0):
             return self._world_model_navigate_fallback(tx, ty)
+
+        # ═══ Auto-interact: if player is on an interactable, execute action ═══
+        if self.player and target_pos:
+            tx, ty = target_pos
+            if self.player.x == tx and self.player.y == ty:
+                # On a changer → rotate
+                if self._phase in ("navigate_to_changer", "plan", "execute"):
+                    changers = self._find_tagged_sprites('rhsxkxzdjz')
+                    if changers and self.player.x == getattr(changers[0], 'x', -1) and self.player.y == getattr(changers[0], 'y', -1):
+                        print(f"  🔄 Auto-rotating on changer at ({tx},{ty})...")
+                        for _ in range(10):  # Max 10 rotations
+                            prev_level = self.obs.levels_completed
+                            self.step(6)  # Action 6 = rotate
+                            if self.obs.levels_completed > prev_level:
+                                return True
+                            # Check if rotation changed
+                            current_rot = getattr(self.game, 'cklxociuu', 0) if self.game else 0
+                            goal_rot = self._infer_goal_rotation()
+                            if goal_rot is not None and current_rot == goal_rot:
+                                print(f"  🔄 Rotation matched goal: {current_rot}")
+                                return True
+                        return True  # Rotated enough, move on
+                # On a lock → already collected by walking on it
+                if self._phase in ("navigate_to_lock", "verify"):
+                    locks = self._find_tagged_sprites('rjlbuycveu')
+                    if locks and self.player.x == getattr(locks[0], 'x', -1) and self.player.y == getattr(locks[0], 'y', -1):
+                        print(f"  🔑 Lock collected at ({tx},{ty})")
+                        return True
 
         return False
 
