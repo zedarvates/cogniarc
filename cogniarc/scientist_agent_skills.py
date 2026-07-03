@@ -335,7 +335,12 @@ class SkillsMixin:
             if actions:
                 action = random.choice(actions)
                 print(f"  🎲 Random explore: action {action} (stagnation={self.drives.stagnation_counter})")
+                prev_x, prev_y = self.player.x, self.player.y
                 self.step(action)
+                # If we moved significantly, reset stagnation to let A* take over
+                if self.player and (abs(self.player.x - prev_x) > 2 or abs(self.player.y - prev_y) > 2):
+                    self.drives.stagnation_counter = 0
+                    print(f"  🎲 Moved! Resetting stagnation.")
                 return True
 
         # ═══ TIER 0: Micro-NN Pathfinder (primary) ═══
