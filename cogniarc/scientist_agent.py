@@ -383,14 +383,18 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         from cogniarc.object_perception import ObjectTracker
         self.object_tracker = ObjectTracker()
 
+        # GoalSanityChecker — wrong-goal loop detection (Tufa Labs interview insight)
+        from cogniarc.goal_sanity import GoalSanityChecker
+        self.goal_sanity = GoalSanityChecker(self)
+
         # Legacy aliases (to be removed gradually)
         self._phase = self.state.phase
         self._walls_detected = self.state.walls_detected
 
     def step(self, action_num: int):
-        # ═══ NEW: Record pre-step observation for world model + object tracker ═══
+        # ═══ NEW: Record pre-step observation for world model + object tracker + goal sanity ═══
         obs_before = None
-        if (self.world_model or self.object_tracker) and self.obs.frame and len(self.obs.frame) > 0:
+        if (self.world_model or self.object_tracker or hasattr(self, 'goal_sanity')) and self.obs.frame and len(self.obs.frame) > 0:
             obs_before = self.obs.frame[0].copy()
 
         self.obs = self.env.step(getattr(GameAction, f'ACTION{action_num}'))
@@ -419,6 +423,13 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
             state_hash = f"step_{self.steps}"
         self.drives.step(action_num, state_hash)
 
+        # ═══ GoalSanityChecker: record action for wrong-goal loop detection ═══
+        if hasattr(self, 'goal_sanity') and self.player and obs_before is not None:
+            px_before = (self.player.x, self.player.y)
+            # Position after step (player may have moved)
+            px_after = (self.player.x, self.player.y) if self.player else px_before
+            self.goal_sanity.record_action(action_num, px_before, px_after)
+
         # ═══ NEW: Update ScientificState ═══
         self.state.steps_taken = self.steps
         self.state.last_action = action_num
@@ -426,6 +437,20 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         self.state.last_state_hash = state_hash
 
         return self.obs
+
+    def _invalidate_current_goal(self):
+        """Reset the current goal hypothesis — called by GoalSanityChecker
+        when a wrong-goal loop is detected. Forces the agent to abandon
+        its current theory and re-explore from scratch."""
+        if hasattr(self, 'state') and self.state:
+            if self.state.current_hypothesis:
+                self.state.refute_current_hypothesis("GoalSanityChecker: invalid goal")
+            self.state.uncertainty = 1.0
+        # Reset pathfinding caches
+        if hasattr(self, '_pathfinder'):
+            self._pathfinder = None
+        if hasattr(self, 'goal_sanity'):
+            self.goal_sanity.reset()
 
     # ------ SOLVE PHASE ------
 
@@ -702,6 +727,40 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                 self.state.phase_attempts += 1
                 self._phase_escalation_count += 1
                 print(f"  ⚠️ Skill {skill_id} failed in phase {self._phase} (attempt {self.state.phase_attempts})")
+
+            # ═══ GoalSanityChecker: detect wrong-goal loops (runs after EVERY phase iteration) ═══
+            if hasattr(self, 'goal_sanity') and hasattr(self, 'critic'):
+                try:
+                    recent_report = getattr(self.state, '_last_critic_report', None)
+                    if recent_report is None:
+                        recent_report = self.critic.quick_check(
+                            self._build_phase_hypothesis(), self.state
+                        )
+                    unresolved = recent_report.unresolved() if recent_report else []
+                    self.goal_sanity.record_critic_issues(unresolved)
+
+                    verdict = self.goal_sanity.check(phase_failed=not success)
+                    if not verdict.sane:
+                        print(f"  🚫 GOAL INVALIDÉ: {verdict.reason}")
+                        print(f"     → {verdict.suggested_action}")
+                        self._invalidate_current_goal()
+                        self.state.current_hypothesis = None
+                        if hasattr(self.state, 'uncertainty'):
+                            self.state.uncertainty = 1.0
+                        self._phase = "discovery"
+                        self.state.phase = "discovery"
+                        self.state.phase_attempts = 0
+                        self.drives.doubt_triggered = True
+                        self.drives.stagnation_counter = 10
+                        self.current_reasoning_mode = ReasoningMode.EXPLORATION
+                        self.goal_sanity.reset()
+                        continue
+                    elif verdict.failed_checks:
+                        print(f"  ⚠️ GoalSanity warn: {verdict.reason}")
+                except Exception as e:
+                    print(f"  ⚠️ GoalSanity check failed: {e}")
+
+            if not success:
 
                 # ═══ Nano-LLM tier: if phase stuck, ask the nano-LLM for a safe
                 # action proposal before escalating. Only fires after 2+ failures
