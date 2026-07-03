@@ -453,9 +453,11 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
             if self.state.current_hypothesis:
                 self.state.refute_current_hypothesis("GoalSanityChecker: invalid goal")
             self.state.uncertainty = 1.0
-        # Reset pathfinding caches
+        # Reset pathfinding caches and wall detection
         if hasattr(self, '_pathfinder'):
             self._pathfinder = None
+        self._walls_detected = False
+        self.state.walls_detected = False
         if hasattr(self, 'goal_sanity'):
             self.goal_sanity.reset()
 
@@ -575,9 +577,9 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         # Update current level index
         self.current_level_idx = prev_lvl
         self._walls_detected = False  # Reset for new level
-        self._phase = "detect_walls"  # Phase state machine
+        self._phase = "observe"  # GENERIC phase flow (was: detect_walls)
         self.state.walls_detected = False
-        self.state.phase = "detect_walls"
+        self.state.phase = "observe"
         self.state.phase_attempts = 0
         self._phase_escalation_count = 0  # Global: force skip apres X echecs
 
@@ -750,8 +752,10 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                 self.state.phase_attempts += 1
                 self._phase_escalation_count += 1
                 print(f"  ⚠️ Skill {skill_id} failed in phase {self._phase} (attempt {self.state.phase_attempts})")
+                # Advance phase even on failure (e.g., plan→refine, execute→refine)
+                self._advance_phase(success)
 
-            # ═══ GoalSanityChecker: detect wrong-goal loops (runs after EVERY phase iteration) ═══
+            # ═══ GoalSanityChecker: only check after N failed attempts (let refine work first) ═══
             if hasattr(self, 'goal_sanity') and hasattr(self, 'critic'):
                 try:
                     recent_report = getattr(self.state, '_last_critic_report', None)
@@ -762,7 +766,9 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                     unresolved = recent_report.unresolved() if recent_report else []
                     self.goal_sanity.record_critic_issues(unresolved)
 
-                    verdict = self.goal_sanity.check(phase_failed=not success)
+                    verdict = self.goal_sanity.check(
+                        phase_failed=(self.state.phase_attempts >= 3)
+                    )
                     if not verdict.sane:
                         print(f"  🚫 GOAL INVALIDÉ: {verdict.reason}")
                         print(f"     → {verdict.suggested_action}")
@@ -770,8 +776,8 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                         self.state.current_hypothesis = None
                         if hasattr(self.state, 'uncertainty'):
                             self.state.uncertainty = 1.0
-                        self._phase = "discovery"
-                        self.state.phase = "discovery"
+                        self._phase = "observe"
+                        self.state.phase = "observe"
                         self.state.phase_attempts = 0
                         self.drives.doubt_triggered = True
                         self.drives.stagnation_counter = 10

@@ -103,8 +103,8 @@ class GoalSanityChecker:
 
         # Décision: seuil dépend de phase_failed
         # phase_failed=True → 1 check suffit (urgence)
-        # phase_failed=False → 2+ checks (évite faux positifs sur succès techniques)
-        threshold = 1 if phase_failed else 2
+        # phase_failed=False → 3 checks minimum (laisse refine + plan travailler)
+        threshold = 1 if phase_failed else 3
         if len(failed) >= threshold:
             return SanityVerdict(
                 sane=False,

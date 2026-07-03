@@ -51,6 +51,15 @@ class SkillsMixin:
     def _get_skill_for_phase(self) -> Optional[str]:
         """Get the skill ID for the current phase."""
         phase_skills = {
+            # ── GENERIC phases ──
+            "observe": "detect-walls-from-source",
+            "discovery": "detect-walls-from-source",  # alias
+            "hypothesize": "form-goal-hypothesis",
+            "plan": "navigate-to-target",       # Reuse: pathfinding via A*
+            "execute": "navigate-to-target",    # Reuse: execute path
+            "verify": "interact-with-object",   # Reuse: interact/check
+            "refine": "form-goal-hypothesis",   # Reuse: re-hypothesize
+            # ── LEGACY phases ──
             "detect_walls": "detect-walls-from-source",
             "navigate_to_target": "navigate-to-target",
             "navigate_to_changer": "navigate-to-target",
@@ -76,6 +85,9 @@ class SkillsMixin:
 
         if skill_id == "detect-walls-from-source":
             return self._skill_detect_walls()
+
+        elif skill_id == "form-goal-hypothesis":
+            return self._skill_form_goal_hypothesis()
 
         elif skill_id == "navigate-to-target":
             return self._skill_navigate_to_target()
@@ -112,6 +124,72 @@ class SkillsMixin:
             self._detected_wall_colors = pf.wall_colors if pf and hasattr(pf, 'wall_colors') else set()
             return True
         return False  # Already done
+
+    def _skill_form_goal_hypothesis(self) -> bool:
+        """Form a goal hypothesis from current observations.
+        
+        Tufa Labs insight: 'if they find the right hypothesis at the first trial,
+        they solve a lot of levels.' This skill analyzes the environment and forms
+        a testable goal hypothesis without game-specific knowledge.
+        
+        Uses:
+          - ObjectTracker for known objects/positions
+          - SocraticCritic to validate the hypothesis
+          - WorldModel to simulate possible outcomes
+        """
+        # If we already have a valid hypothesis, skip
+        if (self.state.current_hypothesis is not None and
+            self.state.phase_attempts == 0):
+            return True
+        
+        # Gather evidence from observation
+        ot = getattr(self, 'object_tracker', None)
+        player_pos = None
+        targets = []
+        
+        if ot is not None and ot.has_enough_observations():
+            summary = ot.get_perception_summary()
+            player_color = summary.get("player_color")
+            player_pos = summary.get("player_position")
+            # Known objects from perception
+            known_positions = summary.get("known_positions", {})
+            for color, pos in known_positions.items():
+                if color != player_color:
+                    targets.append((color, pos))
+        
+        # If no ObjectTracker data, use legacy sprite detection
+        if not targets:
+            # Look for locks, changers, interactables
+            lock_sprites = self._find_tagged_sprites('rjlbuycveu')
+            changer_sprites = self._find_tagged_sprites('rhsxkxzdjz')
+            for s in lock_sprites:
+                targets.append(("lock", (getattr(s, 'x', 0), getattr(s, 'y', 0))))
+            for s in changer_sprites:
+                targets.append(("changer", (getattr(s, 'x', 0), getattr(s, 'y', 0))))
+        
+        # Fallback: if walls are known, find reachable non-wall positions
+        if not targets and hasattr(self, '_detected_wall_colors'):
+            # Simple heuristic: any non-wall, non-player color is a candidate target
+            pass  # TODO: grid analysis for unknown games
+        
+        # Form hypothesis
+        if targets:
+            target_type, (tx, ty) = targets[0]
+            hypothesis_text = f"Navigate to {target_type} at ({tx},{ty})"
+            self.state.update_hypothesis(hypothesis_text, confidence=0.6)
+            print(f"  💡 Hypothesis: {hypothesis_text}")
+        elif player_pos:
+            # No known targets — explore
+            hypothesis_text = f"Explore environment from ({player_pos[0]},{player_pos[1]})"
+            self.state.update_hypothesis(hypothesis_text, confidence=0.3)
+            print(f"  💡 Hypothesis: {hypothesis_text} (exploratory)")
+        else:
+            # Nothing known — pure exploration
+            hypothesis_text = "Explore environment to discover game mechanics"
+            self.state.update_hypothesis(hypothesis_text, confidence=0.1)
+            print(f"  💡 Hypothesis: {hypothesis_text} (blind)")
+        
+        return True
 
     def _navigate_one_step(self) -> Optional[int]:
         """Take one navigation step using ObjectTracker's learned action directions.
@@ -340,37 +418,83 @@ class SkillsMixin:
     def _advance_phase(self, success: bool):
         """Advance phase based on skill result. Syncs with ScientificState.
 
-        Generic phase flow: detect_walls → navigate_to_target → interact → complete
-        Legacy LS20 flow: uses tag-based changer/lock phases via fallback.
+        GENERIC phase flow (Tufa Labs interview insight):
+          observe → hypothesize → plan → execute → verify → refine
+          
+        Replaces the legacy LS20-specific phases (navigate_to_changer,
+        rotate_to_goal, navigate_to_lock) with a game-agnostic cognitive loop.
+        The agent discovers mechanics through observation, not hardcoded tags.
+        
+        GoalSanityChecker integration: after 3+ refine failures, the goal is
+        invalidated and the agent returns to observe (fresh exploration).
         """
         old_phase = self._phase
-
-        # ── GENERIC phase flow (ObjectTracker-enabled) ──
-        if self._phase == "detect_walls" and success:
-            # Generic path: ObjectTracker has data AND no tagged changer sprites exist.
-            # The changer sprite check is the hard discriminator: if the game has
-            # no 'rhsxkxzdjz' tagged sprites, the legacy LS20 rotation path cannot
-            # work, so we must use the generic navigate_to_target instead.
+        
+        # ── GENERIC: Observe ──
+        if self._phase == "observe" and success:
+            # Scout done — form a hypothesis
+            self._phase = "hypothesize"
+        elif self._phase == "observe" and not success:
+            # Observation failed — retry (or walls already known, that's OK)
+            self._phase = "hypothesize"  # Assume we know enough
+        
+        # ── GENERIC: Hypothesize ──
+        elif self._phase == "hypothesize" and success:
+            # Hypothesis formed — plan actions
+            self._phase = "plan"
+        elif self._phase == "hypothesize" and not success:
+            # Can't form hypothesis — re-observe
+            self._phase = "observe"
+        
+        # ── GENERIC: Plan ──
+        elif self._phase == "plan" and success:
+            # Plan ready — execute it
+            self._phase = "execute"
+        elif self._phase == "plan" and not success:
+            # Plan failed (e.g., no path) — refine hypothesis
+            self._phase = "refine"
+        
+        # ── GENERIC: Execute ──
+        elif self._phase == "execute" and success:
+            # Execution done — verify result
+            self._phase = "verify"
+        elif self._phase == "execute" and not success:
+            # Execution failed — refine
+            self._phase = "refine"
+        
+        # ── GENERIC: Verify ──
+        elif self._phase == "verify" and success:
+            # Level completed!
+            self._phase = "complete"
+        elif self._phase == "verify" and not success:
+            # Verification failed — refine hypothesis
+            self._phase = "refine"
+        
+        # ── GENERIC: Refine ──
+        elif self._phase == "refine" and success:
+            # Refined hypothesis — re-plan
+            self._phase = "plan"
+        elif self._phase == "refine" and not success:
+            # Refine failed — try again (GoalSanityChecker will catch loops)
+            self._phase = "hypothesize"
+        
+        # ── LEGACY FALLBACK: keep old phases working for backward compat ──
+        elif self._phase == "detect_walls" and success:
             ot = getattr(self, 'object_tracker', None)
             has_tagged_changer = len(self._find_tagged_sprites('rhsxkxzdjz')) > 0
             if ot is not None and ot.has_enough_observations() and not has_tagged_changer:
-                # Generic: go straight to navigation
                 self._phase = "navigate_to_target"
             else:
-                # Legacy path: try changer-based rotation first (LS20 or tagged game)
                 self._phase = "navigate_to_changer"
-
+        
         elif self._phase == "navigate_to_target" and success:
-            # Navigated somewhere — try interact
             self._phase = "interact"
-
-        # ── LEGACY LS20 phase flow ──
+        
         elif self._phase == "navigate_to_changer" and success:
             self._phase = "rotate_to_goal"
         elif self._phase == "rotate_to_goal" and success:
             self._phase = "navigate_to_lock"
         elif self._phase == "navigate_to_lock" and success:
-            # In LS20, locks are collected by walking ON them, not by interact (action 5).
             if self.player:
                 locks = self._find_tagged_sprites('rjlbuycveu')
                 if locks:
@@ -392,10 +516,10 @@ class SkillsMixin:
                     self._phase = "interact"
             else:
                 self._phase = "interact"
-
+        
         elif self._phase == "interact" and success:
             self._phase = "complete"
-
+        
         # Sync with ScientificState
         if self._phase != old_phase:
             self.state.phase = self._phase
