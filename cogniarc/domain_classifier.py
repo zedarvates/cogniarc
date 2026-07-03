@@ -26,6 +26,8 @@ class DomainClassifier:
         self.env = env
         self.max_steps = max_steps
         self.result = "unknown"  # Old API: domain_profiler reads this after classify()
+        self.confidence = 0.0    # Old API: domain_profiler reads this
+        self.evidence = []       # Old API: domain_profiler reads this
 
     def classify(self, scout_results: Optional[dict] = None,
                  grid_changes: Optional[list] = None,

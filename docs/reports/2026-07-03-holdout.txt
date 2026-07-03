@@ -1,0 +1,2051 @@
+
+============================================================
+  HOLDOUT RUN: wa30-ee6fef47
+============================================================
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:14:54 | INFO | Got anonymous API key: a4105979-0023-4b3f-b045-b45f78a04343
+2026-07-03 07:14:54 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:14:55 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:14:55 | INFO | Created new scorecard: ae3469c6-1665-48bd-b700-b5f4099cb84e
+2026-07-03 07:14:55 | INFO | Successfully fetched metadata for game wa30
+2026-07-03 07:14:55 | INFO | Successfully loaded game class Wa30 from environment_files/wa30/ee6fef47/wa30.py
+[MicroNN] Pathfinder loaded (53→32→16→4)
+[NanoLLM] qwen2.5:0.5b online (Ollama)
+🔬 Scientist Agent — wa30-ee6fef47
+   Start: lvl=0/9
+
+📖 DISCOVERY PHASE
+  Generic perception: scouting via ObjectTracker...
+  🎯 Player color: 14
+  🧭 Learned directions: 1→(-3.75, 0.25), 2→(3.0, 0.0), 3→(0.5, -3.5), 4→(0.0, 3.0)
+  🔍 Scout: 4 movement, 0 interaction, 0 blocked
+
+🎮 GAME TYPE CLASSIFICATION
+  🎮 Detected: navigation (actions: [1, 2, 3, 4, 5])
+
+🎮 SOLVE PHASE (target: 9 levels)
+  🧠 Reasoning Mode: goal_inference
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [4, 7, 9] (tags=[], adjacent=[], grid=[4, 7, 9], tracker=[], floor=1)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the first available action to explore new paths and potentially find a solution.)
+  🤖 Nano-LLM suggests action 5
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the most recent valid move to avoid repeating it and ensure exploration is safe.)
+  🤖 Nano-LLM suggests action 5
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the last available move to continue moving towards the goal.)
+  🤖 Nano-LLM suggests action 5
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the second available action (move to the right) as it is the only valid move in the current state.)
+  🤖 Nano-LLM suggests action 5
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [4, 7, 9] (tags=[], adjacent=[], grid=[4, 7, 9], tracker=[], floor=1)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the last available move to continue moving towards the goal.)
+  🤖 Nano-LLM suggests action 5
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the last available move to avoid a stalemate and continue advancing.)
+  🤖 Nano-LLM suggests action 5
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the last available action to avoid a dead end and continue moving forward.)
+  🤖 Nano-LLM suggests action 5
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=1 conf=0.10 safe=True (parse error)
+  🤖 Nano-LLM suggests action 1
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [4, 7, 9] (tags=[], adjacent=[], grid=[4, 7, 9], tracker=[], floor=1)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the last available move to continue moving towards the goal.)
+  🤖 Nano-LLM suggests action 5
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the first available action to explore the environment and find a path to the goal. The current state is [[1 1 1 ... 1 1 1] ... [7 7 7 ... 4 4 4]].)
+  🤖 Nano-LLM suggests action 5
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the first available move to explore new paths and potentially find a way out of the current state. The agent has already made its recent history by taking the first move.)
+  🤖 Nano-LLM suggests action 5
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the last available move to avoid a stalemate and continue moving forward.)
+  🤖 Nano-LLM suggests action 5
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+
+==================================================
+🏆 0/9 levels, 106 steps
+State: GameState.NOT_FINISHED
+
+PKM[wa30-ee6fef47]
+  discovery: {'scout_results': {1: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 2: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 3: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 4: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 5: {'moved': False, 'grid_changed': True, 'prop_changes': 0}}, 'action_types': {'movement': [1, 2, 3, 4], 'interaction': [], 'blocked': []}}
+
+🌳 Skill Tree exported for wa30-ee6fef47: 0 skills
+Skill Tree — Level 6
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:06 | INFO | Got anonymous API key: 5f330679-699f-4bff-83b3-39fae65e2097
+2026-07-03 07:15:06 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:06 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:06 | INFO | Created new scorecard: 19fe52dd-c5fe-4af0-a72a-a2486ab9ae0e
+2026-07-03 07:15:06 | INFO | Successfully fetched metadata for game wa30
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:06 | INFO | Got anonymous API key: 476b2b60-5844-451c-8d82-ed00a64d2cf6
+2026-07-03 07:15:06 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:07 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:07 | INFO | Created new scorecard: 2fa94cd1-2a54-4614-a6e0-d80edd23fdd8
+2026-07-03 07:15:07 | INFO | Successfully fetched metadata for game wa30
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:07 | INFO | Got anonymous API key: 0689e955-7c25-4c6e-9703-a8060079cc83
+2026-07-03 07:15:07 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:07 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:07 | INFO | Created new scorecard: fd2da7d6-9481-441c-b811-d8292a26cdcc
+2026-07-03 07:15:07 | INFO | Successfully fetched metadata for game wa30
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:08 | INFO | Got anonymous API key: a90f56c7-e534-410d-9f3b-0ed64b45eb1c
+2026-07-03 07:15:08 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:08 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:08 | INFO | Created new scorecard: afeb81c3-0af1-4c1a-8d72-74d1ccbaade8
+2026-07-03 07:15:08 | INFO | Successfully fetched metadata for game wa30
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:08 | INFO | Got anonymous API key: a6ef3fab-5272-4996-b792-576f4372d170
+2026-07-03 07:15:08 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:08 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:08 | INFO | Created new scorecard: 970a14a3-0567-4c55-80c7-f7bd91ad588d
+2026-07-03 07:15:09 | INFO | Successfully fetched metadata for game wa30
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:09 | INFO | Got anonymous API key: 02a17163-276d-49c0-bef8-17416ae38e58
+2026-07-03 07:15:09 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:09 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:09 | INFO | Created new scorecard: a99bdbd2-61ab-4431-a3b7-18e3a7fa41cb
+2026-07-03 07:15:09 | INFO | Successfully fetched metadata for game wa30
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:09 | INFO | Got anonymous API key: 2ab45e2d-a140-4714-bd10-3ee1cbb894b1
+2026-07-03 07:15:09 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:09 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:09 | INFO | Created new scorecard: 9448318d-2e50-4e84-a91f-21861f5fe1cd
+2026-07-03 07:15:10 | INFO | Successfully fetched metadata for game wa30
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:10 | INFO | Got anonymous API key: 66387120-bb2d-4b9d-8723-edbf7e08b4f2
+2026-07-03 07:15:10 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:10 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:10 | INFO | Created new scorecard: 548d3d67-d10b-4488-9c08-b42ec7e98a62
+2026-07-03 07:15:10 | INFO | Successfully fetched metadata for game wa30
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:10 | INFO | Got anonymous API key: 726cd7d2-8b68-402e-890a-31562610534a
+2026-07-03 07:15:10 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:11 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:11 | INFO | Created new scorecard: 760f404c-7f9d-4c49-8edc-82cfb3d3aa87
+2026-07-03 07:15:11 | INFO | Successfully fetched metadata for game wa30
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:11 | INFO | Got anonymous API key: bc778d45-e705-49fd-955d-030a23e16c14
+2026-07-03 07:15:11 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:11 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:11 | INFO | Created new scorecard: 62f99c61-eb73-4041-b4ed-047ce76647c5
+2026-07-03 07:15:11 | INFO | Successfully fetched metadata for game wa30
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:12 | INFO | Got anonymous API key: dddee18b-6ea9-4437-a000-b79b92156eb4
+2026-07-03 07:15:12 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:12 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:12 | INFO | Created new scorecard: 0910677e-d138-4b0d-ba32-b7bf9918165a
+2026-07-03 07:15:12 | INFO | Successfully fetched metadata for game wa30
+  ⚠️ Cross-game import failed: 'DomainClassifier' object has no attribute 'evidence'
+
+============================================================
+  HOLDOUT RUN: su15-1944f8ab
+============================================================
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:12 | INFO | Got anonymous API key: 47c0c7e3-8279-48f1-a515-b345c5e1c440
+2026-07-03 07:15:12 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:12 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:12 | INFO | Created new scorecard: 31d3b564-5fff-4880-a982-3939e58be68b
+2026-07-03 07:15:13 | INFO | Successfully fetched metadata for game su15
+2026-07-03 07:15:13 | INFO | Successfully loaded game class Su15 from environment_files/su15/1944f8ab/su15.py
+[MicroNN] Pathfinder loaded (53→32→16→4)
+[NanoLLM] qwen2.5:0.5b online (Ollama)
+🔬 Scientist Agent — su15-1944f8ab
+   Start: lvl=0/9
+
+📖 DISCOVERY PHASE
+  Generic perception: scouting via ObjectTracker...
+  ⚠️ ObjectTracker insufficient, fallback to source discovery...
+  📖 Source: 0 mechanics identified
+  🔍 Scout: 0 movement, 0 interaction, 2 blocked
+
+🎮 GAME TYPE CLASSIFICATION
+  🎮 Detected: click (actions: [6, 7])
+
+🎮 SOLVE PHASE (target: 9 levels)
+  👆 Click strategy: probing targets...
+  👆 Testing 45 positions...
+  👆 Click (44,11): 48px changed
+  👆 Click (0,0): 50px changed
+  👆 Click (8,52): 50px changed
+  👆 Click (0,0): 65px changed
+  👆 Click (47,14): 48px changed
+  👆 Click (6,15): 89px changed
+  👆 Click (0,0): 41px changed
+  👆 Click (3,58): 16px changed
+  👆 Click (5,5): 36px changed
+  👆 Click (5,15): 35px changed
+  👆 Click (15,15): 81px changed
+  👆 Click (25,15): 94px changed
+  👆 Click (35,15): 94px changed
+  👆 Click (45,15): 94px changed
+  👆 Click (55,15): 94px changed
+  👆 Click (5,25): 85px changed
+  👆 Click (15,25): 81px changed
+  👆 Click (25,25): 94px changed
+  👆 Click (35,25): 94px changed
+  👆 Click (45,25): 94px changed
+  👆 Click (55,25): 94px changed
+  👆 Click (5,35): 85px changed
+  👆 Click (15,35): 81px changed
+  👆 Click (25,35): 94px changed
+  👆 Click (35,35): 94px changed
+  👆 Click (45,35): 94px changed
+  👆 Click (55,35): 94px changed
+  👆 Click (5,45): 85px changed
+  👆 Click (15,45): 81px changed
+  👆 Click (25,45): 94px changed
+  👆 Click (35,45): 94px changed
+  👆 Click (45,45): 94px changed
+  👆 Click (55,45): 94px changed
+  👆 Click (5,55): 78px changed
+  👆 Click (15,55): 96px changed
+  👆 Click (25,55): 94px changed
+  👆 Trying action 7...
+  🎲 Stuck, trying random exploration...
+  💀 Game over at level 0
+
+==================================================
+🏆 0/0 levels, 95 steps
+State: GameState.GAME_OVER
+
+PKM[su15-1944f8ab]
+  mechanics: {'source_analyzed': True}
+  discovery: {'scout_results': {6: {'moved': False, 'grid_changed': False, 'prop_changes': 0}, 7: {'moved': False, 'grid_changed': False, 'prop_changes': 0}}, 'action_types': {'movement': [], 'interaction': [], 'blocked': [6, 7]}}
+
+🌳 Skill Tree exported for su15-1944f8ab: 0 skills
+Skill Tree — Level 8
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:13 | INFO | Got anonymous API key: f0c35162-fd3c-4836-9531-1ff06bb2aae1
+2026-07-03 07:15:13 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:13 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:13 | INFO | Created new scorecard: b061373e-ca52-4a24-9700-e961cb2c29e7
+2026-07-03 07:15:13 | INFO | Successfully fetched metadata for game su15
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:13 | INFO | Got anonymous API key: f9f1516a-6355-48c3-8053-7002b851f81e
+2026-07-03 07:15:13 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:14 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:14 | INFO | Created new scorecard: f0357b5a-0a01-4951-ada1-69392be4b961
+2026-07-03 07:15:14 | INFO | Successfully fetched metadata for game su15
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:14 | INFO | Got anonymous API key: 77f7260d-ba55-4eb6-a2cb-5a6803157ea7
+2026-07-03 07:15:14 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:14 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:14 | INFO | Created new scorecard: acaec6d3-82d7-4826-bc97-3910e014ab35
+2026-07-03 07:15:14 | INFO | Successfully fetched metadata for game su15
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:15 | INFO | Got anonymous API key: fe69c6b7-b27a-45fb-9b6f-839bce3c2d83
+2026-07-03 07:15:15 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:15 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:15 | INFO | Created new scorecard: 37b97f53-64c8-44cc-8e06-e74ac9205d2d
+2026-07-03 07:15:15 | INFO | Successfully fetched metadata for game su15
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:15 | INFO | Got anonymous API key: 4daf6dce-13c1-46da-b048-a130ee1bf5ef
+2026-07-03 07:15:15 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:15 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:15 | INFO | Created new scorecard: 38935a2b-d87a-49a0-9e1d-3feec63a10e4
+2026-07-03 07:15:16 | INFO | Successfully fetched metadata for game su15
+  ⚠️ Cross-game import failed: 'DomainClassifier' object has no attribute 'evidence'
+
+============================================================
+  HOLDOUT RUN: sp80-589a99af
+============================================================
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:16 | INFO | Got anonymous API key: f264f2e5-337d-4e5f-be0e-4c0276575b57
+2026-07-03 07:15:16 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:16 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:16 | INFO | Created new scorecard: 03f413a2-e873-4834-881c-a27ce9358a8a
+2026-07-03 07:15:16 | INFO | Successfully fetched metadata for game sp80
+2026-07-03 07:15:16 | INFO | Successfully loaded game class Sp80 from environment_files/sp80/589a99af/sp80.py
+[MicroNN] Pathfinder loaded (53→32→16→4)
+[NanoLLM] qwen2.5:0.5b online (Ollama)
+🔬 Scientist Agent — sp80-589a99af
+   Start: lvl=0/6
+
+📖 DISCOVERY PHASE
+  Generic perception: scouting via ObjectTracker...
+  🎯 Player color: 14
+  🧭 Learned directions: 1→(-2.0, -0.5), 2→(2.0, -0.5), 3→(0.0, -4.0), 4→(0.0, 4.0), 5→(0.0, -1.0), 6→(0.0, -1.0)
+  🔍 Scout: 6 movement, 0 interaction, 0 blocked
+
+🎮 GAME TYPE CLASSIFICATION
+  🎮 Detected: navigation (actions: [1, 2, 3, 4, 5, 6])
+
+🎮 SOLVE PHASE (target: 6 levels)
+  🧠 Reasoning Mode: goal_inference
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [1, 9, 11] (tags=[], adjacent=[], grid=[1, 9, 11], tracker=[], floor=12)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [7] are unavailable. (sev=0.50)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'navigate-to-target' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [7] are unavailable. (sev=0.50)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to continue moving in the direction of the goal.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'navigate-to-target' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [7] are unavailable. (sev=0.50)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent valid action to continue moving forward in the game state.)
+  🤖 Nano-LLM suggests action 6
+  ⏸ Frame empty - level transition
+  🎲 Stuck, trying random exploration...
+  💀 Game over at level 0
+
+==================================================
+🏆 0/0 levels, 41 steps
+State: GameState.GAME_OVER
+
+PKM[sp80-589a99af]
+  discovery: {'scout_results': {1: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 2: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 3: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 4: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 5: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 6: {'moved': True, 'grid_changed': True, 'prop_changes': 0}}, 'action_types': {'movement': [1, 2, 3, 4, 5, 6], 'interaction': [], 'blocked': []}}
+
+🌳 Skill Tree exported for sp80-589a99af: 0 skills
+Skill Tree — Level 2
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:18 | INFO | Got anonymous API key: 6c7ae4b4-0bb3-4cbb-8e86-11be6ab7c910
+2026-07-03 07:15:18 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:18 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:18 | INFO | Created new scorecard: 3bfb3f69-c29d-4705-9540-cbf00ba77cbe
+2026-07-03 07:15:18 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:18 | INFO | Got anonymous API key: 0535a574-532c-45a6-9863-e4b9a7267d9b
+2026-07-03 07:15:18 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:18 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:18 | INFO | Created new scorecard: 6bab7b94-1f58-48cd-9b4d-dc668a77c817
+2026-07-03 07:15:18 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:19 | INFO | Got anonymous API key: 874a06a2-adff-406b-a7e0-14f34217bb3c
+2026-07-03 07:15:19 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:19 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:19 | INFO | Created new scorecard: af14beb1-aedc-471d-b029-7be9ec79a0fc
+2026-07-03 07:15:19 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:20 | INFO | Got anonymous API key: 2681dc10-fe54-4243-ad72-ee6963f7ec82
+2026-07-03 07:15:20 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:20 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:20 | INFO | Created new scorecard: 364ba47b-dc5d-4376-b930-324b659ea3ea
+2026-07-03 07:15:21 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:21 | INFO | Got anonymous API key: 3ed301ee-2f80-448f-8514-0a23ab11abf1
+2026-07-03 07:15:21 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:21 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:21 | INFO | Created new scorecard: 1bbf1afc-9c1c-45fe-88b9-779aafb31b8d
+2026-07-03 07:15:21 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:21 | INFO | Got anonymous API key: 6e34d4b8-cbc6-47e2-9a92-82bb82f8d1c0
+2026-07-03 07:15:21 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:22 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:22 | INFO | Created new scorecard: af633c35-6486-4224-ba65-2329ecc18294
+2026-07-03 07:15:22 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:22 | INFO | Got anonymous API key: 5aae8bd4-d20c-423f-8703-9788d5cedc7d
+2026-07-03 07:15:22 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:22 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:22 | INFO | Created new scorecard: 9939dfd3-97da-4ccb-a8b6-a90d8bf8da47
+2026-07-03 07:15:22 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:23 | INFO | Got anonymous API key: 7d47d142-4fa6-4279-915e-d237f51aaa59
+2026-07-03 07:15:23 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:23 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:23 | INFO | Created new scorecard: a0cda68b-8dcb-4161-8e95-f2e666590ee1
+2026-07-03 07:15:23 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:23 | INFO | Got anonymous API key: 7f58a623-3db6-40e7-8135-fcc74275563a
+2026-07-03 07:15:23 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:23 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:23 | INFO | Created new scorecard: 1df637c7-cfca-436e-9415-3c13e228b010
+2026-07-03 07:15:24 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:24 | INFO | Got anonymous API key: a4dd9ab9-2340-4011-a24d-2ef1fdad9757
+2026-07-03 07:15:24 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:24 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:24 | INFO | Created new scorecard: 6659709b-04a5-40e5-b43f-be96de227318
+2026-07-03 07:15:24 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:24 | INFO | Got anonymous API key: f9d517ce-b0b8-4193-ae6e-b640ae33ad0c
+2026-07-03 07:15:24 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:25 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:25 | INFO | Created new scorecard: 5e86e5ed-a37a-4f57-9612-266ae58361ba
+2026-07-03 07:15:25 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:25 | INFO | Got anonymous API key: 52b51b2e-0cb1-4604-ba1e-ffb7a1e2a350
+2026-07-03 07:15:25 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:25 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:25 | INFO | Created new scorecard: 6bdd0934-4d9a-4140-aaf4-ba4bbb7ca95e
+2026-07-03 07:15:25 | INFO | Successfully fetched metadata for game sp80
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:25 | INFO | Got anonymous API key: e26dd12e-0089-4549-ad50-8309c4aceb4d
+2026-07-03 07:15:25 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:26 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:26 | INFO | Created new scorecard: f8c0a984-a456-48cc-ba4b-a8f0101e6362
+2026-07-03 07:15:26 | INFO | Successfully fetched metadata for game sp80
+  ⚠️ Cross-game import failed: 'DomainClassifier' object has no attribute 'evidence'
+
+============================================================
+  HOLDOUT RUN: sk48-d8078629
+============================================================
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:26 | INFO | Got anonymous API key: f73ec779-be86-43a3-8f56-f42728a63e06
+2026-07-03 07:15:26 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:26 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:26 | INFO | Created new scorecard: 5159fb88-1f9d-4b7b-9908-8a4459388751
+2026-07-03 07:15:26 | INFO | Successfully fetched metadata for game sk48
+2026-07-03 07:15:26 | INFO | Successfully loaded game class Sk48 from environment_files/sk48/d8078629/sk48.py
+[MicroNN] Pathfinder loaded (53→32→16→4)
+[NanoLLM] qwen2.5:0.5b online (Ollama)
+🔬 Scientist Agent — sk48-d8078629
+   Start: lvl=0/8
+
+📖 DISCOVERY PHASE
+  Generic perception: scouting via ObjectTracker...
+  🎯 Player color: 2
+  🧭 Learned directions: 1→(-3.0, 0.0), 3→(0.0, 2.5), 4→(0.0, -0.5), 7→(0.0, -6.0)
+  🔍 Scout: 4 movement, 0 interaction, 0 blocked
+
+🎮 GAME TYPE CLASSIFICATION
+  🎮 Detected: navigation (actions: [1, 2, 3, 4, 6, 7])
+
+🎮 SOLVE PHASE (target: 8 levels)
+  🧠 Reasoning Mode: goal_inference
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [2, 6] (tags=[], adjacent=[], grid=[2, 6], tracker=[], floor=5)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 1)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'navigate-to-target' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'navigate-to-target' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the move (6) to continue moving towards the goal.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the second available action since it is safe and aligns with the current state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the action that will lead to the highest score in the game state.)
+  🤖 Nano-LLM suggests action 6
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+  🧠 Reasoning Mode: socratic
+  👁️ Perception suggests 'navigate-to-target' but phase machine chose 'detect-walls-from-source' (mode=socratic)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [2, 6] (tags=[], adjacent=[], grid=[2, 6], tracker=[], floor=5)
+  ✅ Phase complete: navigate_to_target
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 1)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'navigate-to-target' but phase machine chose 'interact-with-object' (mode=socratic)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=socratic)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the action that leads to the highest value in the state. In this case, moving from (5, 5) to (4, 4) results in a higher score compared to other moves.)
+  🤖 Nano-LLM suggests action 6
+  🔴 Trop d'echecs (3), force skip niveau...
+  🎲 Stuck, trying random exploration...
+
+==================================================
+🏆 0/8 levels, 82 steps
+State: GameState.NOT_FINISHED
+
+PKM[sk48-d8078629]
+  discovery: {'scout_results': {1: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 2: {'moved': False, 'grid_changed': True, 'prop_changes': 0}, 3: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 4: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 6: {'moved': False, 'grid_changed': True, 'prop_changes': 0}, 7: {'moved': True, 'grid_changed': True, 'prop_changes': 0}}, 'action_types': {'movement': [1, 3, 4, 7], 'interaction': [], 'blocked': []}}
+
+🌳 Skill Tree exported for sk48-d8078629: 0 skills
+Skill Tree — Level 4
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:29 | INFO | Got anonymous API key: 95f6c987-e71b-4a1c-93d9-d37e2e41ddb6
+2026-07-03 07:15:29 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:30 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:30 | INFO | Created new scorecard: f993ccd6-93cc-4634-adb7-c298260f8299
+2026-07-03 07:15:30 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:30 | INFO | Got anonymous API key: abd7c657-20c8-4598-9f92-3ea6cab61d6e
+2026-07-03 07:15:30 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:30 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:30 | INFO | Created new scorecard: cdf50413-ecfb-4aab-9e7d-fa5be1ed83a4
+2026-07-03 07:15:30 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:31 | INFO | Got anonymous API key: f7869da4-2920-434a-8f06-ab0f29261e19
+2026-07-03 07:15:31 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:31 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:31 | INFO | Created new scorecard: 4f3d6e16-18ac-48ab-a8aa-764b101821b5
+2026-07-03 07:15:31 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:31 | INFO | Got anonymous API key: a35b4655-f551-4d24-8bc8-a3d0e7f33dc3
+2026-07-03 07:15:31 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:31 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:31 | INFO | Created new scorecard: 18f98ca9-3f7a-432a-b004-17b0dc7e8b16
+2026-07-03 07:15:31 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:32 | INFO | Got anonymous API key: 3e043b5e-529c-4368-bdaa-51275a6ad903
+2026-07-03 07:15:32 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:32 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:32 | INFO | Created new scorecard: 9459740b-7df7-4e27-9f15-1536c96d7d3b
+2026-07-03 07:15:32 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:32 | INFO | Got anonymous API key: 8799b3de-cf48-482f-93de-abba0b8add88
+2026-07-03 07:15:32 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:32 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:32 | INFO | Created new scorecard: fc87d980-7cf4-4d81-a696-1922ad899901
+2026-07-03 07:15:33 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:33 | INFO | Got anonymous API key: 3287b0de-1301-4630-95fa-ea906195699e
+2026-07-03 07:15:33 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:33 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:33 | INFO | Created new scorecard: 080c83b5-4520-4181-a614-a9ae15ecc722
+2026-07-03 07:15:33 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:33 | INFO | Got anonymous API key: 77a6aa78-5747-4558-a33e-a429b6819efe
+2026-07-03 07:15:33 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:34 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:34 | INFO | Created new scorecard: 997452c4-51e3-4937-a067-878f92848733
+2026-07-03 07:15:34 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:34 | INFO | Got anonymous API key: 4b7af8a8-11ac-4b70-b9f8-5b05ba065d34
+2026-07-03 07:15:34 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:34 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:34 | INFO | Created new scorecard: 5081e86f-4dc9-423e-8818-06d28ec4aa47
+2026-07-03 07:15:34 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:35 | INFO | Got anonymous API key: fbbdc7e7-4843-4f23-8973-2f46d52ee7f5
+2026-07-03 07:15:35 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:35 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:35 | INFO | Created new scorecard: 95117500-54fe-4777-a63b-a8eb8194ef27
+2026-07-03 07:15:35 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:35 | INFO | Got anonymous API key: 406c71a4-22bf-4d67-81f8-365b49821f04
+2026-07-03 07:15:35 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:35 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:35 | INFO | Created new scorecard: 2a54acf7-5b5d-4b65-b280-3120f0202323
+2026-07-03 07:15:36 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:36 | INFO | Got anonymous API key: 9051bd38-3886-4c38-a315-7190e671fe6b
+2026-07-03 07:15:36 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:36 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:36 | INFO | Created new scorecard: a851e3c4-78dc-4593-89a2-15084b6c9834
+2026-07-03 07:15:36 | INFO | Successfully fetched metadata for game sk48
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:36 | INFO | Got anonymous API key: c2a55c82-437e-4e98-a202-6b5d34e4907d
+2026-07-03 07:15:36 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:37 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:37 | INFO | Created new scorecard: a07a13bd-5fec-4e64-a81e-976a992dd96e
+2026-07-03 07:15:37 | INFO | Successfully fetched metadata for game sk48
+  ⚠️ Cross-game import failed: 'DomainClassifier' object has no attribute 'evidence'
+
+============================================================
+  HOLDOUT RUN: sc25-635fd71a
+============================================================
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:37 | INFO | Got anonymous API key: 7d97a870-d9b5-45a0-b570-d5d4d838a8ca
+2026-07-03 07:15:37 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:37 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:37 | INFO | Created new scorecard: 340d66d1-d096-4284-adf9-d2f21fcfd747
+2026-07-03 07:15:37 | INFO | Successfully fetched metadata for game sc25
+2026-07-03 07:15:37 | INFO | Successfully loaded game class Sc25 from environment_files/sc25/635fd71a/sc25.py
+[MicroNN] Pathfinder loaded (53→32→16→4)
+[NanoLLM] qwen2.5:0.5b online (Ollama)
+🔬 Scientist Agent — sc25-635fd71a
+   Start: lvl=0/6
+
+📖 DISCOVERY PHASE
+  Generic perception: scouting via ObjectTracker...
+  🎯 Player color: 9
+  🧭 Learned directions: 1→(-1.0, -1.0), 2→(1.5, 0.5), 3→(-1.0, -5.0), 4→(0.0, 6.0)
+  🔍 Scout: 4 movement, 0 interaction, 0 blocked
+
+🎮 GAME TYPE CLASSIFICATION
+  🎮 Detected: navigation (actions: [1, 2, 3, 4, 6])
+
+🎮 SOLVE PHASE (target: 6 levels)
+  🧠 Reasoning Mode: goal_inference
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [2, 3, 14] (tags=[], adjacent=[], grid=[2, 3, 14], tracker=[], floor=5)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent move (first move) to continue moving forward in the game state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the action that will lead to the highest score in the game state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to avoid unnecessary exploration and potentially reach the goal faster.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=1 conf=0.10 safe=True (parse error)
+  🤖 Nano-LLM suggests action 1
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+  👁️ Perception suggests 'navigate-to-target' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [2, 3, 14] (tags=[], adjacent=[], grid=[2, 3, 14], tracker=[], floor=5)
+  ✅ Phase complete: navigate_to_target
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action of taking the fourth action (action 6) to continue moving forward in the game state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the action that leads to the highest score or goal. In this case, taking action 6 (move 1) would result in a higher score compared to moving to other positions.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to continue moving forward in the game state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=4 conf=0.80 safe=True (The agent should take the most recent valid move (action 4) to continue moving towards the goal.)
+  🤖 Nano-LLM suggests action 4
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+
+==================================================
+🏆 0/6 levels, 103 steps
+State: GameState.NOT_FINISHED
+
+PKM[sc25-635fd71a]
+  discovery: {'scout_results': {1: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 2: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 3: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 4: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 6: {'moved': False, 'grid_changed': True, 'prop_changes': 0}}, 'action_types': {'movement': [1, 2, 3, 4], 'interaction': [], 'blocked': []}}
+
+🌳 Skill Tree exported for sc25-635fd71a: 10 skills
+Skill Tree — Level 10
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:42 | INFO | Got anonymous API key: f9995b6e-34c5-4e6e-861f-089949f22ae7
+2026-07-03 07:15:42 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:42 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:42 | INFO | Created new scorecard: 7eb872b1-e9a6-47bb-9ae9-ec083509ffd2
+2026-07-03 07:15:43 | INFO | Successfully fetched metadata for game sc25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:43 | INFO | Got anonymous API key: b060ecdc-ef71-4e6c-bc34-be8c68a36e4f
+2026-07-03 07:15:43 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:43 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:43 | INFO | Created new scorecard: 00418278-04bb-46df-9e3c-1459a0a615a2
+2026-07-03 07:15:44 | INFO | Successfully fetched metadata for game sc25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:44 | INFO | Got anonymous API key: e2892d49-bc15-45ec-9476-2a3c4940b163
+2026-07-03 07:15:44 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:44 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:44 | INFO | Created new scorecard: 11fb4938-85d2-4a44-a3d8-718b96e3a983
+2026-07-03 07:15:44 | INFO | Successfully fetched metadata for game sc25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:44 | INFO | Got anonymous API key: 94dd51e7-d84a-46ca-96ad-c90e1c1e3b6b
+2026-07-03 07:15:44 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:44 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:44 | INFO | Created new scorecard: 06129bfb-424a-44ca-b74d-43c72f1b7226
+2026-07-03 07:15:46 | INFO | Successfully fetched metadata for game sc25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:46 | INFO | Got anonymous API key: d5c55a5e-b8d1-4cf3-8c61-d2639ae5cf0e
+2026-07-03 07:15:46 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:46 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:46 | INFO | Created new scorecard: 0a828ed6-855d-4345-b2e0-c638daea4f72
+2026-07-03 07:15:46 | INFO | Successfully fetched metadata for game sc25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:47 | INFO | Got anonymous API key: c9e1580e-d706-4a0d-8dde-b16bcd46aa34
+2026-07-03 07:15:47 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:47 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:47 | INFO | Created new scorecard: ab9fa292-697c-4bbf-8ea9-fdf7536e5d1d
+2026-07-03 07:15:47 | INFO | Successfully fetched metadata for game sc25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:47 | INFO | Got anonymous API key: 23b9363f-93e6-4422-9d91-b8343135d04f
+2026-07-03 07:15:47 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:47 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:47 | INFO | Created new scorecard: fc38e668-9542-453d-b564-39ec294374ce
+2026-07-03 07:15:48 | INFO | Successfully fetched metadata for game sc25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:48 | INFO | Got anonymous API key: 7509a7ba-a958-48d0-a4b0-e156fac1b88c
+2026-07-03 07:15:48 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:48 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:48 | INFO | Created new scorecard: 7f532b0a-08ad-4518-aa7d-4ab8306105c0
+2026-07-03 07:15:48 | INFO | Successfully fetched metadata for game sc25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:48 | INFO | Got anonymous API key: fb97d7c3-88db-4a32-beb8-03837302be91
+2026-07-03 07:15:48 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:49 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:49 | INFO | Created new scorecard: 862100a2-fb2c-4892-9efe-4b8e56ca4bbd
+2026-07-03 07:15:49 | INFO | Successfully fetched metadata for game sc25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:49 | INFO | Got anonymous API key: 94fc2687-5663-4249-a34e-c16c0259de32
+2026-07-03 07:15:49 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:49 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:49 | INFO | Created new scorecard: 5b660afa-f454-4c4c-9010-5254920915f9
+2026-07-03 07:15:49 | INFO | Successfully fetched metadata for game sc25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:50 | INFO | Got anonymous API key: 9dcaa1f8-8e25-4b34-8257-ba42469ce117
+2026-07-03 07:15:50 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:50 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:50 | INFO | Created new scorecard: ec528a3e-ba64-46ba-8f30-96d8b8284e9a
+2026-07-03 07:15:50 | INFO | Successfully fetched metadata for game sc25
+  ⚠️ Cross-game import failed: 'DomainClassifier' object has no attribute 'evidence'
+
+============================================================
+  HOLDOUT RUN: sb26-7fbdac44
+============================================================
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:50 | INFO | Got anonymous API key: b7457879-0650-41e3-a2a6-a26d35362288
+2026-07-03 07:15:50 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:50 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:50 | INFO | Created new scorecard: 2fff799d-ce7d-4dfd-aaa4-a4ac1c2419b3
+2026-07-03 07:15:50 | INFO | Successfully fetched metadata for game sb26
+2026-07-03 07:15:51 | INFO | Successfully loaded game class Sb26 from environment_files/sb26/7fbdac44/sb26.py
+[MicroNN] Pathfinder loaded (53→32→16→4)
+[NanoLLM] qwen2.5:0.5b online (Ollama)
+🔬 Scientist Agent — sb26-7fbdac44
+   Start: lvl=0/8
+
+📖 DISCOVERY PHASE
+  Generic perception: scouting via ObjectTracker...
+  🎯 Player color: 2
+  🧭 Learned directions: 5→(0.0, -0.5)
+  🔍 Scout: 1 movement, 0 interaction, 0 blocked
+
+🎮 GAME TYPE CLASSIFICATION
+  🎮 Detected: puzzle (actions: [5, 6, 7])
+
+🎮 SOLVE PHASE (target: 8 levels)
+  🧠 Reasoning Mode: analogical
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'detect-walls-from-source' (mode=analogical)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You're planning movement, but no movement actions (1-4) are available. How will you move? (sev=0.90)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🚫 SocraticCritic BLOCKING: You're planning movement, but no movement actions (1-4) are ...
+     Aucune alternative - execution risquee
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [2, 5, 8] (tags=[], adjacent=[], grid=[2, 5, 8], tracker=[], floor=4)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'navigate-to-target' (mode=analogical)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=analogical)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=analogical)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=7 conf=0.80 safe=True (The agent should take the second available action since it is safer to explore this area.)
+  🤖 Nano-LLM suggests action 7
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=analogical)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=5 conf=0.80 safe=True (The agent should take the first available action to explore the game state and find a path to the goal.)
+  🤖 Nano-LLM suggests action 5
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=analogical)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=7 conf=0.80 safe=True (The agent should make a move that increases the score or improves its position in the game state.)
+  🤖 Nano-LLM suggests action 7
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=analogical)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=7 conf=0.80 safe=True (The agent should take the available move (move 7) to continue moving forward in the game state.)
+  🤖 Nano-LLM suggests action 7
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+  🧠 Reasoning Mode: socratic
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'detect-walls-from-source' (mode=socratic)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You're planning movement, but no movement actions (1-4) are available. How will you move? (sev=0.90)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🚫 SocraticCritic BLOCKING: You're planning movement, but no movement actions (1-4) are ...
+     Aucune alternative - execution risquee
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [2, 5, 8] (tags=[], adjacent=[], grid=[2, 5, 8], tracker=[], floor=4)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=socratic)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] You've been stagnant for 19 steps. If your hypothesis were correct, you'd expect progress. What makes you think this theory is still valid? (sev=0.80)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=socratic)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=socratic)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=7 conf=0.80 safe=True (The agent should take the first available action to continue moving forward in the game state.)
+  🤖 Nano-LLM suggests action 7
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=socratic)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=7 conf=0.80 safe=True (The agent should take the first available move to avoid getting stuck in a loop and explore new paths.)
+  🤖 Nano-LLM suggests action 7
+  🔴 Trop d'echecs (3), force skip niveau...
+  🎲 Stuck, trying random exploration...
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'detect-walls-from-source' (mode=socratic)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You're planning movement, but no movement actions (1-4) are available. How will you move? (sev=0.90)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🚫 SocraticCritic BLOCKING: You're planning movement, but no movement actions (1-4) are ...
+     Aucune alternative - execution risquee
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [2, 5, 8] (tags=[], adjacent=[], grid=[2, 5, 8], tracker=[], floor=4)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=socratic)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] You've been stagnant for 35 steps. If your hypothesis were correct, you'd expect progress. What makes you think this theory is still valid? (sev=0.80)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=socratic)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=socratic)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=7 conf=0.80 safe=True (The agent should take the most immediate and safe option to continue moving forward. The agent has not made any recent moves or encountered a goal state yet.)
+  🤖 Nano-LLM suggests action 7
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=socratic)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=7 conf=0.80 safe=True (The agent should take the second available action since it is safer and aligns with the current state of the game.)
+  🤖 Nano-LLM suggests action 7
+  🔴 Trop d'echecs (3), force skip niveau...
+  🎲 Stuck, trying random exploration...
+
+==================================================
+🏆 0/8 levels, 96 steps
+State: GameState.NOT_FINISHED
+
+PKM[sb26-7fbdac44]
+  discovery: {'scout_results': {5: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 6: {'moved': False, 'grid_changed': True, 'prop_changes': 0}, 7: {'moved': False, 'grid_changed': True, 'prop_changes': 0}}, 'action_types': {'movement': [5], 'interaction': [], 'blocked': []}}
+
+🌳 Skill Tree exported for sb26-7fbdac44: 0 skills
+Skill Tree — Level 9
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:55 | INFO | Got anonymous API key: 2ddc31d7-ff61-4efc-8f08-0697f9f7efc5
+2026-07-03 07:15:55 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:55 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:55 | INFO | Created new scorecard: e99bacdc-bb81-4610-b3c4-8a71a51a410c
+2026-07-03 07:15:55 | INFO | Successfully fetched metadata for game sb26
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:55 | INFO | Got anonymous API key: 3a452f6e-de9f-4fa1-a2a2-03c46bc9d827
+2026-07-03 07:15:55 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:55 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:55 | INFO | Created new scorecard: 3dbc1dc8-01d2-4ddb-8f50-1b3d323d16ee
+2026-07-03 07:15:56 | INFO | Successfully fetched metadata for game sb26
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:56 | INFO | Got anonymous API key: ba02325b-c267-4140-a790-e342c70bfbd9
+2026-07-03 07:15:56 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:56 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:56 | INFO | Created new scorecard: 7ee02b93-cc11-4a72-830f-07f93a3283ab
+2026-07-03 07:15:56 | INFO | Successfully fetched metadata for game sb26
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:56 | INFO | Got anonymous API key: 8422d6ba-a08d-42c3-b9d2-e8799bded92d
+2026-07-03 07:15:56 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:57 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:57 | INFO | Created new scorecard: 5cb695e7-6c7e-4658-a53f-dce2efc8b04e
+2026-07-03 07:15:57 | INFO | Successfully fetched metadata for game sb26
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:57 | INFO | Got anonymous API key: ee77ccf0-6851-400e-94df-e289a8c40bd4
+2026-07-03 07:15:57 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:57 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:57 | INFO | Created new scorecard: 7c74d5f2-dcae-4b46-9aa4-fe1d20b89b3e
+2026-07-03 07:15:57 | INFO | Successfully fetched metadata for game sb26
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:58 | INFO | Got anonymous API key: f0084604-b983-4103-a50e-f38b34aeb446
+2026-07-03 07:15:58 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:58 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:58 | INFO | Created new scorecard: e06e57f2-4cf2-49b3-b390-0788f67d639d
+2026-07-03 07:15:58 | INFO | Successfully fetched metadata for game sb26
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:58 | INFO | Got anonymous API key: 146b4aa6-f304-49e7-814c-c8c4c029c71b
+2026-07-03 07:15:58 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:59 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:59 | INFO | Created new scorecard: 36ad0439-5816-43b5-9653-ced9ce69ad7a
+2026-07-03 07:15:59 | INFO | Successfully fetched metadata for game sb26
+  ⚠️ Cross-game import failed: 'DomainClassifier' object has no attribute 'evidence'
+
+============================================================
+  HOLDOUT RUN: s5i5-18d95033
+============================================================
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:15:59 | INFO | Got anonymous API key: c4e97c7d-bcf0-45f0-a3ba-5392bd1ef4ea
+2026-07-03 07:15:59 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:15:59 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:15:59 | INFO | Created new scorecard: 376b7de2-d367-4e49-82b6-f1108ea0799a
+2026-07-03 07:15:59 | INFO | Successfully fetched metadata for game s5i5
+2026-07-03 07:15:59 | INFO | Successfully loaded game class S5i5 from environment_files/s5i5/18d95033/s5i5.py
+[MicroNN] Pathfinder loaded (53→32→16→4)
+[NanoLLM] qwen2.5:0.5b online (Ollama)
+🔬 Scientist Agent — s5i5-18d95033
+   Start: lvl=0/8
+
+📖 DISCOVERY PHASE
+  Generic perception: scouting via ObjectTracker...
+  🎯 Player color: 3
+  🧭 Learned directions: 6→(0.0, -0.625)
+  🔍 Scout: 1 movement, 0 interaction, 0 blocked
+
+🎮 GAME TYPE CLASSIFICATION
+  🎮 Detected: click (actions: [6])
+
+🎮 SOLVE PHASE (target: 8 levels)
+  👆 Click strategy: probing targets...
+  👆 Testing 46 positions...
+  👆 Click (9,27): 1px changed
+  👆 Click (27,9): 1px changed
+  👆 Click (9,64): 1px changed
+  👆 Click (64,9): 2px changed
+  👆 Click (9,33): 1px changed
+  👆 Click (30,9): 1px changed
+  👆 Click (36,18): 11px changed
+  👆 Click (21,35): 12px changed
+  👆 Click (9,51): 1px changed
+  👆 Click (51,9): 1px changed
+  👆 Click (5,5): 2px changed
+  👆 Click (15,5): 1px changed
+  👆 Click (25,5): 1px changed
+  👆 Click (35,5): 1px changed
+  👆 Click (45,5): 2px changed
+  👆 Click (55,5): 1px changed
+  👆 Click (5,15): 1px changed
+  👆 Click (15,15): 2px changed
+  👆 Click (25,15): 1px changed
+  👆 Click (35,15): 1px changed
+  👆 Click (45,15): 1px changed
+  👆 Click (55,15): 2px changed
+  👆 Click (5,25): 1px changed
+  👆 Click (15,25): 1px changed
+  👆 Click (25,25): 2px changed
+  👆 Click (35,25): 1px changed
+  👆 Click (45,25): 1px changed
+  👆 Click (55,25): 1px changed
+  👆 Click (5,35): 2px changed
+  👆 Click (15,35): 1px changed
+  👆 Click (25,35): 11px changed
+  👆 Click (35,35): 1px changed
+  👆 Click (45,35): 2px changed
+  👆 Click (55,35): 1px changed
+  👆 Click (5,45): 1px changed
+  👆 Click (15,45): 2px changed
+  👆 Click (25,45): 11px changed
+  👆 Click (35,45): 1px changed
+  👆 Click (45,45): 1px changed
+  👆 Click (55,45): 2px changed
+  👆 Click (5,55): 1px changed
+  🎲 Stuck, trying random exploration...
+  💀 Game over at level 0
+
+==================================================
+🏆 0/0 levels, 75 steps
+State: GameState.GAME_OVER
+
+PKM[s5i5-18d95033]
+  discovery: {'scout_results': {6: {'moved': True, 'grid_changed': True, 'prop_changes': 0}}, 'action_types': {'movement': [6], 'interaction': [], 'blocked': []}}
+
+🌳 Skill Tree exported for s5i5-18d95033: 0 skills
+Skill Tree — Level 6
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:00 | INFO | Got anonymous API key: 49ba0f04-a9d4-45bb-ae97-ed579a2604eb
+2026-07-03 07:16:00 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:00 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:00 | INFO | Created new scorecard: a7520557-aac5-4c4c-a124-f38b8db5d0f4
+2026-07-03 07:16:00 | INFO | Successfully fetched metadata for game s5i5
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:00 | INFO | Got anonymous API key: c2f9a1d3-c33e-43d3-904a-51d028a5a68f
+2026-07-03 07:16:00 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:00 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:00 | INFO | Created new scorecard: cfc69493-f2c6-44c2-b8dd-1d9989be75d3
+2026-07-03 07:16:01 | INFO | Successfully fetched metadata for game s5i5
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:01 | INFO | Got anonymous API key: 8bda3c81-9c4b-4b08-a991-dfe7088f573d
+2026-07-03 07:16:01 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:01 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:01 | INFO | Created new scorecard: fbfa2ba2-55ee-40e2-ab59-a9eb525c1476
+2026-07-03 07:16:01 | INFO | Successfully fetched metadata for game s5i5
+  ⚠️ Cross-game import failed: 'DomainClassifier' object has no attribute 'evidence'
+
+============================================================
+  HOLDOUT RUN: ka59-38d34dbb
+============================================================
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:01 | INFO | Got anonymous API key: 22c0f316-50b1-4ae5-a323-7490303f13a4
+2026-07-03 07:16:01 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:02 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:02 | INFO | Created new scorecard: edc9a338-168f-47bf-b5a0-ae2b3f0613a5
+2026-07-03 07:16:02 | INFO | Successfully fetched metadata for game ka59
+2026-07-03 07:16:02 | INFO | Successfully loaded game class Ka59 from environment_files/ka59/38d34dbb/ka59.py
+[MicroNN] Pathfinder loaded (53→32→16→4)
+[NanoLLM] qwen2.5:0.5b online (Ollama)
+🔬 Scientist Agent — ka59-38d34dbb
+   Start: lvl=0/7
+
+📖 DISCOVERY PHASE
+  Generic perception: scouting via ObjectTracker...
+  🎯 Player color: 14
+  🧭 Learned directions: 1→(-1.5, -0.25), 2→(3.0, 0.0), 3→(0.0, -3.0), 4→(0.0, 3.0)
+  🔍 Scout: 4 movement, 0 interaction, 0 blocked
+
+🎮 GAME TYPE CLASSIFICATION
+  🎮 Detected: navigation (actions: [1, 2, 3, 4, 6])
+
+🎮 SOLVE PHASE (target: 7 levels)
+  🧠 Reasoning Mode: goal_inference
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [1, 4, 15] (tags=[], adjacent=[], grid=[1, 4, 15], tracker=[], floor=2)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the first available action to continue moving forward in the game state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the first available action to start the game.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to continue moving forward in the game state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action (move) to continue the game.)
+  🤖 Nano-LLM suggests action 6
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [1, 4, 15] (tags=[], adjacent=[], grid=[1, 4, 15], tracker=[], floor=2)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action (move) to continue the game.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action of taking the fourth element in each row.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the first available action to continue moving forward in the game state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action (move) to continue the game.)
+  🤖 Nano-LLM suggests action 6
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [1, 4, 15] (tags=[], adjacent=[], grid=[1, 4, 15], tracker=[], floor=2)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action (move) to continue the game.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the fourth action (move to position 4) as it is the only valid move that does not involve taking any of the other actions.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent move to avoid repeating it and ensure a fresh start.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=4 conf=0.80 safe=True (The agent should take the most recent available action (move) to continue the game.)
+  🤖 Nano-LLM suggests action 4
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+
+==================================================
+🏆 0/7 levels, 106 steps
+State: GameState.NOT_FINISHED
+
+PKM[ka59-38d34dbb]
+  discovery: {'scout_results': {1: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 2: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 3: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 4: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 6: {'moved': False, 'grid_changed': True, 'prop_changes': 0}}, 'action_types': {'movement': [1, 2, 3, 4], 'interaction': [], 'blocked': []}}
+
+🌳 Skill Tree exported for ka59-38d34dbb: 0 skills
+Skill Tree — Level 6
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:10 | INFO | Got anonymous API key: 56459ade-166f-4a49-8b1e-04d86af8a135
+2026-07-03 07:16:10 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:10 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:10 | INFO | Created new scorecard: 099ddd43-4dd4-4e62-bf0a-f42095cfe7e4
+2026-07-03 07:16:10 | INFO | Successfully fetched metadata for game ka59
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:11 | INFO | Got anonymous API key: 024e982c-580d-4ced-a1c4-ced6b97dca60
+2026-07-03 07:16:11 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:11 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:11 | INFO | Created new scorecard: aa216620-312b-4538-8e52-51ba779f76cb
+2026-07-03 07:16:11 | INFO | Successfully fetched metadata for game ka59
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:11 | INFO | Got anonymous API key: a436adee-f408-4f70-acc8-4f3c074092a1
+2026-07-03 07:16:11 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:11 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:11 | INFO | Created new scorecard: 89cd03f0-8cf5-4275-ae19-109c9a29a01b
+2026-07-03 07:16:12 | INFO | Successfully fetched metadata for game ka59
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:12 | INFO | Got anonymous API key: 39d50d2a-a821-456c-9a24-e9842cf41e46
+2026-07-03 07:16:12 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:12 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:12 | INFO | Created new scorecard: 5ac599af-e64e-4614-8d12-10298495f4ca
+2026-07-03 07:16:12 | INFO | Successfully fetched metadata for game ka59
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:12 | INFO | Got anonymous API key: f6a37ef4-687e-4ea2-a1fc-f05867479398
+2026-07-03 07:16:12 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:13 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:13 | INFO | Created new scorecard: 83076224-d1df-4ba1-b98d-83a415ea8865
+2026-07-03 07:16:13 | INFO | Successfully fetched metadata for game ka59
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:13 | INFO | Got anonymous API key: 71f96895-33fb-418c-a3bf-6e0d0891257d
+2026-07-03 07:16:13 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:13 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:13 | INFO | Created new scorecard: afb537fa-3403-4f7f-b841-f303d3d33dc1
+2026-07-03 07:16:13 | INFO | Successfully fetched metadata for game ka59
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:14 | INFO | Got anonymous API key: a906990e-7cc1-4f5a-872d-9ec5996cda98
+2026-07-03 07:16:14 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:14 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:14 | INFO | Created new scorecard: 37b6683f-d1af-4dd2-8c01-7a96c934c779
+2026-07-03 07:16:14 | INFO | Successfully fetched metadata for game ka59
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:14 | INFO | Got anonymous API key: f6c0a87e-9808-407d-96f4-874958fc824f
+2026-07-03 07:16:14 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:14 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:14 | INFO | Created new scorecard: 61ad9705-a6db-4435-9ef5-859398e0849a
+2026-07-03 07:16:15 | INFO | Successfully fetched metadata for game ka59
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:15 | INFO | Got anonymous API key: cee9d1ef-7deb-47b7-892c-2771b86f392e
+2026-07-03 07:16:15 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:15 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:15 | INFO | Created new scorecard: ee56e87d-477a-47cb-8f60-b10eb1bffcfe
+2026-07-03 07:16:15 | INFO | Successfully fetched metadata for game ka59
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:15 | INFO | Got anonymous API key: 323f1c2d-1e5f-4a05-9e86-997ed8cb45af
+2026-07-03 07:16:15 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:16 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:16 | INFO | Created new scorecard: dea82440-7fc7-41c3-b6a3-2e82db409b4d
+2026-07-03 07:16:16 | INFO | Successfully fetched metadata for game ka59
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:17 | INFO | Got anonymous API key: 73c42ec4-e3f7-4848-865d-c8b02a9cf157
+2026-07-03 07:16:17 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:17 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:17 | INFO | Created new scorecard: 725a00c6-6f27-4845-80fd-258cc6388553
+2026-07-03 07:16:17 | INFO | Successfully fetched metadata for game ka59
+  ⚠️ Cross-game import failed: 'DomainClassifier' object has no attribute 'evidence'
+
+============================================================
+  HOLDOUT RUN: dc22-fdcac232
+============================================================
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:18 | INFO | Got anonymous API key: c0ecfb00-a2bd-44f6-8d8a-17f65f335aa9
+2026-07-03 07:16:18 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:18 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:18 | INFO | Created new scorecard: 585ddcd4-0e57-400a-9e68-06cb5bafff78
+2026-07-03 07:16:18 | INFO | Successfully fetched metadata for game dc22
+2026-07-03 07:16:18 | INFO | Successfully loaded game class Dc22 from environment_files/dc22/fdcac232/dc22.py
+[MicroNN] Pathfinder loaded (53→32→16→4)
+[NanoLLM] qwen2.5:0.5b online (Ollama)
+🔬 Scientist Agent — dc22-fdcac232
+   Start: lvl=0/6
+
+📖 DISCOVERY PHASE
+  Generic perception: scouting via ObjectTracker...
+  🎯 Player color: 14
+  🧭 Learned directions: 1→(-2.0, 0.0), 2→(2.0, 0.0), 3→(0.0, -2.0), 4→(0.0, 2.0)
+  🔍 Scout: 3 movement, 0 interaction, 0 blocked
+
+🎮 GAME TYPE CLASSIFICATION
+  🎮 Detected: navigation (actions: [1, 2, 3, 4, 6])
+
+🎮 SOLVE PHASE (target: 6 levels)
+  🧠 Reasoning Mode: goal_inference
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [2] (tags=[], adjacent=[], grid=[2], tracker=[], floor=4)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent valid action to continue moving forward and avoid a dead end or losing game state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent valid move to avoid unnecessary exploration and potentially reach the goal state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to continue the game state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the action that leads to the highest score in the game state. Since the current score is 0, the agent needs to increase it by moving one step up.)
+  🤖 Nano-LLM suggests action 6
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [2] (tags=[], adjacent=[], grid=[2], tracker=[], floor=4)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action of taking a step in the game state. This will allow the agent to continue moving towards its goal.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to continue moving forward in the game state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action of moving to a new position in the game state. This will allow the agent to explore different paths and potentially find a solution.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action of moving to a new position in the grid. This will allow the agent to explore different paths and potentially find a solution.)
+  🤖 Nano-LLM suggests action 6
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [2] (tags=[], adjacent=[], grid=[2], tracker=[], floor=4)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] Domain is 'hybrid' but expected actions [5, 7] are unavailable. (sev=0.50)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ✅ Phase complete: interact
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 1)
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent valid action to continue the game. The agent has already made a move (first move), so taking action 6 is safe and will lead to the goal.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to continue moving forward in the game state.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to avoid unnecessary exploration and potentially reach the goal state faster.)
+  🤖 Nano-LLM suggests action 6
+  👁️ Perception suggests 'select-skill-for-observation' but phase machine chose 'interact-with-object' (mode=goal_inference)
+  🤔 ⏳ ❓ [CLARIFICATION] What specific action constitutes 'interact'? action(5)? touching? (sev=0.40)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔒 [PHYSICAL_CONSTRAINT] You want to interact/use something, but action 5 is not in available actions. (sev=0.60)
+  🔄 Phase: interact -> Skill: interact-with-object
+  ⚠️ Skill interact-with-object failed in phase interact (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action of moving to a new position in the grid. This will allow the agent to explore different paths and potentially find a solution.)
+  🤖 Nano-LLM suggests action 6
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+
+==================================================
+🏆 0/6 levels, 106 steps
+State: GameState.NOT_FINISHED
+
+PKM[dc22-fdcac232]
+  discovery: {'scout_results': {1: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 2: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 3: {'moved': False, 'grid_changed': True, 'prop_changes': 0}, 4: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 6: {'moved': False, 'grid_changed': True, 'prop_changes': 0}}, 'action_types': {'movement': [1, 2, 4], 'interaction': [], 'blocked': []}}
+
+🌳 Skill Tree exported for dc22-fdcac232: 0 skills
+Skill Tree — Level 9
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:25 | INFO | Got anonymous API key: 8a0a9ec6-2052-4153-a1f0-0d9a26f04dc8
+2026-07-03 07:16:25 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:25 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:25 | INFO | Created new scorecard: a22cea99-560d-48e7-a95b-07f5ed3a0514
+2026-07-03 07:16:26 | INFO | Successfully fetched metadata for game dc22
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:26 | INFO | Got anonymous API key: 30aff338-428e-4910-ac87-b9da4463932a
+2026-07-03 07:16:26 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:26 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:26 | INFO | Created new scorecard: 113d9de3-c6ef-427b-8d24-39669f477a2d
+2026-07-03 07:16:26 | INFO | Successfully fetched metadata for game dc22
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:26 | INFO | Got anonymous API key: 1b3fe3bb-52e5-446e-8354-09035b2b6294
+2026-07-03 07:16:26 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:27 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:27 | INFO | Created new scorecard: 5eed00b7-2f7f-4ea4-a8bf-2bfb681ee597
+2026-07-03 07:16:27 | INFO | Successfully fetched metadata for game dc22
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:27 | INFO | Got anonymous API key: e7dfcc18-ddc3-47a8-a03c-0efe4640b7e9
+2026-07-03 07:16:27 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:27 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:27 | INFO | Created new scorecard: 840afb3b-efa7-42ae-a1bd-998f26083604
+2026-07-03 07:16:27 | INFO | Successfully fetched metadata for game dc22
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:27 | INFO | Got anonymous API key: 72f7aa60-14b6-40a6-822c-32f320def3ce
+2026-07-03 07:16:27 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:28 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:28 | INFO | Created new scorecard: f0c2fe1e-00bf-4073-a3e2-2237b74da9f3
+2026-07-03 07:16:28 | INFO | Successfully fetched metadata for game dc22
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:28 | INFO | Got anonymous API key: bf36f00f-2f11-474e-8e08-0d65dc47d2e4
+2026-07-03 07:16:28 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:28 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:28 | INFO | Created new scorecard: dedd3835-aaa1-4546-9f56-73dbbe2f4f7f
+2026-07-03 07:16:28 | INFO | Successfully fetched metadata for game dc22
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:29 | INFO | Got anonymous API key: 3eb7880c-6086-4921-9d01-7aab0d97d7fb
+2026-07-03 07:16:29 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:29 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:29 | INFO | Created new scorecard: eeef9124-7395-41fa-9e76-7259db257634
+2026-07-03 07:16:29 | INFO | Successfully fetched metadata for game dc22
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:29 | INFO | Got anonymous API key: f656bf21-2115-42fd-9e35-80b672c92503
+2026-07-03 07:16:29 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:29 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:29 | INFO | Created new scorecard: 6bb4b2c4-d726-4ec7-b3ed-bc7753e95b41
+2026-07-03 07:16:30 | INFO | Successfully fetched metadata for game dc22
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:30 | INFO | Got anonymous API key: 9146a31a-38bb-44db-8a10-63f6935f4bfb
+2026-07-03 07:16:30 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:30 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:30 | INFO | Created new scorecard: 190c0b87-c52d-49b0-90e6-73f680f54ab7
+2026-07-03 07:16:30 | INFO | Successfully fetched metadata for game dc22
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:31 | INFO | Got anonymous API key: 3c31c970-3400-4968-95eb-79bf1f37515b
+2026-07-03 07:16:31 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:31 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:31 | INFO | Created new scorecard: ffce2316-1095-4487-b8a6-8cd63c2e6ddc
+2026-07-03 07:16:31 | INFO | Successfully fetched metadata for game dc22
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:31 | INFO | Got anonymous API key: fdc269c3-56e4-440f-983f-4fdb9f357e65
+2026-07-03 07:16:31 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:31 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:31 | INFO | Created new scorecard: 6ee8e3b8-4879-4edd-b39c-c1b228c0088b
+2026-07-03 07:16:31 | INFO | Successfully fetched metadata for game dc22
+  ⚠️ Cross-game import failed: 'DomainClassifier' object has no attribute 'evidence'
+
+============================================================
+  HOLDOUT RUN: ar25-0c556536
+============================================================
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:32 | INFO | Got anonymous API key: 47b141ee-963b-42c4-ba38-0e76799d5163
+2026-07-03 07:16:32 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:32 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:32 | INFO | Created new scorecard: 3d168f35-6292-4f2e-b209-f99538f87ad7
+2026-07-03 07:16:32 | INFO | Successfully fetched metadata for game ar25
+2026-07-03 07:16:32 | INFO | Successfully loaded game class Ar25 from environment_files/ar25/0c556536/ar25.py
+[MicroNN] Pathfinder loaded (53→32→16→4)
+[NanoLLM] qwen2.5:0.5b online (Ollama)
+🔬 Scientist Agent — ar25-0c556536
+   Start: lvl=0/8
+
+📖 DISCOVERY PHASE
+  Generic perception: scouting via ObjectTracker...
+  🎯 Player color: 5
+  🧭 Learned directions: 1→(-3.0, 0.0), 2→(3.0, 0.0), 3→(0.0, -3.0), 4→(0.0, 3.0), 5→(0.5, 0.0), 7→(0.0, -3.0)
+  🔍 Scout: 6 movement, 0 interaction, 0 blocked
+
+🎮 GAME TYPE CLASSIFICATION
+  🎮 Detected: navigation (actions: [1, 2, 3, 4, 5, 6, 7])
+
+🎮 SOLVE PHASE (target: 8 levels)
+  🧠 Reasoning Mode: goal_inference
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [5, 10, 11] (tags=[], adjacent=[], grid=[5, 10, 11], tracker=[], floor=9)
+  ✅ Phase complete: navigate_to_target
+  👁️ Perception suggests 'interact-with-object' but phase machine chose 'navigate-to-target' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 1)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the second highest available action (move to the right) as it is the only possible move that does not lead to a dead end or result in an immediate loss.)
+  🤖 Nano-LLM suggests action 6
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to avoid repeating a previous move and potentially miss the goal.)
+  🤖 Nano-LLM suggests action 6
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=1 conf=0.10 safe=True (parse error)
+  🤖 Nano-LLM suggests action 1
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=1 conf=0.10 safe=True (parse error)
+  🤖 Nano-LLM suggests action 1
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+  👁️ Perception suggests 'navigate-to-target' but phase machine chose 'detect-walls-from-source' (mode=goal_inference)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: detect_walls -> Skill: detect-walls-from-source
+  🧱 Wall colors: [5, 10, 11] (tags=[], adjacent=[], grid=[5, 10, 11], tracker=[], floor=9)
+  ✅ Phase complete: navigate_to_target
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 1)
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 2)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to continue moving towards the goal.)
+  🤖 Nano-LLM suggests action 6
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 3)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to continue moving towards the goal. The current state is [[ 9  9  9 ...  9  9 11]...], so the agent can choose from actions 1 through 7.)
+  🤖 Nano-LLM suggests action 6
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 4)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent available action to avoid repeating the same sequence of moves and explore new paths.)
+  🤖 Nano-LLM suggests action 6
+  🤔 ⏳ ⚠️ [ASSUMPTION] Do you know what 'winning' looks like? (sev=0.70)
+  🤔 ⏳ 🔗 [CAUSAL_GAP] Your hypothesis states WHAT you'll do but not WHY it should work. What's the causal mechanism? (sev=0.60)
+  🤔 ⏳ ⚡ [COUNTEREXAMPLE] Your last action produced no result. Is this consistent with your hypothesis? (sev=0.40)
+  🔄 Phase: navigate_to_target -> Skill: navigate-to-target
+  ⚠️ Skill navigate-to-target failed in phase navigate_to_target (attempt 5)
+  🤖 Nano-LLM proposing action...
+  🤖 NanoLLM: action=6 conf=0.80 safe=True (The agent should take the most recent valid move to avoid revisiting the same state and explore new paths.)
+  🤖 Nano-LLM suggests action 6
+  🔴 Trop d'echecs (5), force skip niveau...
+  🎲 Stuck, trying random exploration...
+
+==================================================
+🏆 0/8 levels, 125 steps
+State: GameState.NOT_FINISHED
+
+PKM[ar25-0c556536]
+  discovery: {'scout_results': {1: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 2: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 3: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 4: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 5: {'moved': True, 'grid_changed': True, 'prop_changes': 0}, 6: {'moved': False, 'grid_changed': True, 'prop_changes': 0}, 7: {'moved': True, 'grid_changed': True, 'prop_changes': 0}}, 'action_types': {'movement': [1, 2, 3, 4, 5, 7], 'interaction': [], 'blocked': []}}
+
+🌳 Skill Tree exported for ar25-0c556536: 0 skills
+Skill Tree — Level 4
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:38 | INFO | Got anonymous API key: 2fa92889-612b-4af2-b067-8e925ecf5033
+2026-07-03 07:16:38 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:38 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:38 | INFO | Created new scorecard: e4a44376-023d-4215-90cc-a85198a855db
+2026-07-03 07:16:38 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:39 | INFO | Got anonymous API key: 6fb01ad3-909d-40f9-a8c1-fa31641726e9
+2026-07-03 07:16:39 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:39 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:39 | INFO | Created new scorecard: 6549ca5d-e074-4067-93e2-fc5d6525fcc9
+2026-07-03 07:16:39 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:39 | INFO | Got anonymous API key: 8a6ffcb4-b47f-4886-b16a-d8bc9e870c44
+2026-07-03 07:16:39 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:39 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:39 | INFO | Created new scorecard: c99ea770-70f3-4f0c-afb1-0528036a6d8c
+2026-07-03 07:16:40 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:40 | INFO | Got anonymous API key: a598b3c1-67c0-4978-9d56-ee3cb50034c5
+2026-07-03 07:16:40 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:40 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:40 | INFO | Created new scorecard: a5129643-4b5a-420b-8c1a-cac1bffaaa02
+2026-07-03 07:16:40 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:40 | INFO | Got anonymous API key: c4a2efb7-1591-4448-8b1e-3d3feb005fa8
+2026-07-03 07:16:40 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:41 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:41 | INFO | Created new scorecard: 9a38888e-dc0f-4df2-95b6-68868d635f1b
+2026-07-03 07:16:41 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:41 | INFO | Got anonymous API key: 756b124b-cab9-42a5-be91-41b85596caad
+2026-07-03 07:16:41 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:41 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:41 | INFO | Created new scorecard: ab2edefe-0543-486c-85ae-92b800bd94b4
+2026-07-03 07:16:41 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:42 | INFO | Got anonymous API key: e76cb43f-5a58-44ad-b661-c1504f82960a
+2026-07-03 07:16:42 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:42 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:42 | INFO | Created new scorecard: a350feeb-92fe-4add-ae3e-999409aec4b6
+2026-07-03 07:16:42 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:42 | INFO | Got anonymous API key: 161bcad5-bc44-4152-87dd-0c8468f8eda2
+2026-07-03 07:16:42 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:42 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:42 | INFO | Created new scorecard: 6ebad8b7-b65b-4a2b-8598-16527895ba3d
+2026-07-03 07:16:43 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:43 | INFO | Got anonymous API key: 0fc65525-4c72-4f4f-af8e-10884de1e5a7
+2026-07-03 07:16:43 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:43 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:43 | INFO | Created new scorecard: 3d4e85f0-452d-4f72-be75-11e443f478a6
+2026-07-03 07:16:43 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:43 | INFO | Got anonymous API key: 1a569380-ba5b-424c-be80-6e94edd08d87
+2026-07-03 07:16:43 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:44 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:44 | INFO | Created new scorecard: 9c1497b9-420a-4308-b375-197a55e8cbbc
+2026-07-03 07:16:44 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:44 | INFO | Got anonymous API key: bbc697ef-751d-4355-a058-319d8efe0b59
+2026-07-03 07:16:44 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:44 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:44 | INFO | Created new scorecard: 0127559d-2883-4320-90a0-586aedd5efa8
+2026-07-03 07:16:44 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:45 | INFO | Got anonymous API key: 94c0118e-ae06-453a-949e-e002f775a650
+2026-07-03 07:16:45 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:45 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:45 | INFO | Created new scorecard: e9c92a4a-ef01-4c55-9528-cf2ebc51526e
+2026-07-03 07:16:45 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:45 | INFO | Got anonymous API key: 6075c4f0-fb0d-45c1-97b7-62d8afc46b8c
+2026-07-03 07:16:45 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:45 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:45 | INFO | Created new scorecard: 63249778-74ed-43e0-a1fd-573875aaf62b
+2026-07-03 07:16:46 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:46 | INFO | Got anonymous API key: 8c297267-9380-4904-a12f-1ab3f218464d
+2026-07-03 07:16:46 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:46 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:46 | INFO | Created new scorecard: 3abdb7df-67ff-41b1-9db7-89c648c8a425
+2026-07-03 07:16:46 | INFO | Successfully fetched metadata for game ar25
+INFO:arc_agi.scorecard:Initialized ScorecardManager with idle_for=0:15:00 and max_open_for=3 days, 0:00:00
+2026-07-03 07:16:46 | INFO | Got anonymous API key: 7775b17f-c744-419d-87f4-cfe2ef1c3a6f
+2026-07-03 07:16:46 | INFO | You can register for an API key at https://three.arcprize.org
+2026-07-03 07:16:47 | INFO | Successfully fetched 25 environment(s) from API
+2026-07-03 07:16:47 | INFO | Created new scorecard: 4e0075d2-3f26-4b1b-8906-3bfa82a49dab
+2026-07-03 07:16:47 | INFO | Successfully fetched metadata for game ar25
+  ⚠️ Cross-game import failed: 'DomainClassifier' object has no attribute 'evidence'
+
+# Generalization Report
+
+| Set | Games | Attempts | Solve rate |
+|-----|-------|----------|------------|
+| Dev (tuned against) | 15 | 118 | 46.6% |
+| Holdout (never tuned against) | 10 | 185 | 0.0% |
+
+**Generalization gap: +46.6%** (dev rate − holdout rate). A large positive gap means the agent is overfit to the dev games' specifics (hardcoded tags, tuned thresholds) rather than solving via transferable reasoning.
