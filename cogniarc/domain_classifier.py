@@ -25,16 +25,20 @@ class DomainClassifier:
     def __init__(self, env=None, max_steps: int = 30):
         self.env = env
         self.max_steps = max_steps
+        self.result = "unknown"  # Old API: domain_profiler reads this after classify()
 
     def classify(self, scout_results: Optional[dict] = None,
                  grid_changes: Optional[list] = None,
-                 ot_summary: Optional[dict] = None) -> str:
+                 ot_summary: Optional[dict] = None,
+                 available_actions: Optional[list] = None) -> str:
         """Classify game type. Accepts old API (no args) and new API."""
         if scout_results is None:
             scout_results = {}
         if grid_changes is None:
             grid_changes = []
-        return classify_game_type(scout_results, grid_changes, ot_summary)
+        result = classify_game_type(scout_results, grid_changes, ot_summary, available_actions)
+        self.result = result
+        return result
 
 
 # Re-export helpers from transforms so domain_profiler can import them.
@@ -64,6 +68,7 @@ def classify_game_type(
     scout_results: Dict[int, dict],
     grid_changes: List[Tuple[int, int]],
     ot_summary: Optional[dict] = None,
+    available_actions: Optional[List[int]] = None,
 ) -> GameType:
     """Classify game type from scout-phase observations.
 
@@ -76,12 +81,18 @@ def classify_game_type(
             provided, overrides grid-based heuristics — if the tracker
             identified >=3 movement directions with non-zero displacement,
             the game is always classified as "navigation".
+        available_actions: Optional list of action numbers. If only click
+            actions (>=6) are available, it's a click game.
 
     Returns:
-        One of "navigation", "painting", "puzzle", "unknown".
+        One of "navigation", "painting", "puzzle", "click", "unknown".
     """
-    if not grid_changes and not ot_summary:
+    if not grid_changes and not ot_summary and not available_actions:
         return "unknown"
+
+    # ═══ Click game: only actions 6+ available (no movement 1-4) ═══
+    if available_actions and all(a >= 6 for a in available_actions):
+        return "click"
 
     # ═══ ObjectTracker override: if tracker found clear movement directions,
     # it's navigation regardless of how many pixels each action changes ═══

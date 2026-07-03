@@ -529,6 +529,10 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
             from cogniarc.painting_strategy import PaintingStrategy
             strategy = PaintingStrategy(self)
             return strategy.solve_level(level_num)
+        if game_type == "click":
+            from cogniarc.click_strategy import ClickStrategy
+            strategy = ClickStrategy(self)
+            return strategy.solve_level(level_num)
 
         # ── Navigation / puzzle / unknown: use the phase machine ──
 
@@ -1022,9 +1026,10 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         # Build scout_results from discovery PKM, use ObjectTracker as override
         scout_results = self.pkm.get('discovery', 'scout_results', {}) or {}
         ot_summary = ot.get_perception_summary() if ot and ot.has_enough_observations() else None
-        game_type = classify_game_type(scout_results, scout_grid_changes, ot_summary)
+        available = list(self.obs.available_actions or [])
+        game_type = classify_game_type(scout_results, scout_grid_changes, ot_summary, available)
         self._game_type = game_type
-        print(f"  🎮 Detected: {game_type}")
+        print(f"  🎮 Detected: {game_type} (actions: {available})")
 
         # PHASE 3: Solve levels
         print(f"\n🎮 SOLVE PHASE (target: {self.obs.win_levels} levels)")
