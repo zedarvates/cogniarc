@@ -498,7 +498,7 @@ class MultiModalWorldModel(WorldModelTool):
         
         # Merge similar centroids
         merged_centroids, merged_labels = self._merge_similar_actions(
-            centroids, assignments
+            centroids, assignments, deltas
         )
         
         self._latent_actions = merged_centroids
@@ -507,7 +507,8 @@ class MultiModalWorldModel(WorldModelTool):
         return merged_centroids, merged_labels
     
     def _merge_similar_actions(self, centroids: np.ndarray,
-                               assignments: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+                               assignments: np.ndarray,
+                               deltas: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Merge centroids that are too similar (cosine distance < threshold)."""
         K = len(centroids)
         if K <= 1:
@@ -526,8 +527,12 @@ class MultiModalWorldModel(WorldModelTool):
         # Build mapping
         unique = sorted(set(merged))
         new_labels = np.array([unique.index(merged[a]) for a in assignments])
-        new_centroids = np.array([centroids[assignments == l].mean(axis=0)
-                                   for l in range(len(unique))])
+        
+        # Recompute centroids from original deltas using new labels
+        new_centroids = np.array([
+            deltas[new_labels == l].mean(axis=0)
+            for l in range(len(unique))
+        ])
         
         return new_centroids, new_labels
     

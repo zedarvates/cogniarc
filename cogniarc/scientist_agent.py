@@ -667,6 +667,22 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         except Exception as e:
             print(f"  🔬 Active experiment skipped: {e}")
 
+        # ═══ IDM: Latent Action Discovery (WorldModel v2) ═══
+        # After collecting some transitions, discover latent actions without labels.
+        # This helps the agent understand game mechanics even when actions are unknown.
+        if self.world_model and hasattr(self.world_model, 'discover_actions'):
+            wm = self.world_model
+            if wm.memory_size() >= 8 and self._wm_latent_actions is None:
+                try:
+                    actions, clusters = wm.discover_actions(num_actions=4, min_transitions=8)
+                    self._wm_latent_actions = actions
+                    if len(actions) > 0:
+                        print(f"  🎯 IDM: discovered {len(actions)} latent actions from {wm.memory_size()} transitions")
+                        for i, cnt in enumerate(np.bincount(clusters, minlength=len(actions))):
+                            print(f"     Action {i}: {cnt} transitions")
+                except Exception as e:
+                    print(f"  🎯 IDM skipped: {e}")
+
         # Benchmark tracking
         self.benchmark_start_time = time.time()
 
