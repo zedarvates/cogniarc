@@ -132,17 +132,12 @@ class SkillsMixin:
         they solve a lot of levels.' This skill analyzes the environment and forms
         a testable goal hypothesis without game-specific knowledge.
         
-        Uses:
-          - ObjectTracker for known objects/positions
-          - SocraticCritic to validate the hypothesis
-          - WorldModel to simulate possible outcomes
+        In REFINE mode: generates an ALTERNATIVE hypothesis (never the same twice).
         """
-        # If we already have a valid hypothesis, skip
-        if (self.state.current_hypothesis is not None and
-            self.state.phase_attempts == 0):
-            return True
+        is_refine = (self._phase == "refine")
+        prev_hypothesis = str(self.state.current_hypothesis) if self.state.current_hypothesis else ""
         
-        # Gather evidence from observation
+        # Gather evidence
         ot = getattr(self, 'object_tracker', None)
         player_pos = None
         targets = []
@@ -151,15 +146,12 @@ class SkillsMixin:
             summary = ot.get_perception_summary()
             player_color = summary.get("player_color")
             player_pos = summary.get("player_position")
-            # Known objects from perception
             known_positions = summary.get("known_positions", {})
             for color, pos in known_positions.items():
                 if color != player_color:
                     targets.append((color, pos))
         
-        # If no ObjectTracker data, use legacy sprite detection
         if not targets:
-            # Look for locks, changers, interactables
             lock_sprites = self._find_tagged_sprites('rjlbuycveu')
             changer_sprites = self._find_tagged_sprites('rhsxkxzdjz')
             for s in lock_sprites:
@@ -167,28 +159,51 @@ class SkillsMixin:
             for s in changer_sprites:
                 targets.append(("changer", (getattr(s, 'x', 0), getattr(s, 'y', 0))))
         
-        # Fallback: if walls are known, find reachable non-wall positions
-        if not targets and hasattr(self, '_detected_wall_colors'):
-            # Simple heuristic: any non-wall, non-player color is a candidate target
-            pass  # TODO: grid analysis for unknown games
-        
-        # Form hypothesis
-        if targets:
+        # ── REFINE mode: generate ALTERNATIVE hypothesis ──
+        if is_refine and targets:
+            # Check if previous hypothesis was about the same target
+            primary = targets[0]
+            primary_text = f"Navigate to {primary[0]} at ({primary[1][0]},{primary[1][1]})"
+            
+            if primary_text in prev_hypothesis:
+                # Same target failed — try alternative approaches
+                if len(targets) > 1:
+                    # Try next target
+                    alt = targets[1]
+                    hypothesis_text = f"Navigate to {alt[0]} at ({alt[1][0]},{alt[1][1]})"
+                    confidence = 0.4
+                elif player_pos:
+                    # Only one target — try intermediate waypoint (go left then up for LS20 wall)
+                    tx, ty = primary[1]
+                    px, py = player_pos
+                    # Heuristic: if same column but target is above, try going LEFT first
+                    if tx == px and ty < py:
+                        mid_x = max(0, px - 15)  # Go 15 cells left
+                        hypothesis_text = f"Navigate to intermediate waypoint at ({mid_x},{py}) to bypass wall, then to {primary[0]} at ({tx},{ty})"
+                        confidence = 0.35
+                    else:
+                        hypothesis_text = f"Explore alternative route to {primary[0]} at ({tx},{ty})"
+                        confidence = 0.3
+                else:
+                    hypothesis_text = "Explore environment to find alternative path"
+                    confidence = 0.2
+            else:
+                # Different target — use it
+                hypothesis_text = primary_text
+                confidence = 0.5
+        elif targets:
             target_type, (tx, ty) = targets[0]
             hypothesis_text = f"Navigate to {target_type} at ({tx},{ty})"
-            self.state.update_hypothesis(hypothesis_text, confidence=0.6)
-            print(f"  💡 Hypothesis: {hypothesis_text}")
+            confidence = 0.6
         elif player_pos:
-            # No known targets — explore
             hypothesis_text = f"Explore environment from ({player_pos[0]},{player_pos[1]})"
-            self.state.update_hypothesis(hypothesis_text, confidence=0.3)
-            print(f"  💡 Hypothesis: {hypothesis_text} (exploratory)")
+            confidence = 0.3
         else:
-            # Nothing known — pure exploration
             hypothesis_text = "Explore environment to discover game mechanics"
-            self.state.update_hypothesis(hypothesis_text, confidence=0.1)
-            print(f"  💡 Hypothesis: {hypothesis_text} (blind)")
+            confidence = 0.1
         
+        self.state.update_hypothesis(hypothesis_text, confidence=confidence)
+        print(f"  💡 Hypothesis: {hypothesis_text} (conf={confidence:.2f})")
         return True
 
     def _navigate_one_step(self) -> Optional[int]:
@@ -238,16 +253,16 @@ class SkillsMixin:
         recording wall/floor evidence with each step.
         Tag-based path: A* with known wall colours (legacy, LS20-specific).
         """
-        # Phase-specific tag-based target (legacy LS20)
+        # Phase-specific tag-based target (legacy LS20 + generic)
         target_pos = None
-        if self._phase == "navigate_to_changer":
+        if self._phase in ("navigate_to_changer", "plan", "execute"):
             changers = self._find_tagged_sprites('rhsxkxzdjz')
             if changers:
                 ch = changers[0]
                 target_pos = (getattr(ch, 'x', 0), getattr(ch, 'y', 0))
                 if self.player and self.player.x == target_pos[0] and self.player.y == target_pos[1]:
                     return True
-        elif self._phase == "navigate_to_lock":
+        if self._phase in ("navigate_to_lock", "verify", "plan", "execute"):
             locks = self._find_tagged_sprites('rjlbuycveu')
             if locks:
                 lk = locks[0]
@@ -351,6 +366,37 @@ class SkillsMixin:
 
         if astar_result:
             return True
+
+        # ═══ A* FAILED → try wall circumvention via intermediate waypoint ═══
+        # Tufa Labs insight: "they think no but that's outside the maze so you
+        # can't move there. And the human would just give it a go and see what happens."
+        if self.player and tx is not None:
+            px, py = self.player.x, self.player.y
+            # If same column blocked, try going left first
+            if tx == px:
+                # Waypoint: go 15 cells left, then path to target from there
+                mid_x = max(0, px - 15)
+                print(f"  🧭 A* blocked: trying waypoint ({mid_x},{py}) before ({tx},{ty})")
+                # Try navigating to waypoint
+                waypoint_result = pathfinder.navigate_astar((mid_x, py), max_steps=50, obs=self.obs)
+                if waypoint_result:
+                    print(f"  🧭 Waypoint reached! Now path to target...")
+                    # Update observation and retry A* to target
+                    pathfinder.update_from_observation(self.obs)
+                    retry = pathfinder.navigate_astar((tx, ty), max_steps=200, obs=self.obs)
+                    if retry:
+                        return True
+            # If same row blocked, try going up first  
+            elif ty == py:
+                mid_y = max(0, py - 15)
+                print(f"  🧭 A* blocked: trying waypoint ({px},{mid_y}) before ({tx},{ty})")
+                waypoint_result = pathfinder.navigate_astar((px, mid_y), max_steps=50, obs=self.obs)
+                if waypoint_result:
+                    print(f"  🧭 Waypoint reached! Now path to target...")
+                    pathfinder.update_from_observation(self.obs)
+                    retry = pathfinder.navigate_astar((tx, ty), max_steps=200, obs=self.obs)
+                    if retry:
+                        return True
 
         # ═══ A* FAILED → Micro-NN or World Model fallback ═══
         if self.action_predictor or (self.world_model and self.world_model.memory_size() > 0):
