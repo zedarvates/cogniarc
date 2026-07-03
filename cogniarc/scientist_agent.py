@@ -329,20 +329,27 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         self.mode_manager = ReasonModeManager()
         self.current_reasoning_mode: ReasoningMode = ReasoningMode.EXPLORATION
 
-        # ═══ NEW: World Model Tool (V-JEPA based simulator) ═══
+        # ═══ World Model Tool v2 (Multi-Modal JEPA: noise + bottleneck + IDM) ═══
         self.world_model = None
+        self._wm_latent_actions = None  # IDM-discovered actions
         if enable_world_model:
             try:
-                from cogniarc.world_model import WorldModelTool
-                self.world_model = WorldModelTool(game_id=game_name)
+                from cogniarc.world_model_v2 import MultiModalWorldModel, WorldModelConfigV2
+                cfg = WorldModelConfigV2(
+                    noise_sigma=0.05,
+                    bottleneck_dim=128,
+                    idm_num_actions=8,
+                    rollout_steps=5,
+                )
+                self.world_model = MultiModalWorldModel(config=cfg, game_id=game_name)
                 if self.world_model.available:
                     mem = self.world_model.memory_size()
-                    print(f"[WorldModel] Loaded V-JEPA encoder" +
+                    print(f"[WorldModel v2] V-JEPA + noise={cfg.noise_sigma} + bn {cfg.latent_dim}->{cfg.bottleneck_dim}" +
                           (f" + {mem} prior transitions" if mem > 0 else " (fresh start)"))
                 else:
-                    print(f"[WorldModel] Fallback encoder active (no V-JEPA checkpoint)")
+                    print(f"[WorldModel v2] Fallback encoder (no V-JEPA) - noise + bottleneck active")
             except Exception as e:
-                print(f"[WorldModel] Failed to init: {e}")
+                print(f"[WorldModel v2] Failed to init: {e}")
 
         # ═══ NEW: Micro-NN predictors (instant, <1ms) ═══
         self.action_predictor = None
