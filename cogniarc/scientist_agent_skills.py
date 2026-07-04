@@ -606,6 +606,22 @@ class SkillsMixin:
                     if locks and self.player.x == getattr(locks[0], 'x', -1) and self.player.y == getattr(locks[0], 'y', -1):
                         print(f"  🔑 Lock collected at ({tx},{ty})")
                         return True
+                # Generic: on any ObjectTracker target → try interact (action 5)
+                ot_target = getattr(self, '_ot_target', None)
+                if ot_target and self.player.x == ot_target[0] and self.player.y == ot_target[1]:
+                    print(f"  🖐️ Interacting with ObjectTracker target at ({tx},{ty})...")
+                    prev_level = self.obs.levels_completed
+                    if 5 in (self.obs.available_actions or []):
+                        self.step(5)
+                        if self.obs.levels_completed > prev_level:
+                            print(f"  ✅ Level completed via interact!")
+                            return True
+                    if 6 in (self.obs.available_actions or []):
+                        self.step(6)
+                        if self.obs.levels_completed > prev_level:
+                            return True
+                    self._ot_target = None
+                    return True
 
         return False
 
