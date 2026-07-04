@@ -232,6 +232,9 @@ class SkillsMixin:
                     )
                     hypothesis_text = f"Interact with color {best_color} at ({best_pos[0]},{best_pos[1]})"
                     confidence = 0.45
+                    # Store target for navigate-to-target
+                    self._ot_target = best_pos
+                    self._ot_target_color = best_color
                 else:
                     px, py = player_pos
                     hypothesis_text = f"Explore from ({px},{py}) — no known targets"
@@ -311,7 +314,12 @@ class SkillsMixin:
                 if self.player and self.player.x == target_pos[0] and self.player.y == target_pos[1]:
                     return True
 
-        # GENERIC path: use ObjectTracker if tags don't give us a target
+        # GENERIC path: use ObjectTracker target if tags don't give us one
+        if target_pos is None:
+            ot_target = getattr(self, '_ot_target', None)
+            if ot_target is not None:
+                target_pos = ot_target
+                print(f"  🎯 Using ObjectTracker target: {target_pos}")
         ot = getattr(self, 'object_tracker', None)
         if ot is not None and ot.has_enough_observations() and target_pos is None:
             action = self._navigate_one_step()
