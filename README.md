@@ -11,6 +11,18 @@
 
 ---
 
+## 👤 About This Project
+
+This is a **one-person research project** by [Sylvain Galliez](https://github.com/zedarvates) (zedarvates). I have **zero prior knowledge of the ARC-AGI-3 games** — I have never looked at the solutions, never read walkthroughs, and never studied the game mechanics before building this agent. Every discovery (wall colors, changer positions, lock mechanics, action mappings) was made by the agent itself through observation and experimentation.
+
+My approach is not to code solutions — it's to **accompany LLMs in their reflection**. I design cognitive architectures (drives, reasoning modes, Socratic critics) that push language models to think deeper, question their own hypotheses, and explore alternatives when stuck. The code is a *harness for reasoning*, not a solver.
+
+I work on this **in my spare time**, a few hours per week, iterating alongside AI coding agents. The 16 commits that took LS20 from 0% to solved in 40 steps were done in a single day of focused pair-programming with Hermes (my AI agent). Every line of code is a dialogue between human intuition and machine reasoning.
+
+> *"The harness should give general thinking patterns, not game-specific phases."* — Tufa Labs, ARC-AGI-3 winners
+
+---
+
 ## 🧭 Two Complementary Tracks
 
 | Track | Repository | Focus |
