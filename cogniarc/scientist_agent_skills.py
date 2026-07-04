@@ -474,9 +474,28 @@ class SkillsMixin:
                     self.step(action)
                     return True
             
-            # If same column blocked, try going left first
+            # If same column blocked, try going DOWN first to exit wall zone
             if tx == px:
-                # Waypoint: go 15 cells left, then path to target from there
+                # Player and target on same column but A* blocked.
+                # Likely a wall between them. Go down to exit wall zone, then left.
+                if ty < py:
+                    # Target is above — go down first to get below the wall
+                    print(f"  🧭 Same column blocked: descending to bypass wall...")
+                    for _ in range(3):  # 3 steps down = 15 cells (LS20 step=5)
+                        self.step(2)  # DOWN
+                    # Now try going left from the new position
+                    mid_x = max(0, self.player.x - 15)
+                    print(f"  🧭 After descend: trying waypoint ({mid_x},{self.player.y})")
+                    waypoint_result = pathfinder.navigate_astar(
+                        (mid_x, self.player.y), max_steps=80, obs=self.obs
+                    )
+                    if waypoint_result:
+                        pathfinder.update_from_observation(self.obs)
+                        retry = pathfinder.navigate_astar((tx, ty), max_steps=200, obs=self.obs)
+                        if retry:
+                            return True
+                
+                # Fallback: original waypoint left
                 mid_x = max(0, px - 15)
                 print(f"  🧭 A* blocked: trying waypoint ({mid_x},{py}) before ({tx},{ty})")
                 # Try navigating to waypoint
