@@ -214,8 +214,31 @@ class SkillsMixin:
                 hypothesis_text = "Explore environment"
                 confidence = 0.2
         elif player_pos:
-            hypothesis_text = f"Explore environment from ({player_pos[0]},{player_pos[1]})"
-            confidence = 0.3
+            # Use ObjectTracker to find potential interaction targets
+            if ot is not None:
+                summary = ot.get_perception_summary()
+                known = summary.get("known_positions", {})
+                player_color = summary.get("player_color")
+                wall_set = getattr(self, '_detected_wall_colors', set())
+                interactables = {
+                    c: p for c, p in known.items()
+                    if c != player_color and c not in wall_set and c != 0
+                }
+                if interactables:
+                    px, py = player_pos
+                    best_color, best_pos = min(
+                        interactables.items(),
+                        key=lambda kv: abs(kv[1][0]-px) + abs(kv[1][1]-py)
+                    )
+                    hypothesis_text = f"Interact with color {best_color} at ({best_pos[0]},{best_pos[1]})"
+                    confidence = 0.45
+                else:
+                    px, py = player_pos
+                    hypothesis_text = f"Explore from ({px},{py}) — no known targets"
+                    confidence = 0.25
+            else:
+                hypothesis_text = f"Explore environment from ({player_pos[0]},{player_pos[1]})"
+                confidence = 0.3
         else:
             hypothesis_text = "Explore environment to discover game mechanics"
             confidence = 0.1
@@ -298,15 +321,40 @@ class SkillsMixin:
 
         # LEGACY path: A* with known wall colours (LS20-specific)
         if target_pos is None:
-            # No known target — explore randomly
-            if self.player:
-                import random
-                actions = [a for a in [1,2,3,4] if a in (self.obs.available_actions or [1,2,3,4])]
-                if actions:
-                    action = random.choice(actions)
-                    self.step(action)
+            # No known target — explore to feed ObjectTracker and discover mechanics
+            import random
+            actions = [a for a in [1,2,3,4,5,6] if a in (self.obs.available_actions or [1,2,3,4])]
+            if not actions:
+                actions = [1,2,3,4]
+            
+            # Do 3-5 exploration steps to give ObjectTracker time to learn
+            explore_steps = 5
+            ot = getattr(self, 'object_tracker', None)
+            ot_ready = ot is not None and ot.has_enough_observations()
+            
+            if not ot_ready:
+                print(f"  🔍 Exploring to feed ObjectTracker ({explore_steps} steps)...")
+            
+            for i in range(explore_steps):
+                action = random.choice(actions)
+                self.step(action)
+                # Check if level completed during exploration
+                prev_lvl = getattr(self, '_explore_start_level', self.obs.levels_completed)
+                if i == 0:
+                    self._explore_start_level = self.obs.levels_completed
+                if self.obs.levels_completed > self._explore_start_level:
+                    print(f"  🎉 Level completed during exploration!")
                     return True
-            return False
+            
+            # After exploration, check if ObjectTracker learned something
+            if ot is not None:
+                summary = ot.get_perception_summary()
+                directions = summary.get("action_directions", {})
+                if directions:
+                    print(f"  🔍 ObjectTracker learned {len(directions)} movement directions")
+                    return True
+            
+            return len(actions) > 0  # Return True if we did any steps
 
         tx, ty = target_pos
 
