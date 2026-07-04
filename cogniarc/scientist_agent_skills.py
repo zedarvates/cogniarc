@@ -298,6 +298,14 @@ class SkillsMixin:
 
         # LEGACY path: A* with known wall colours (LS20-specific)
         if target_pos is None:
+            # No known target — explore randomly
+            if self.player:
+                import random
+                actions = [a for a in [1,2,3,4] if a in (self.obs.available_actions or [1,2,3,4])]
+                if actions:
+                    action = random.choice(actions)
+                    self.step(action)
+                    return True
             return False
 
         tx, ty = target_pos
