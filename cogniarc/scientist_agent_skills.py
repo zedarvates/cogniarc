@@ -337,15 +337,20 @@ class SkillsMixin:
                 print(f"  🎲 Random explore: action {action} (stagnation={self.drives.stagnation_counter})")
                 prev_x, prev_y = self.player.x, self.player.y
                 self.step(action)
-                # If we moved significantly, reset stagnation to let A* take over
+                # If we moved, set flag so NanoPath is skipped next iteration
+                # (lets A*/heuristic try the new position first)
                 if self.player and (abs(self.player.x - prev_x) > 2 or abs(self.player.y - prev_y) > 2):
                     self.drives.stagnation_counter = 0
-                    print(f"  🎲 Moved! Resetting stagnation.")
+                    self._just_moved = True
+                    print(f"  🎲 Moved! Flag set → NanoPath skipped next call.")
                 return True
 
         # ═══ TIER 0: Micro-NN Pathfinder (primary) ═══
         nano_used = False
-        if self.pathfinder_nn and self.pathfinder_nn.available and self.drives.stagnation_counter < 5:
+        if (self.pathfinder_nn and self.pathfinder_nn.available
+            and self.drives.stagnation_counter < 5
+            and not getattr(self, '_just_moved', False)):
+            self._just_moved = False  # Consume flag
             grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
             if grid is not None and self.player:
                 wall_colors = getattr(self, '_pathfinder', None)
