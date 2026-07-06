@@ -573,6 +573,10 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
             from cogniarc.click_strategy import ClickStrategy
             strategy = ClickStrategy(self)
             return strategy.solve_level(level_num)
+        if game_type == "puzzle":
+            from cogniarc.puzzle_strategy import PuzzleStrategy
+            strategy = PuzzleStrategy(self)
+            return strategy.solve_level(level_num)
 
         # ── Navigation / puzzle / unknown: use the phase machine ──
 
@@ -747,6 +751,32 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                     continue  # Retry with new phase
                 else:
                     print(f"     Aucune alternative - execution risquee")
+
+            # ═══ COGNITIVE DRIVES: adaptive dwell before skill execution ═══
+            # If cognitive fatigue is high, skip deep planning and try random actions
+            if self.drives.fatigue.intuition_mode and self.state.phase_attempts >= 1:
+                print(f"  🧠 Fatigue mode: trying random action (intuition)")
+                import random
+                available = list(self.obs.available_actions or [1, 2, 3, 4])
+                action = random.choice(available)
+                prev_lvl = self.obs.levels_completed
+                self.step(action)
+                if self.obs.levels_completed > prev_lvl:
+                    print(f"  ✅ LEVEL {self.obs.levels_completed} COMPLETED via intuition!")
+                    self._record_level_skills(prev_lvl + 1)
+                    return True
+                self.drives.fatigue.spend(2)
+                continue
+
+            # ═══ If doubt is high and we keep failing same phase, switch to exploration ═══
+            if (self.drives.doubt_score() > 0.3 and self.state.phase_attempts >= 2
+                    and self._phase not in ("observe", "discovery")):
+                print(f"  🧠 Doubt high ({self.drives.doubt_score():.2f}), re-observing...")
+                self._phase = "observe"
+                self.state.phase = "observe"
+                self.state.phase_attempts = 0
+                self.drives.stagnation_counter = 0
+                continue
 
             print(f"  🔄 Phase: {self._phase} -> Skill: {skill_id}")
             success = self._execute_skill(skill_id)
@@ -1072,10 +1102,16 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         print("\n📖 DISCOVERY PHASE")
         print("  Generic perception: scouting via ObjectTracker...")
 
-        # Take scout steps to build ObjectTracker observations (generic, no tags)
+        # Adaptive exploration: continue until ObjectTracker has enough observations
+        # OR we've cycled through all actions enough times, OR we hit max scout steps.
         scout_actions = list(self.obs.available_actions or [1, 2, 3, 4, 5, 6])
         scout_grid_changes = []  # (n_pixels, n_colors) per action
-        for _ in range(8):
+        max_scout_steps = 30  # Upper bound to prevent infinite loops
+        min_scout_steps = 6   # Always do at least this many
+
+        ot = self.object_tracker
+
+        for scout_step in range(max_scout_steps):
             action = scout_actions[self.steps % len(scout_actions)]
             grid_before = self.obs.frame[0].copy() if self.obs.frame and len(self.obs.frame) > 0 else None
             self.step(action)
@@ -1086,7 +1122,26 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                 colors = _color_diversity(grid_before, grid_after)
                 scout_grid_changes.append((diff, colors))
 
-        ot = self.object_tracker
+            # Early exit if ObjectTracker has enough data (≥3 movement directions)
+            if scout_step >= min_scout_steps and ot and ot.has_enough_observations():
+                # Check how many movement directions we've learned
+                summary = ot.get_perception_summary()
+                movement_count = sum(
+                    1 for d in summary.get('action_directions', {}).values()
+                    if d is not None and (d[0]**2 + d[1]**2)**0.5 >= 0.5
+                )
+                if movement_count >= 3:
+                    print(f"  ✅ Adaptive scout: {movement_count} movement directions learned in {scout_step+1} steps")
+                    break
+                # Also exit if we have wall colors and player color (enough to navigate)
+                if summary.get('player_color') is not None and summary.get('wall_colors'):
+                    print(f"  ✅ Adaptive scout: player + walls known in {scout_step+1} steps")
+                    break
+                # Also exit if we've cycled through all actions at least 3 times
+                if scout_step >= len(scout_actions) * 3:
+                    print(f"  ✅ Adaptive scout: all actions tried {scout_step+1 // len(scout_actions)} times in {scout_step+1} steps")
+                    break
+
         if ot and ot.has_enough_observations():
             summary = ot.get_perception_summary()
             print(f"  🎯 Player color: {summary['player_color']}")

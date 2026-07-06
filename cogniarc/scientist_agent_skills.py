@@ -17,6 +17,7 @@ self.pathfinder_nn, self.action_predictor, self.world_model, self.state,
 self._phase, self._walls_detected, self._detected_wall_colors).
 """
 from typing import Any, Dict, Optional
+import numpy as np
 
 
 class SkillsMixin:
@@ -133,6 +134,10 @@ class SkillsMixin:
         a testable goal hypothesis without game-specific knowledge.
         
         Never repeats a previously failed hypothesis (tracks via _failed_hypotheses).
+        Now uses three generic strategies in order:
+        1. ObjectTracker known positions (generic, any game)
+        2. Grid-state changes (try each action and observe effects)
+        3. Tagged sprites (LS20-specific fallback)
         """
         is_refine = (self._phase == "refine")
         prev_hypothesis = (
@@ -145,23 +150,83 @@ class SkillsMixin:
         if not hasattr(self, '_failed_hypotheses'):
             self._failed_hypotheses = set()
         if prev_hypothesis and self._phase == "observe" and self.state.phase_attempts == 0:
-            # We're back at observe after a GOAL INVALID — remember the failed hypothesis
             self._failed_hypotheses.add(prev_hypothesis)
         
-        # Gather evidence
+        # ── STRATEGY 1: ObjectTracker generic findings ──
         ot = getattr(self, 'object_tracker', None)
         player_pos = None
         targets = []
+        known_colors = {}  # color → position from ObjectTracker
         
         if ot is not None and ot.has_enough_observations():
             summary = ot.get_perception_summary()
             player_color = summary.get("player_color")
             player_pos = summary.get("player_position")
             known_positions = summary.get("known_positions", {})
+            wall_set = set(summary.get("wall_colors", []))
+            
             for color, pos in known_positions.items():
-                if color != player_color:
-                    targets.append((color, pos))
+                if color != player_color and color not in wall_set and color != 0:
+                    targets.append((f"color_{color}", pos))
+                    known_colors[color] = pos
+            
+            # Also look for the player position itself as a reference
+            if player_pos is not None and player_color is not None:
+                # Check what colors are adjacent to the player (potential interaction targets)
+                grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+                if grid is not None:
+                    px, py = player_pos
+                    for dy in range(-5, 6, 5):
+                        for dx in range(-5, 6, 5):
+                            ny, nx = py + dy, px + dx
+                            if 0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]:
+                                c = int(grid[ny, nx])
+                                if c != player_color and c not in wall_set and c != 0 and c not in known_colors:
+                                    targets.append((f"adjacent_color_{c}", (nx, ny)))
+                                    known_colors[c] = (nx, ny)
         
+        # ── STRATEGY 2: Discover actions by observing grid changes ──
+        # Try each interaction action (5, 6) and observe if it changes the grid.
+        # This discovers game-specific mechanics without any hardcoded tags.
+        if not targets and hasattr(self, 'obs') and self.obs is not None:
+            available = list(self.obs.available_actions or [])
+            interaction_actions = [a for a in available if a >= 5]
+            
+            if interaction_actions:
+                # Try each interaction action and record effects
+                for act in interaction_actions:
+                    if self.steps > 300:
+                        break
+                    grid_before = self.obs.frame[0].copy() if self.obs.frame and len(self.obs.frame) > 0 else None
+                    prev_level = self.obs.levels_completed
+                    
+                    self.step(act)
+                    
+                    grid_after = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+                    level_changed = self.obs.levels_completed > prev_level
+                    
+                    if grid_before is not None and grid_after is not None:
+                        diff = int(np.sum(grid_before != grid_after))
+                        if level_changed:
+                            hypothesis_text = f"Action {act} completes level (from {prev_level} to {self.obs.levels_completed})"
+                            confidence = 0.9
+                            self.state.update_hypothesis(hypothesis_text, confidence=confidence)
+                            print(f"  💡 Hypothesis: {hypothesis_text} (conf={confidence:.2f})")
+                            return True
+                        if diff > 0:
+                            # Store this action as potentially useful
+                            self.pkm.set('mechanics', f'action_{act}_effect', diff)
+                            self.pkm.set('mechanics', 'usable_actions', 
+                                         self.pkm.get('mechanics', 'usable_actions', []) + [act])
+                            # Mark that this action changes the grid — useful knowledge
+                            hypothesis_text = f"Action {act} changes {diff} grid cells — explore to understand effect"
+                            confidence = 0.5
+                            self.state.update_hypothesis(hypothesis_text, confidence=confidence)
+                            print(f"  💡 Hypothesis: {hypothesis_text} (conf={confidence:.2f})")
+                            # Don't return — continue to find navigation targets
+                            targets.append((f"interactable_via_A{act}", None))
+        
+        # ── STRATEGY 3: Tagged sprites (LS20-specific fallback) ──
         if not targets:
             lock_sprites = self._find_tagged_sprites('rjlbuycveu')
             changer_sprites = self._find_tagged_sprites('rhsxkxzdjz')

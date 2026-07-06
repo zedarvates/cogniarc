@@ -30,10 +30,11 @@ try:
     import torch
     import torch.nn.functional as F
     import torchvision.transforms as T
-    from PIL import Image
     HAS_TORCH = True
 except ImportError:
     HAS_TORCH = False
+
+from PIL import Image  # needed for type hints regardless of torch
 
 
 @dataclass
