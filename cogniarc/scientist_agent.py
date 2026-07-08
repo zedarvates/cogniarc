@@ -48,6 +48,12 @@ except ImportError:
 
 # Cognitive drives
 from .cognitive_player import CognitiveDrives, hash_grid
+from .world_model.physics.tools.mass_gravity import MassProperties
+from .world_model.physics.tools.momentum_inertia import MomentumAnalyzer
+from .world_model.physics.tools.spatial_zoning import SpatialAnalyzer
+from .world_model.physics.tools.scene_graph import SceneGraph
+from .world_model.physics.tools.torque_experts import ExpertRegistry, build_default_registry
+from .world_model.physics.tools.discrete_classifier import classify_per_body
 
 # Mixins (see module docstring)
 from .scientist_agent_ml_tiers import MLTiersMixin
@@ -61,7 +67,7 @@ from typing import Callable
 
 
 class ReasoningMode(Enum):
-    """9 modes de raisonnement inspirés d'AHOIS."""
+    """10 modes de raisonnement — AHOIS + simulation cognitive."""
     EXPLORATION = "exploration"       # BFS/random → découvrir environnement
     PATHFINDING = "pathfinding"       # A* → naviguer vers cible connue
     ROTATION = "rotation"             # Cycle rotation → atteindre orientation
@@ -71,6 +77,7 @@ class ReasoningMode(Enum):
     COUNTERFACTUAL = "counterfactual" # "Et si j'avais fait X au lieu de Y?"
     ANALOGICAL = "analogical"         # Transférer skill d'un autre jeu/niveau
     SOCRATIC = "socratic"             # Questionner hypothèses via SocraticCritic
+    SIMULATION = "simulation"         # Mode 10: projeter état futur via physique
 
 
 # ═══ Mode-driven decision functions ═══
@@ -82,7 +89,7 @@ class ReasoningMode(Enum):
 
 # Modes where the agent has reason to actively doubt the current plan: escalate
 # sooner instead of repeating a failing deterministic skill.
-DOUBT_MODES = (ReasoningMode.COUNTERFACTUAL, ReasoningMode.SOCRATIC)
+DOUBT_MODES = (ReasoningMode.COUNTERFACTUAL, ReasoningMode.SOCRATIC, ReasoningMode.SIMULATION)
 # Modes pursuing a known deterministic target: tolerate more retries before
 # giving up, since the skill is likely to eventually succeed (e.g. A* retry).
 COMMIT_MODES = (ReasoningMode.PATHFINDING, ReasoningMode.ROTATION)
@@ -167,6 +174,16 @@ class ReasonModeManager:
                 ReasoningMode.COUNTERFACTUAL,
                 "Explorer alternative après échec répété",
                 lambda ctx: ctx.get("stagnation", 0) >= 5,
+                priority=9,
+            ),
+            ModeStrategy(
+                ReasoningMode.SIMULATION,
+                "Projeter état futur via simulation physique (Box3D)",
+                lambda ctx: (
+                    ctx.get("causal_ambiguity", False) or
+                    (ctx.get("drive_caution", 0.0) > 0.7 and ctx.get("stagnation", 0) >= 2) or
+                    ctx.get("needs_physical_verification", False)
+                ),
                 priority=9,
             ),
             ModeStrategy(

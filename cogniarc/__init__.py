@@ -38,8 +38,15 @@ __all__ = [
     "GoalSanityChecker", "SanityVerdict",
 ]
 
-# Physics World Model
+# Physics World Model — Mode 10 (SIMULATION_PHYSIQUE)
 from .world_model.physics.simulator.physics_v3 import PhysicsWorldV3, V3_SCENARIOS
 from .world_model.physics.tools.spatial_zoning import SpatialAnalyzer
-from .world_model.physics.tools.mass_gravity import MassProperties
+from .world_model.physics.tools.mass_gravity import MassProperties, CenterOfMass
 from .world_model.physics.tools.kinematic_engine import MobilityAnalyzer
+from .world_model.physics.tools.scene_graph import SceneGraph
+from .world_model.physics.tools.momentum_inertia import MomentumAnalyzer, RotationalAnalyzer
+from .world_model.physics.tools.discrete_classifier import MoveState, classify_per_body
+from .world_model.physics.tools.torque_experts import ExpertRegistry, build_default_registry, MicroExpert
+from .world_model.physics.tools.spatial_reasoning import OcclusionEngine, Pathfinder
+from .world_model.physics.tools.phase_states import SubstanceData, PhaseDiagram, PhaseTransitionEngine, GasDynamics, SUBSTANCES
+from .world_model.physics.tools.box3d_bridge import Box3DWorld, Box3DBody
