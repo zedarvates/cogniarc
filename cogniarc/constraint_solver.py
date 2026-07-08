@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Constraint Solver pour CogniArc — OR-Tools CP-SAT pour grilles ARC-AGI.
+Constraint Solver pour CogniARC — OR-Tools CP-SAT pour grilles ARC-AGI.
 
 Résout des problèmes de contrainte spatiale:
   - Coloring: assigner des couleurs aux cellules sous contraintes

@@ -1,0 +1,169 @@
+version: "2.0"
+game: "universal"
+skills:
+  - id: "detect-walls-from-source"
+    type: "perception"
+    file: "skills/perception/detect_walls_from_source.md"
+    preconditions: ["source_available", "current_obs"]
+    effects: ["walls_detected", "wall_colors_known"]
+    depends_on: []
+    validation_levels: [1]
+    description: "Detect wall colors by analyzing game source code sprites"
+    drives:
+      curiosity: 0.7
+      pattern_match: 0.9
+      verify: 0.5
+
+  - id: "navigate-to-target"
+    type: "navigation"
+    file: "skills/navigation/navigate_to_target.md"
+    preconditions: ["has_player", "has_pathfinder", "walls_detected", "target_known"]
+    effects: ["player_at_target"]
+    depends_on: ["detect-walls-from-source"]
+    validation_levels: [1, 2]
+    description: "Navigate player to target coordinates using A* pathfinding"
+    drives:
+      efficiency: 0.8
+      memory: 0.6
+      pattern_match: 0.5
+
+  - id: "rotate-to-goal"
+    type: "rotation"
+    file: "skills/rotation/rotate_to_goal.md"
+    preconditions: ["has_changer", "knows_goal_rotation", "adjacent_to_changer"]
+    effects: ["rotation_goal_reached"]
+    depends_on: ["navigate-to-target"]
+    validation_levels: [1, 2]
+    description: "Rotate to goal rotation by navigating to changer and cycling"
+    drives:
+      causal: 0.6
+      efficiency: 0.7
+      pattern_match: 0.4
+
+  - id: "interact-with-object"
+    type: "interaction"
+    file: "skills/interaction/interact_with_object.md"
+    preconditions: ["adjacent_to_target", "target_is_interactive"]
+    effects: ["level_completed"]
+    depends_on: ["navigate-to-target"]
+    validation_levels: [1, 2, 3]
+    description: "Execute interaction action (ACTION5) on adjacent object"
+    drives:
+      causal: 0.8
+      verify: 0.7
+      curiosity: 0.3
+
+  - id: "select-skill-for-observation"
+    type: "meta"
+    file: "skills/meta/select_skill_for_observation.md"
+    preconditions: ["current_obs"]
+    effects: ["skill_selected"]
+    depends_on: []
+    validation_levels: [1]
+    description: "Meta-skill: select appropriate skill based on current game state observation"
+    drives:
+      verify: 0.9
+      memory: 0.7
+      curiosity: 0.6
+
+  # ─── NEW: Expanded skills for broader ARC-AGI-3 puzzles ─────────────
+
+  - id: "detect-objects-from-obs"
+    type: "perception"
+    file: "skills/perception/detect_objects_from_obs.md"
+    preconditions: ["current_obs"]
+    effects: ["objects_detected", "object_positions_known"]
+    depends_on: []
+    validation_levels: [1]
+    description: "Detect all objects and their positions from the current observation grid"
+    drives:
+      pattern_match: 0.9
+      curiosity: 0.7
+      verify: 0.6
+
+  - id: "classify-puzzle-domain"
+    type: "analysis"
+    file: "skills/analysis/classify_puzzle_domain.md"
+    preconditions: ["objects_detected"]
+    effects: ["domain_classified", "puzzle_type_known"]
+    depends_on: ["detect-objects-from-obs"]
+    validation_levels: [1]
+    description: "Classify the puzzle type (spatial, temporal, relational, etc.) from detected objects"
+    drives:
+      pattern_match: 0.9
+      causal: 0.7
+      curiosity: 0.5
+
+  - id: "compute-transforms"
+    type: "analysis"
+    file: "skills/analysis/compute_transforms.md"
+    preconditions: ["domain_classified", "objects_detected"]
+    effects: ["transforms_computed", "transform_sequence_known"]
+    depends_on: ["classify-puzzle-domain"]
+    validation_levels: [2, 3]
+    description: "Compute the sequence of transformations needed, detected via pattern analysis"
+    drives:
+      pattern_match: 0.8
+      causal: 0.8
+      verify: 0.6
+
+  - id: "plan-macro-sequence"
+    type: "planning"
+    file: "skills/planning/plan_macro_sequence.md"
+    preconditions: ["transforms_computed", "domain_classified"]
+    effects: ["macro_plan_ready", "execution_sequence_known"]
+    depends_on: ["compute-transforms"]
+    validation_levels: [2, 3]
+    description: "Plan a macro-level execution sequence from computed transforms"
+    drives:
+      efficiency: 0.9
+      memory: 0.6
+      causal: 0.5
+
+  - id: "execute-macro-plan"
+    type: "execution"
+    file: "skills/execution/execute_macro_plan.md"
+    preconditions: ["macro_plan_ready", "has_player"]
+    effects: ["plan_executed", "level_progressed"]
+    depends_on: ["plan-macro-sequence"]
+    validation_levels: [2, 3]
+    description: "Execute the macro plan step by step with stagnation detection"
+    drives:
+      efficiency: 0.9
+      verify: 0.5
+      pattern_match: 0.3
+
+  - id: "verify-solution"
+    type: "meta"
+    file: "skills/meta/verify_solution.md"
+    preconditions: ["plan_executed"]
+    effects: ["solution_verified", "level_completed"]
+    depends_on: ["execute-macro-plan"]
+    validation_levels: [1, 2, 3]
+    description: "Verify that the executed solution matches expected outcome"
+    drives:
+      verify: 1.0
+      memory: 0.5
+      causal: 0.4
+
+  - id: "remember-pattern"
+    type: "memory"
+    file: "skills/memory/remember_pattern.md"
+    preconditions: ["solution_verified"]
+    effects: ["pattern_stored", "cross_level_learning"]
+    depends_on: ["verify-solution"]
+    validation_levels: [3]
+    description: "Store successful patterns for cross-level transfer learning"
+    drives:
+      memory: 1.0
+      pattern_match: 0.7
+      efficiency: 0.4
+
+metadata:
+  created: "2026-06-17"
+  updated: "2026-07-07"
+  description: "SkillDAG v2.0 for ARC-AGI-3 — drive-weighted selection, 12 skills (was 5)"
+  drive_architecture: "6 cognitive drives (Curiosity, Pattern, Causal, Efficiency, Memory, Verify) weight skill selection dynamically"
+  phase_order: ["detect_walls", "detect_objects", "classify_domain", "compute_transforms",
+                "plan_macro", "navigate_to_target", "rotate_to_goal",
+                "execute_macro", "interact", "verify_solution", "remember_pattern"]
