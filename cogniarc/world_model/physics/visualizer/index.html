@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Model Tool — Physics Visualizer</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; color: #eee; font-family: monospace; overflow: hidden; }
+  canvas { display: block; }
+  #hud { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 10px 15px; border-radius: 8px; font-size: 12px; max-width: 300px; }
+  #hud h3 { margin-bottom: 8px; color: #ffaa00; }
+  #controls { position: fixed; bottom: 10px; left: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  button { padding: 8px 16px; border: 1px solid #ffaa00; background: rgba(0,0,0,0.6); color: #ffaa00; cursor: pointer; border-radius: 4px; font-family: monospace; font-size: 11px; }
+  button:hover { background: #ffaa0044; }
+  button.active { background: #ffaa00; color: #000; }
+  #info { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 8px 12px; border-radius: 8px; font-size: 11px; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <h3>🌍 World Model Tool</h3>
+  <div id="state">Simulation arrêtée</div>
+</div>
+<div id="info">
+  <div>Δt: <span id="dt">0</span>ms</div>
+  <div>Bodies: <span id="count">0</span></div>
+</div>
+<div id="controls">
+  <button id="btn-gravity" class="active">Gravity</button>
+  <button id="btn-pendulum">Pendulum</button>
+  <button id="btn-fluid">Fluid</button>
+  <button id="btn-adhesion">Adhesion</button>
+  <button id="btn-reset">Reset</button>
+  <button id="btn-pause">Pause</button>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+// Scene setup
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1a2e);
+
+const camera = new THREE.OrthographicCamera(-12, 12, 10, -9, 1, 50);
+camera.position.set(0, 0, 20);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.prepend(renderer.domElement);
+
+// Grid
+const grid = new THREE.GridHelper(20, 20, 0x333355, 0x222244);
+scene.add(grid);
+
+// World bounds (wireframe)
+const boundsGeo = new THREE.BoxGeometry(20, 20, 0.1);
+const boundsMat = new THREE.MeshBasicMaterial({ color: 0x444477, wireframe: true });
+const bounds = new THREE.Mesh(boundsGeo, boundsMat);
+scene.add(bounds);
+
+// Fluid line (for fluid scenario)
+const fluidGeo = new THREE.PlaneGeometry(20, 0.2);
+const fluidMat = new THREE.MeshBasicMaterial({ color: 0x2266cc, transparent: true, opacity: 0.5 });
+const fluidLine = new THREE.Mesh(fluidGeo, fluidMat);
+fluidLine.position.y = -5;
+fluidLine.visible = false;
+scene.add(fluidLine);
+
+// Lighting
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const light = new THREE.DirectionalLight(0xffffff, 0.8);
+light.position.set(5, 10, 10);
+scene.add(light);
+
+// Physics simulation (ported to JS)
+class Vec2 {
+  constructor(x, y) { this.x = x; this.y = y; }
+  add(v) { return new Vec2(this.x + v.x, this.y + v.y); }
+  sub(v) { return new Vec2(this.x - v.x, this.y - v.y); }
+  mul(s) { return new Vec2(this.x * s, this.y * s); }
+  div(s) { return new Vec2(this.x / s, this.y / s); }
+  length() { return Math.sqrt(this.x**2 + this.y**2); }
+  normalize() { const l = this.length(); return l > 1e-10 ? this.div(l) : new Vec2(0, 0); }
+  dot(v) { return this.x * v.x + this.y * v.y; }
+}
+
+class PhysicsBody {
+  constructor(id, pos, vel, mass, radius, type, color, constraints=[]) {
+    this.id = id; this.pos = pos; this.vel = vel; this.mass = mass;
+    this.radius = radius; this.type = type || 'dynamic';
+    this.color = color || '#888'; this.forces = new Vec2(0, 0);
+    this.constraints = constraints;
+  }
+}
+
+class PhysicsWorld {
+  constructor(gravity, bounds) {
+    this.bodies = [];
+    this.gravity = gravity || new Vec2(0, -9.81);
+    this.boundsMin = bounds ? new Vec2(bounds[0], bounds[1]) : new Vec2(-10, -10);
+    this.boundsMax = bounds ? new Vec2(bounds[2], bounds[3]) : new Vec2(10, 10);
+    this.time = 0;
+    this.substeps = 4;
+  }
+  
+  addBody(b) { this.bodies.push(b); }
+  
+  step(dt) {
+    const subDt = dt / this.substeps;
+    for (let s = 0; s < this.substeps; s++) {
+      // Gravity
+      for (const b of this.bodies) {
+        if (b.type === 'dynamic') b.forces = b.forces.add(this.gravity.mul(b.mass));
+      }
+      // Drag
+      for (const b of this.bodies) {
+        if (b.type === 'dynamic') b.forces = b.forces.add(b.vel.mul(-0.1 * b.radius));
+      }
+      // Collisions (circle-circle)
+      for (let i = 0; i < this.bodies.length; i++) {
+        for (let j = i + 1; j < this.bodies.length; j++) {
+          const a = this.bodies[i], b = this.bodies[j];
+          if (a.type === 'static' && b.type === 'static') continue;
+          const delta = b.pos.sub(a.pos);
+          const dist = delta.length();
+          const minDist = a.radius + b.radius;
+          if (dist < minDist && dist > 1e-10) {
+            const normal = delta.normalize();
+            const overlap = minDist - dist;
+            const totalMass = a.mass + b.mass;
+            if (a.type === 'dynamic') a.pos = a.pos.sub(normal.mul(overlap * b.mass / totalMass));
+            if (b.type === 'dynamic') b.pos = b.pos.add(normal.mul(overlap * a.mass / totalMass));
+            const relVel = (b.type === 'dynamic' ? b.vel : new Vec2(0, 0))
+              .sub(a.type === 'dynamic' ? a.vel : new Vec2(0, 0));
+            const velNormal = relVel.dot(normal);
+            if (velNormal < 0) {
+              const j = -(1 + 0.3) * velNormal / totalMass;
+              const impulse = normal.mul(j);
+              if (a.type === 'dynamic') a.vel = a.vel.sub(impulse.mul(b.mass / totalMass));
+              if (b.type === 'dynamic') b.vel = b.vel.add(impulse.mul(a.mass / totalMass));
+            }
+          }
+        }
+      }
+      // Wall collisions
+      for (const b of this.bodies) {
+        if (b.type !== 'dynamic') continue;
+        if (b.pos.x - b.radius < this.boundsMin.x) { b.pos.x = this.boundsMin.x + b.radius; b.vel.x *= -0.3; }
+        if (b.pos.x + b.radius > this.boundsMax.x) { b.pos.x = this.boundsMax.x - b.radius; b.vel.x *= -0.3; }
+        if (b.pos.y - b.radius < this.boundsMin.y) { b.pos.y = this.boundsMin.y + b.radius; b.vel.y *= -0.3; }
+        if (b.pos.y + b.radius > this.boundsMax.y) { b.pos.y = this.boundsMax.y - b.radius; b.vel.y *= -0.3; }
+      }
+      // Spring constraints
+      const stiffness = 50.0, damping = 5.0;
+      for (const b of this.bodies) {
+        for (const cid of b.constraints) {
+          const other = this.bodies.find(o => o.id === cid);
+          if (!other) continue;
+          const delta = other.pos.sub(b.pos);
+          const restLen = b.radius + other.radius;
+          const curLen = delta.length();
+          if (curLen > 0.001) {
+            const dir = delta.normalize();
+            const stretch = curLen - restLen;
+            b.forces = b.forces.add(dir.mul(stiffness * stretch)).add(other.vel.sub(b.vel).mul(damping));
+          }
+        }
+      }
+      // Fluid (simple buoyancy at y=-5)
+      const fluidY = -5;
+      for (const b of this.bodies) {
+        if (b.type === 'dynamic' && b.pos.y < fluidY) {
+          const submerged = Math.max(0, Math.min(1, (fluidY - b.pos.y) / (2 * b.radius)));
+          const volume = (4/3) * Math.PI * b.radius ** 3;
+          b.forces = b.forces.add(new Vec2(0, 2.0 * volume * submerged * 9.81));
+          b.forces = b.forces.add(b.vel.mul(-2.0 * b.radius * submerged));
+        }
+      }
+      // Adhesion
+      for (let i = 0; i < this.bodies.length; i++) {
+        for (let j = i + 1; j < this.bodies.length; j++) {
+          const a = this.bodies[i], b = this.bodies[j];
+          if (a.type === 'static' && b.type === 'static') continue;
+          const delta = b.pos.sub(a.pos);
+          const dist = delta.length();
+          const threshold = 0.2;
+          const overlap = a.radius + b.radius + threshold - dist;
+          if (overlap > 0) {
+            const dir = dist > 1e-10 ? delta.normalize() : new Vec2(0, 1);
+            const adhesion = dir.mul(5.0 * overlap * overlap);
+            if (a.type === 'dynamic') a.forces = a.forces.sub(adhesion);
+            if (b.type === 'dynamic') b.forces = b.forces.add(adhesion);
+          }
+        }
+      }
+      // Integrate
+      for (const b of this.bodies) {
+        if (b.type === 'dynamic') {
+          const acc = b.forces.div(b.mass);
+          b.vel = b.vel.add(acc.mul(subDt));
+          b.pos = b.pos.add(b.vel.mul(subDt));
+        }
+        b.forces = new Vec2(0, 0);
+      }
+    }
+    this.time += dt;
+  }
+}
+
+// Scenes
+function createGravityScene() {
+  const world = new PhysicsWorld(new Vec2(0, -9.81), [-10, -10, 10, 10]);
+  world.addBody(new PhysicsBody("ball1", new Vec2(-2, 8), new Vec2(2, 0), 1.0, 0.5, 'dynamic', '#ff4444'));
+  world.addBody(new PhysicsBody("ball2", new Vec2(0, 9), new Vec2(-1, 3), 2.0, 0.8, 'dynamic', '#44ff44'));
+  world.addBody(new PhysicsBody("ball3", new Vec2(2, 7), new Vec2(-2, 5), 0.5, 0.3, 'dynamic', '#4444ff'));
+  world.addBody(new PhysicsBody("box", new Vec2(0, 3), new Vec2(0, 0), 3.0, 1.2, 'dynamic', '#ffaa00'));
+  world.addBody(new PhysicsBody("ground", new Vec2(0, -9), new Vec2(0, 0), 999, 5.0, 'static', '#888888'));
+  return world;
+}
+
+function createPendulumScene() {
+  const world = new PhysicsWorld(new Vec2(0, -9.81), [-5, -5, 5, 5]);
+  world.addBody(new PhysicsBody("anchor", new Vec2(0, 4), new Vec2(0, 0), 999, 0.2, 'static', '#666'));
+  world.addBody(new PhysicsBody("link1", new Vec2(1, 3), new Vec2(0, 0), 0.5, 0.2, 'dynamic', '#44aaff', ["anchor"]));
+  world.addBody(new PhysicsBody("link2", new Vec2(1, 2), new Vec2(0, 0), 0.5, 0.2, 'dynamic', '#4488ff', ["link1"]));
+  world.addBody(new PhysicsBody("weight", new Vec2(1, 1), new Vec2(0, 0), 2.0, 0.4, 'dynamic', '#2244ff', ["link2"]));
+  return world;
+}
+
+function createFluidScene() {
+  const world = new PhysicsWorld(new Vec2(0, -9.81), [-5, -8, 5, 5]);
+  const colors = ['#ff6666','#ffaa44','#ffcc00','#66ff66','#44aaff','#aa44ff','#ff44aa','#ffffff'];
+  for (let i = 0; i < 8; i++) {
+    const x = (i - 3.5) * 0.8 + (Math.random() - 0.5) * 0.4;
+    world.addBody(new PhysicsBody(`p${i}`, new Vec2(x, Math.random() * 2.5 + 2), new Vec2(0, 0),
+      Math.random() * 1.2 + 0.3, Math.random() * 0.3 + 0.2, 'dynamic', colors[i]));
+  }
+  world.addBody(new PhysicsBody("floor", new Vec2(0, -7.5), new Vec2(0, 0), 999, 6.0, 'static', '#4488cc'));
+  return world;
+}
+
+function createAdhesionScene() {
+  const world = new PhysicsWorld(new Vec2(0, -2), [-8, -8, 8, 8]);
+  for (let i = 0; i < 6; i++) {
+    world.addBody(new PhysicsBody(`m${i}`, new Vec2(Math.cos(i*Math.PI/3)*3, Math.sin(i*Math.PI/3)*3),
+      new Vec2(0,0), 1.0, 0.4, 'dynamic', '#ff6600'));
+  }
+  world.addBody(new PhysicsBody("center", new Vec2(0,0), new Vec2(0,0), 3.0, 1.0, 'static', '#ff0000'));
+  return world;
+}
+
+// Meshes
+const meshes = {};
+function updateMeshes(world) {
+  for (const b of world.bodies) {
+    if (!meshes[b.id]) {
+      const geo = new THREE.SphereGeometry(b.radius, 16, 16);
+      const mat = new THREE.MeshPhongMaterial({ color: b.color, shininess: 30 });
+      const mesh = new THREE.Mesh(geo, mat);
+      scene.add(mesh);
+      meshes[b.id] = mesh;
+    }
+    const m = meshes[b.id];
+    m.position.set(b.pos.x, b.pos.y, 0);
+    m.scale.setScalar(b.radius / (m.geometry.parameters?.radius || 0.5));
+    // Update geometry if radius changed
+    if (Math.abs(m.geometry.parameters?.radius - b.radius) > 0.01) {
+      m.geometry.dispose();
+      m.geometry = new THREE.SphereGeometry(b.radius, 16, 16);
+    }
+  }
+}
+
+// State
+let world = createGravityScene();
+let sceneName = 'gravity';
+let running = true;
+let lastTime = performance.now();
+
+// UI
+const hudState = document.getElementById('state');
+const dtEl = document.getElementById('dt');
+const countEl = document.getElementById('count');
+
+document.getElementById('btn-gravity').onclick = () => {
+  for (const m of Object.values(meshes)) { m.geometry.dispose(); m.material.dispose(); scene.remove(m); }
+  for (const k of Object.keys(meshes)) delete meshes[k];
+  world = createGravityScene(); sceneName = 'gravity';
+  fluidLine.visible = false;
+  document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-gravity').classList.add('active');
+};
+document.getElementById('btn-pendulum').onclick = () => {
+  for (const m of Object.values(meshes)) { m.geometry.dispose(); m.material.dispose(); scene.remove(m); }
+  for (const k of Object.keys(meshes)) delete meshes[k];
+  world = createPendulumScene(); sceneName = 'pendulum';
+  fluidLine.visible = false;
+  document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-pendulum').classList.add('active');
+};
+document.getElementById('btn-fluid').onclick = () => {
+  for (const m of Object.values(meshes)) { m.geometry.dispose(); m.material.dispose(); scene.remove(m); }
+  for (const k of Object.keys(meshes)) delete meshes[k];
+  world = createFluidScene(); sceneName = 'fluid';
+  fluidLine.visible = true;
+  document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-fluid').classList.add('active');
+};
+document.getElementById('btn-adhesion').onclick = () => {
+  for (const m of Object.values(meshes)) { m.geometry.dispose(); m.material.dispose(); scene.remove(m); }
+  for (const k of Object.keys(meshes)) delete meshes[k];
+  world = createAdhesionScene(); sceneName = 'adhesion';
+  fluidLine.visible = false;
+  document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-adhesion').classList.add('active');
+};
+document.getElementById('btn-reset').onclick = () => {
+  const creators = { gravity: createGravityScene, pendulum: createPendulumScene, fluid: createFluidScene, adhesion: createAdhesionScene };
+  for (const m of Object.values(meshes)) { m.geometry.dispose(); m.material.dispose(); scene.remove(m); }
+  for (const k of Object.keys(meshes)) delete meshes[k];
+  world = creators[sceneName]();
+};
+document.getElementById('btn-pause').onclick = function() {
+  running = !running;
+  this.textContent = running ? 'Pause' : 'Play';
+};
+
+// Render loop
+function animate(timestamp) {
+  requestAnimationFrame(animate);
+  
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+  lastTime = timestamp;
+  
+  if (running) {
+    world.step(dt * 4); // 4x speed for visibility
+  }
+  
+  updateMeshes(world);
+  
+  hudState.innerHTML = `${sceneName} | t=${world.time.toFixed(1)}s | ${world.bodies.length} bodies<br>`
+    + world.bodies.filter(b => b.type === 'dynamic').map(b => 
+      `${b.id}: (${b.pos.x.toFixed(1)},${b.pos.y.toFixed(1)}) v=${b.vel.length().toFixed(1)}`
+    ).join('<br>');
+  
+  dtEl.textContent = (dt * 1000).toFixed(0);
+  countEl.textContent = world.bodies.length;
+  
+  renderer.render(scene, camera);
+}
+
+requestAnimationFrame(animate);
+
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>

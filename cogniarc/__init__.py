@@ -37,3 +37,9 @@ __all__ = [
     "SocraticCritic", "SocraticReport", "SocraticIssue", "SocraticIssueType", "SophismType",
     "GoalSanityChecker", "SanityVerdict",
 ]
+
+# Physics World Model
+from .world_model.physics.simulator.physics_v3 import PhysicsWorldV3, V3_SCENARIOS
+from .world_model.physics.tools.spatial_zoning import SpatialAnalyzer
+from .world_model.physics.tools.mass_gravity import MassProperties
+from .world_model.physics.kinematic_engine import MobilityAnalyzer
