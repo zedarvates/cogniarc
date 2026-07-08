@@ -42,4 +42,4 @@ __all__ = [
 from .world_model.physics.simulator.physics_v3 import PhysicsWorldV3, V3_SCENARIOS
 from .world_model.physics.tools.spatial_zoning import SpatialAnalyzer
 from .world_model.physics.tools.mass_gravity import MassProperties
-from .world_model.physics.kinematic_engine import MobilityAnalyzer
+from .world_model.physics.tools.kinematic_engine import MobilityAnalyzer
