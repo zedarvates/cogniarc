@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Model Visual Lab — Théories & Hypothèses</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Courier New', monospace; background: #0a0a14; color: #e0e0e0; display: flex; height: 100vh; overflow: hidden; }
+canvas { display: block; border-right: 2px solid #333; }
+#panel { width: 420px; padding: 15px; overflow-y: auto; background: #111122; display: flex; flex-direction: column; gap: 12px; }
+h2 { color: #ffaa00; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 4px; margin-bottom: 4px; }
+h3 { color: #44aaff; font-size: 12px; margin: 4px 0; }
+select, input, button { width: 100%; padding: 6px 8px; background: #1a1a2e; color: #e0e0e0; border: 1px solid #333; font-family: monospace; font-size: 11px; border-radius: 3px; }
+button { background: #ffaa0033; border-color: #ffaa00; cursor: pointer; margin-top: 4px; }
+button:hover { background: #ffaa0066; }
+button.theory { background: #44aaff22; border-color: #44aaff; }
+button.theory:hover { background: #44aaff44; }
+.section { background: #1a1a2e; padding: 10px; border-radius: 4px; border: 1px solid #222; }
+.row { display: flex; gap: 8px; align-items: center; }
+.row label { width: 80px; font-size: 10px; color: #888; }
+.row input, .row select { flex: 1; }
+.tag { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 9px; margin: 1px; }
+.tag-move { background: #44ff4422; color: #44ff44; }
+.tag-still { background: #88888822; color: #888; }
+.tag-heavy { background: #ff444422; color: #ff4444; }
+.tag-warning { background: #ffaa0022; color: #ffaa00; }
+.theory-box { background: #0a0a20; padding: 8px; border-left: 3px solid #ffaa00; margin: 6px 0; font-size: 10px; line-height: 1.5; }
+.hypothesis { background: #0a0a20; padding: 8px; border-left: 3px solid #44aaff; margin: 6px 0; font-size: 10px; }
+.state-line { font-size: 10px; padding: 2px 0; border-bottom: 1px solid #1a1a2e; }
+#log { max-height: 200px; overflow-y: auto; font-size: 10px; }
+#log div { padding: 2px 0; }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div id="panel">
+  <h2>🌍 WORLD MODEL VISUAL LAB</h2>
+  
+  <div class="section">
+    <h3>🎮 Scénario</h3>
+    <select id="scenario" onchange="loadScenario()">
+      <option value="ramp">Rampe 45° (balle + planche)</option>
+      <option value="viscous">Huile visqueuse</option>
+      <option value="humidity">Rampe mouillée (humidité)</option>
+      <option value="depression">Dépression atmosphérique</option>
+      <option value="magnetic">Champ magnétique</option>
+      <option value="mixed_objects">Objets mixtes</option>
+    </select>
+    
+    <h3>⚙️ Variables environnementales</h3>
+    <div class="row"><label>Humidité</label><input type="range" id="humidity" min="0" max="1" step="0.1" value="0.5" oninput="updateParams()"><span id="humVal">0.5</span></div>
+    <div class="row"><label>Pression</label><input type="range" id="pressure" min="90000" max="105000" step="500" value="101325" oninput="updateParams()"><span id="presVal">101325</span></div>
+    <div class="row"><label>Température</label><input type="range" id="temp" min="-10" max="40" step="1" value="20" oninput="updateParams()"><span id="tempVal">20°C</span></div>
+    <div class="row"><label>Liquide</label><select id="liquid" onchange="updateParams()">
+      <option value="water">Eau</option><option value="oil" selected>Huile</option><option value="honey">Miel</option><option value="mercury">Mercure</option>
+    </select></div>
+    
+    <button onclick="runSimulation()">▶ Lancer simulation</button>
+    <button onclick="runStep()">⏭ Pas à pas</button>
+  </div>
+  
+  <div class="section">
+    <h3>📊 État représentatif</h3>
+    <div id="stateDisplay" style="font-size:10px;">Clique Lancer...</div>
+  </div>
+  
+  <div class="section">
+    <h3>🧪 Générateur de Théories</h3>
+    <button class="theory" onclick="generateTheories()">🤔 Formuler une théorie</button>
+    <button class="theory" onclick="generateHypothesis()">🔬 Tester une hypothèse</button>
+    <button class="theory" onclick="compareScenarios()">⚖️ Comparer scénarios</button>
+    <div id="theories" style="font-size:10px; margin-top:6px;"></div>
+  </div>
+  
+  <div class="section">
+    <h3>📜 Log</h3>
+    <div id="log">
+      <div>💡 Prêt. Choisis un scénario et lance.</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'https://unpkg.com/three@0.160/build/three.module.js';
+
+// === Scene Setup ===
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a14);
+const camera = new THREE.OrthographicCamera(-12, 12, 9, -9, 1, 50);
+camera.position.set(0, 0, 20);
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
+renderer.setSize(window.innerWidth - 420, window.innerHeight);
+window.addEventListener('resize', () => renderer.setSize(window.innerWidth - 420, window.innerHeight));
+
+scene.add(new THREE.GridHelper(18, 18, 0x222244, 0x151525));
+scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+const light = new THREE.DirectionalLight(0xffffff, 0.6);
+light.position.set(5, 8, 10);
+scene.add(light);
+
+// === JS Physics Engine (same logic as Python) ===
+class Vec2 { constructor(x=0,y=0){this.x=x;this.y=y} add(v){return new Vec2(this.x+v.x,this.y+v.y)} sub(v){return new Vec2(this.x-v.x,this.y-v.y)} mul(s){return new Vec2(this.x*s,this.y*s)} div(s){return new Vec2(this.x/s,this.y/s)} length(){return Math.sqrt(this.x**2+this.y**2)} normalize(){const l=this.length();return l>1e-10?this.div(l):new Vec2(0,0)} dot(v){return this.x*v.x+this.y*v.y} rotate(a){const c=Math.cos(a),s=Math.sin(a);return new Vec2(this.x*c-this.y*s,this.x*s+this.y*c)} }
+
+const BODIES = [];
+const MESHES = {};
+const LIQUID_ZONES = [];
+let ATM = { humidity: 0.5, pressure: 101325, temp: 20, wind: new Vec2(0,0), depression: null };
+let simTime = 0, simRunning = false, simInterval = null;
+
+function addBody(id, pos, vel, shape, material, mass, angle, type, color) {
+  const r = shape === 'circle' ? 0.4 : 0.5;
+  BODIES.push({ id, pos, vel, shape, material, mass, radius: r, hw: shape==='box'?0.8:0, hh: shape==='box'?0.8:0, angle:angle||0, avel:0, type:type||'dynamic', forces:new Vec2(0,0), torque:0, color:color||'#888', constraints:[] });
+}
+
+function addLiquid(yMin, yMax, color) {
+  LIQUID_ZONES.push({ yMin, yMax, color: color||'#4488aa' });
+  const geo = new THREE.PlaneGeometry(20, yMax-yMin);
+  const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.3 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.y = (yMin + yMax) / 2;
+  scene.add(mesh);
+}
+
+function clearScene() {
+  BODIES.length = 0; LIQUID_ZONES.length = 0;
+  Object.values(MESHES).forEach(m => { m.geometry.dispose(); m.material.dispose(); scene.remove(m); });
+  for (const k of Object.keys(MESHES)) delete MESHES[k];
+  // Remove liquid meshes
+  scene.children.filter(c => c.material?.color?.getHex?.() === 0x4488aa || c.material?.opacity < 0.5).forEach(c => { c.geometry?.dispose(); c.material?.dispose(); scene.remove(c); });
+}
+
+function loadScenario() {
+  clearScene(); simTime = 0;
+  const s = document.getElementById('scenario').value;
+  ATM.humidity = parseFloat(document.getElementById('humidity').value);
+  ATM.pressure = parseInt(document.getElementById('pressure').value);
+  ATM.temp = parseInt(document.getElementById('temp').value);
+  
+  if (s === 'ramp') {
+    addBody('ramp', new Vec2(0,-1), new Vec2(0,0), 'box', 'wood', 999, 0.785, 'static', '#8B4513');
+    addBody('ball', new Vec2(0,6), new Vec2(0,0), 'circle', 'steel', 2, 0, 'dynamic', '#C0C0C0');
+    addBody('floor', new Vec2(0,-7), new Vec2(0,0), 'plane', 'stone', 999, 0, 'static', '#666666');
+  } else if (s === 'viscous') {
+    addLiquid(-5, -2, '#ffaa00');
+    addBody('steel_ball', new Vec2(0,5), new Vec2(0,0), 'circle', 'steel', 3, 0, 'dynamic', '#C0C0C0');
+    addBody('wood_ball', new Vec2(-1.5,5.2), new Vec2(0,0), 'circle', 'wood', 1, 0, 'dynamic', '#8B4513');
+    addBody('cork_ball', new Vec2(1.5,5.2), new Vec2(0,0), 'circle', 'ice', 0.3, 0, 'dynamic', '#aaddff');
+    addBody('floor', new Vec2(0,-7.5), new Vec2(0,0), 'plane', 'stone', 999, 0, 'static', '#666');
+  } else if (s === 'humidity') {
+    ATM.humidity = 0.9;
+    document.getElementById('humidity').value = 0.9;
+    document.getElementById('humVal').textContent = '0.9';
+    addBody('ramp', new Vec2(0,-1), new Vec2(0,0), 'box', 'wood', 999, 0.785, 'static', '#8B4513');
+    addBody('ball', new Vec2(0,6), new Vec2(0,0), 'circle', 'rubber', 1.5, 0, 'dynamic', '#ff4444');
+    addBody('floor', new Vec2(0,-7), new Vec2(0,0), 'plane', 'stone', 999, 0, 'static', '#666');
+  } else if (s === 'depression') {
+    ATM.depression = { cx: 0, cy: 2, radius: 5 };
+    ATM.humidity = 0.8; ATM.temp = 28; ATM.wind = new Vec2(2, 0);
+    document.getElementById('humidity').value = 0.8;
+    document.getElementById('temp').value = 28;
+    for (let i = 0; i < 15; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const d = 2 + Math.random() * 5;
+      addBody(`leaf_${i+1}`, new Vec2(Math.cos(a)*d, Math.random()*5-2), new Vec2((Math.random()-0.5)*2, (Math.random()-0.5)*2), 'circle', 'ice', 0.1, 0, 'dynamic', '#88ff88');
+    }
+    addBody('floor', new Vec2(0,-9), new Vec2(0,0), 'plane', 'stone', 999, 0, 'static', '#666');
+  } else if (s === 'magnetic') {
+    addBody('magnet', new Vec2(0,0), new Vec2(0,0), 'circle', 'steel', 999, 0, 'static', '#ff0000');
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI/4;
+      addBody(`metal_${i+1}`, new Vec2(Math.cos(a)*4, Math.sin(a)*4), new Vec2((Math.random()-0.5)*3, (Math.random()-0.5)*3), 'circle', 'steel', 0.8, 0, 'dynamic', '#4488ff');
+    }
+  } else if (s === 'mixed_objects') {
+    addBody('box_wood', new Vec2(-3,5), new Vec2(0,0), 'box', 'wood', 2, 0.2, 'dynamic', '#8B4513');
+    addBody('ball_steel', new Vec2(0,6), new Vec2(0,0), 'circle', 'steel', 3, 0, 'dynamic', '#C0C0C0');
+    addBody('ball_rubber', new Vec2(3,5), new Vec2(0,0), 'circle', 'rubber', 0.5, 0, 'dynamic', '#ff4444');
+    addBody('floor', new Vec2(0,-7.5), new Vec2(0,0), 'plane', 'stone', 999, 0, 'static', '#666');
+  }
+  updateMeshes();
+}
+
+function updateParams() {
+  ATM.humidity = parseFloat(document.getElementById('humidity').value);
+  ATM.pressure = parseInt(document.getElementById('pressure').value);
+  ATM.temp = parseInt(document.getElementById('temp').value);
+  document.getElementById('humVal').textContent = ATM.humidity.toFixed(1);
+  document.getElementById('presVal').textContent = ATM.pressure;
+  document.getElementById('tempVal').textContent = ATM.temp + '°C';
+}
+
+function stepPhysics(dt) {
+  const subs = 4; const subDt = dt / subs;
+  for (let s = 0; s < subs; s++) {
+    // Gravity + atmospheric forces
+    for (const b of BODIES) {
+      if (b.type !== 'dynamic') continue;
+      let g = new Vec2(0, -9.81 * b.mass);
+      // Depression
+      if (ATM.depression) {
+        const delta = new Vec2(ATM.depression.cx - b.pos.x, ATM.depression.cy - b.pos.y);
+        const dist = Math.max(delta.length(), 0.01);
+        if (dist < ATM.depression.radius * 3) {
+          const str = (1 - dist / (ATM.depression.radius * 3)) * (ATM.pressure / 101325) * 3;
+          g = g.add(delta.normalize().mul(str * b.mass));
+          if (dist < ATM.depression.radius) g = g.add(new Vec2(0, str * b.mass));
+        }
+      }
+      // Wind
+      g = g.add(ATM.wind.mul(b.mass * 0.3));
+      // Humidity friction modifier
+      const frictionMod = 1 - ATM.humidity * 0.4;
+      // Drag
+      const speed = b.vel.length();
+      if (speed > 1e-5) {
+        const area = b.shape === 'circle' ? b.radius * 2 : b.hw * 2;
+        const airDensity = ATM.pressure / (287.058 * (ATM.temp + 273.15) * (1 + 0.61 * ATM.humidity));
+        const dragF = 0.5 * airDensity * 0.47 * area * speed * speed;
+        g = g.add(b.vel.normalize().mul(-dragF));
+      }
+      b.forces = b.forces.add(g);
+    }
+    // Magnetic
+    if (BODIES.find(b => b.id === 'magnet')) {
+      const magnet = BODIES.find(b => b.id === 'magnet');
+      for (const b of BODIES) {
+        if (b.type !== 'dynamic' || b.material !== 'steel') continue;
+        const delta = magnet.pos.sub(b.pos);
+        const dist = Math.max(delta.length(), 0.5);
+        const force = delta.normalize().mul(300 * b.mass / (1 + 0.1 * dist * dist));
+        b.forces = b.forces.add(force);
+      }
+    }
+    // Liquid
+    for (const lz of LIQUID_ZONES) {
+      for (const b of BODIES) {
+        if (b.type !== 'dynamic') continue;
+        const bottom = b.pos.y - b.radius;
+        if (bottom < lz.yMax) {
+          const submerged = Math.min(1, Math.max(0, (lz.yMax - bottom) / (2 * b.radius)));
+          const volume = (4/3) * Math.PI * b.radius**3;
+          b.forces = b.forces.add(new Vec2(0, 900 * volume * submerged * 9.81 / 1000));
+          const spd = b.vel.length();
+          if (spd > 1e-5) b.forces = b.forces.add(b.vel.normalize().mul(-0.8 * spd * submerged));
+        }
+      }
+    }
+    // Collisions (circle-circle)
+    for (let i = 0; i < BODIES.length; i++) {
+      for (let j = i + 1; j < BODIES.length; j++) {
+        const a = BODIES[i], b = BODIES[j];
+        if (a.type === 'static' && b.type === 'static') continue;
+        const delta = b.pos.sub(a.pos);
+        const dist = delta.length();
+        const minD = a.radius + b.radius;
+        if (dist < minD && dist > 1e-10) {
+          const n = delta.normalize();
+          const overlap = minD - dist;
+          const tm = (a.type==='dynamic'?a.mass:999) + (b.type==='dynamic'?b.mass:999);
+          if (a.type==='dynamic') a.pos = a.pos.sub(n.mul(overlap * (b.type==='dynamic'?b.mass:999) / tm));
+          if (b.type==='dynamic') b.pos = b.pos.add(n.mul(overlap * (a.type==='dynamic'?a.mass:999) / tm));
+          const rv = (b.type==='dynamic'?b.vel:new Vec2(0,0)).sub(a.type==='dynamic'?a.vel:new Vec2(0,0));
+          const vn = rv.dot(n);
+          if (vn < 0) {
+            const j = -(1 + 0.3) * vn / tm;
+            const imp = n.mul(j);
+            if (a.type==='dynamic') a.vel = a.vel.sub(imp.mul((b.type==='dynamic'?b.mass:999) / tm));
+            if (b.type==='dynamic') b.vel = b.vel.add(imp.mul((a.type==='dynamic'?a.mass:999) / tm));
+          }
+        }
+      }
+    }
+    // Walls
+    for (const b of BODIES) {
+      if (b.type !== 'dynamic') continue;
+      if (b.pos.x - b.radius < -9) { b.pos.x = -9 + b.radius; b.vel.x *= -0.3; }
+      if (b.pos.x + b.radius > 9) { b.pos.x = 9 - b.radius; b.vel.x *= -0.3; }
+      if (b.pos.y - b.radius < -8.5) { b.pos.y = -8.5 + b.radius; b.vel.y *= -0.3; }
+      if (b.pos.y + b.radius > 8.5) { b.pos.y = 8.5 - b.radius; b.vel.y *= -0.3; }
+    }
+    // Integrate
+    for (const b of BODIES) {
+      if (b.type !== 'dynamic') continue;
+      const acc = b.forces.div(b.mass);
+      b.vel = b.vel.add(acc.mul(subDt));
+      b.pos = b.pos.add(b.vel.mul(subDt));
+      b.forces = new Vec2(0, 0);
+    }
+  }
+  simTime += dt;
+}
+
+function updateMeshes() {
+  for (const b of BODIES) {
+    if (!MESHES[b.id]) {
+      const geo = b.shape === 'box' ? new THREE.BoxGeometry(b.hw*2, b.hh*2, 0.1) : new THREE.SphereGeometry(b.radius, 12, 12);
+      const mat = new THREE.MeshPhongMaterial({ color: b.color, shininess: (b.material==='steel'?60:10) });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.rotation.z = b.angle || 0;
+      scene.add(mesh);
+      MESHES[b.id] = mesh;
+    }
+    const m = MESHES[b.id];
+    m.position.set(b.pos.x, b.pos.y, 0);
+    m.rotation.z = b.angle || 0;
+  }
+}
+
+function runSimulation() {
+  if (simRunning) { clearInterval(simInterval); simRunning = false; return; }
+  document.querySelectorAll('button')[5].textContent = '⏸ Stop';
+  simRunning = true;
+  simInterval = setInterval(() => {
+    stepPhysics(1/30);
+    updateMeshes();
+    updateStateDisplay();
+    renderer.render(scene, camera);
+  }, 33);
+  log('▶ Simulation lancée');
+}
+
+function runStep() {
+  stepPhysics(1/30); updateMeshes(); updateStateDisplay();
+  renderer.render(scene, camera);
+  log(`⏭ t=${simTime.toFixed(2)}s`);
+}
+
+function updateStateDisplay() {
+  const d = document.getElementById('stateDisplay');
+  let html = `<b>t=${simTime.toFixed(1)}s</b> | Humid={ATM.humidity.toFixed(1)} | P=${ATM.pressure}Pa<br>`;
+  html += BODIES.filter(b => b.type === 'dynamic').map(b => {
+    const spd = b.vel.length();
+    let tags = '';
+    if (spd < 0.1) tags += '<span class="tag tag-still">immobile</span>';
+    else if (spd < 2) tags += '<span class="tag tag-move">léger</span>';
+    else if (spd < 6) tags += '<span class="tag tag-move">modéré</span>';
+    else tags += '<span class="tag tag-heavy">rapide</span>';
+    if (b.material === 'steel') tags += '<span class="tag tag-warning">lourd</span>';
+    if (b.pos.y < -5) tags += '<span class="tag tag-warning">immergé</span>';
+    return `<span class="state-line">${b.id}: v=${spd.toFixed(1)} pos=(${b.pos.x.toFixed(1)},${b.pos.y.toFixed(1)}) ${tags}</span>`;
+  }).join('<br>');
+  if (!html.includes('v=')) html += '<br><i>Aucun objet dynamique</i>';
+  d.innerHTML = html;
+}
+
+function log(msg) {
+  const l = document.getElementById('log');
+  l.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + l.innerHTML;
+  if (l.children.length > 20) l.removeChild(l.lastChild);
+}
+
+// === Theory Generator ===
+
+const THEORY_TEMPLATES = [
+  (b, state) => `📐 ${b.id}: Si ${b.material} à ${state.speed.toFixed(1)}m/s heurte une surface à ${b.pos.y < -3 ? 'haute' : 'basse'} vitesse, la restitution est de ${b.material === 'rubber' ? '~0.8' : '~0.3'}. → THÉORIE: ${b.material === 'rubber' ? 'Les objets élastiques dissipent moins d\'énergie cinétique que les rigides.' : 'L\'énergie cinétique se dissipe principalement en chaleur par déformation.'}`,
+  (b, state) => `🔬 L'objet ${b.id} (${b.material}) subit ${state.speed > 3 ? 'une forte' : 'une faible'} accélération gravitationnelle. → HYPOTHÈSE: La densité de l\'objet (${b.material}) détermine sa flottabilité dans un fluide visqueux.`,
+  (b, state) => `⚡ En présence d\'humidité=${ATM.humidity.toFixed(1)}, le coefficient de friction effectif est réduit à ${((1-ATM.humidity*0.4)*100).toFixed(0)}%. → PRÉDICTION: ${ATM.humidity > 0.7 ? 'L\'objet glissera plus loin qu\'en condition sèche.' : 'La friction reste dominante.'}`,
+  (b, state) => `🌪 La pression atmosphérique (${ATM.pressure}Pa) crée une densité d\'air de ${(ATM.pressure/(287.058*(ATM.temp+273.15))).toFixed(2)}kg/m³. → THÉORIE: Les objets légers sont plus sensibles aux variations de pression.`,
+  (b, state) => `🧪 Combinaison: ${b.material} dans ${document.getElementById('liquid').value} → viscosité modifie le comportement. → THÈSE: La viscosité agit comme un filtre passe-bas sur l\'énergie cinétique.`,
+];
+
+function generateTheories() {
+  const d = document.getElementById('theories');
+  const dynamic = BODIES.filter(b => b.type === 'dynamic');
+  if (dynamic.length === 0) { d.innerHTML = '<div class="theory-box">⚠️ Aucun objet en mouvement. Lance une simulation.</div>'; return; }
+  
+  const b = dynamic[Math.floor(Math.random() * dynamic.length)];
+  const state = { speed: b.vel.length(), submerged: b.pos.y < -5, material: b.material };
+  const tpl = THEORY_TEMPLATES[Math.floor(Math.random() * THEORY_TEMPLATES.length)];
+  
+  d.innerHTML = `<div class="theory-box">${tpl(b, state)}</div>` + d.innerHTML;
+  log(`🧪 Théorie générée pour ${b.id}`);
+}
+
+function generateHypothesis() {
+  const dynamic = BODIES.filter(b => b.type === 'dynamic');
+  if (dynamic.length === 0) return;
+  const b = dynamic[0];
+  const spd = b.vel.length();
+  const humidity = ATM.humidity;
+  const liquid = document.getElementById('liquid').value;
+  const liquidViscosity = { water: 0.001, oil: 0.8, honey: 10, mercury: 0.0015 }[liquid] || 0.001;
+  
+  const hypotheses = [
+    `🔬 HYPOTHÈSE: Si on augmente l'humidité de ${humidity.toFixed(1)} à ${Math.min(1,humidity+0.3).toFixed(1)}, l'objet glissera ${(humidity+0.3)*40 > 50 ? 'nettement plus' : 'un peu plus'} loin.`,
+    `🔬 HYPOTHÈSE: Dans ${liquid} (viscosité=${liquidViscosity}), un objet de densité ${b.material} ${b.material==='steel'?'coulera':'flottera'} en ${liquidViscosity > 1 ? (b.material==='steel'?'quelques':'plusieurs') : 'moins de'} secondes.`,
+    `🔬 HYPOTHÈSE: La dépression à ${ATM.pressure}Pa crée un flux d'air qui accélère les objets de ${spd.toFixed(1)}m/s vers le centre.`,
+  ];
+  
+  const d = document.getElementById('theories');
+  d.innerHTML = `<div class="hypothesis">${hypotheses[Math.floor(Math.random() * hypotheses.length)]}</div>` + d.innerHTML;
+  log('🔬 Hypothèse formulée');
+}
+
+function compareScenarios() {
+  const s = document.getElementById('scenario').value;
+  const d = document.getElementById('theories');
+  const comparisons = {
+    ramp: '⚖️ Rampe 45° vs surface plane: la composante horizontale de la gravité crée une accélération latérale de g·sin(45°)=6.94m/s². Sur 1m de chute, la balle gagne ~3.7m/s horizontal.',
+    viscous: '⚖️ Huile vs Eau: la viscosité de l\'huile (0.8 Pa·s) est 800× celle de l\'eau (0.001). Le nombre de Reynolds chute de ~10000 à ~12, passant de turbulent à laminaire.',
+    humidity: '⚖️ Humidité 90% vs 10%: friction réduite de 64% à 96%. Sur 2m de glissement, différence de distance ~0.6m.',
+    depression: '⚖️ Dépression 95000Pa vs normal 101325Pa: la différence de 6325Pa génère un vent d\'environ 20m/s (72km/h) vers le centre.',
+  };
+  d.innerHTML = `<div class="theory-box">${comparisons[s] || '⚖️ Choisis un scénario pour comparer.'}</div>` + d.innerHTML;
+  log('⚖️ Comparaison effectuée');
+}
+
+// === Init ===
+loadScenario();
+renderer.render(scene, camera);
+updateParams();
+log('💡 Prêt. Sélectionne un scénario et lance la simulation.');
+</script>
+</body>
+</html>
