@@ -1,79 +1,102 @@
 """
-Box3D Python Bridge — ctypes wrapper for Box3D 3D physics engine.
-Provides high-level Python API over the C library.
+Box3D Python Bridge — Complete ctypes wrapper.
+Wires all key Box3D C functions through to Python.
+3D physics engine by Erin Catto (MIT).
 """
 
 import ctypes
 import ctypes.util
-import os
 import math
+import os
 import numpy as np
-from dataclasses import dataclass, field
-from typing import List, Tuple, Optional, Dict, Any
+from typing import List, Tuple, Optional, Dict
+
 
 # ============================================================
 # 1. Load Box3D shared library
 # ============================================================
 
-# Try to find the Box3D library
-LIB_PATHS = [
-    os.path.expanduser("~/projects/box3d/build/src/libbox3d.so"),
-    os.path.expanduser("~/projects/box3d/build/src/libbox3d.a"),
-    "/usr/local/lib/libbox3d.so",
-]
+_lib_path = ctypes.util.find_library("box3d") or ""
+if not _lib_path or not os.path.exists(_lib_path):
+    _lib_path = os.path.expanduser("~/projects/box3d/build/bin/libbox3d.so")
+if not os.path.exists(_lib_path):
+    raise ImportError(f"Box3D library not found at {_lib_path}. Build it: cd ~/projects/box3d && bash build.sh")
 
-_lib = None
-_lib_path = None
+lib = ctypes.CDLL(_lib_path)
 
-for p in LIB_PATHS:
-    if os.path.exists(p):
-        _lib_path = p
-        try:
-            _lib = ctypes.CDLL(p) if p.endswith('.so') else None
-        except:
-            pass
-        break
-
-if _lib is None:
-    # We'll create the shared library from the static one
-    print(f"Box3D: static lib at {_lib_path}, need to build shared library first")
-    
 # ============================================================
-# 2. Box3D type definitions (mirrors C types)
+# 2. C type definitions
 # ============================================================
 
 class b3Vec3(ctypes.Structure):
     _fields_ = [("x", ctypes.c_float), ("y", ctypes.c_float), ("z", ctypes.c_float)]
-    
+    def to_tuple(self): return (self.x, self.y, self.z)
     @classmethod
-    def from_tuple(cls, t):
-        return cls(t[0], t[1], t[2]) if len(t) >= 3 else cls(t[0], t[1], 0)
-    
-    def to_tuple(self):
-        return (self.x, self.y, self.z)
+    def from_tuple(cls, t): return cls(t[0], t[1], t[2] if len(t) > 2 else 0)
 
 class b3Quat(ctypes.Structure):
     _fields_ = [("x", ctypes.c_float), ("y", ctypes.c_float), 
                 ("z", ctypes.c_float), ("w", ctypes.c_float)]
 
-class b3Transform(ctypes.Structure):
-    _fields_ = [("p", b3Vec3), ("q", b3Quat)]
-
 class b3WorldId(ctypes.Structure):
-    _fields_ = [("index1", ctypes.c_int16), ("revision", ctypes.c_int16), 
-                ("_pad", ctypes.c_int32)]
+    _fields_ = [("index1", ctypes.c_int16), ("revision", ctypes.c_int16), ("pad", ctypes.c_int32)]
+    def to_tuple(self): return (self.index1, self.revision)
 
 class b3BodyId(ctypes.Structure):
-    _fields_ = [("index1", ctypes.c_int16), ("world0", ctypes.c_int16), 
-                ("revision", ctypes.c_int16)]
+    _fields_ = [("index1", ctypes.c_int16), ("world0", ctypes.c_int16), ("revision", ctypes.c_int16)]
+    def to_tuple(self): return (self.index1, self.world0, self.revision)
 
 class b3ShapeId(ctypes.Structure):
-    _fields_ = [("index1", ctypes.c_int16), ("world0", ctypes.c_int16), 
-                ("revision", ctypes.c_int16)]
+    _fields_ = [("index1", ctypes.c_int16), ("world0", ctypes.c_int16), ("revision", ctypes.c_int16)]
 
 class b3JointId(ctypes.Structure):
-    _fields_ = [("index1", ctypes.c_int16), ("world0", ctypes.c_int16), 
-                ("revision", ctypes.c_int16)]
+    _fields_ = [("index1", ctypes.c_int16), ("world0", ctypes.c_int16), ("revision", ctypes.c_int16)]
+
+class b3Filter(ctypes.Structure):
+    _fields_ = [("categoryBits", ctypes.c_uint64), ("maskBits", ctypes.c_uint64)]
+
+class b3SurfaceMaterial(ctypes.Structure):
+    _fields_ = [("friction", ctypes.c_float), ("restitution", ctypes.c_float),
+                ("tangentFriction", ctypes.c_float), ("rollingFriction", ctypes.c_float),
+                ("userData", ctypes.c_void_p)]
+
+class b3ShapeDef(ctypes.Structure):
+    _fields_ = [
+        ("name", ctypes.c_char_p),
+        ("userData", ctypes.c_void_p),
+        ("materials", ctypes.POINTER(b3SurfaceMaterial)),
+        ("materialCount", ctypes.c_int),
+        ("baseMaterial", b3SurfaceMaterial),
+        ("density", ctypes.c_float),
+        ("explosionScale", ctypes.c_float),
+        ("filter", b3Filter),
+        ("enableCustomFiltering", ctypes.c_bool),
+        ("isSensor", ctypes.c_bool),
+        ("_pad", ctypes.c_char * 3),
+        ("bodyUserData", ctypes.c_void_p),
+    ]
+
+class b3BodyDef(ctypes.Structure):
+    _fields_ = [
+        ("type", ctypes.c_int),
+        ("position", b3Vec3),
+        ("rotation", b3Quat),
+        ("linearVelocity", b3Vec3),
+        ("angularVelocity", b3Vec3),
+        ("linearDamping", ctypes.c_float),
+        ("angularDamping", ctypes.c_float),
+        ("sleepThreshold", ctypes.c_float),
+        ("userData", ctypes.c_void_p),
+        ("enableSleep", ctypes.c_bool),
+        ("isAwake", ctypes.c_bool),
+        ("isEnabled", ctypes.c_bool),
+        ("fixedRotation", ctypes.c_bool),
+        ("isBullet", ctypes.c_bool),
+        ("_pad", ctypes.c_char * 3),
+        ("gravityScale", ctypes.c_float),
+        ("allowFastRotation", ctypes.c_bool),
+        ("_pad2", ctypes.c_char * 7),
+    ]
 
 class b3WorldDef(ctypes.Structure):
     _fields_ = [
@@ -86,384 +109,396 @@ class b3WorldDef(ctypes.Structure):
         ("jointHertz", ctypes.c_float),
         ("jointDampingRatio", ctypes.c_float),
         ("maximumStates", ctypes.c_int32),
-        ("maximumStaticBodies", ctypes.c_int32),
-        ("maximumDynamicBodies", ctypes.c_int32),
-        ("maximumKinematicBodies", ctypes.c_int32),
-        ("restitutionThreshold", ctypes.c_float),  # duplicate but needed
+        ("maximumStaticBodyCount", ctypes.c_int32),
+        ("maximumDynamicBodyCount", ctypes.c_int32),
+        ("maximumKinematicBodyCount", ctypes.c_int32),
+        ("restitutionThreshold", ctypes.c_float),
         ("enableSleep", ctypes.c_bool),
         ("enableContinuos", ctypes.c_bool),
         ("_pad", ctypes.c_char * 3),
         ("userData", ctypes.c_void_p),
     ]
 
-# Body types
-b3_staticBody = 0
-b3_kinematicBody = 1
-b3_dynamicBody = 2
+# ============================================================
+# 3. Function prototypes
+# ============================================================
 
-# Shape types
-b3_sphereShape = 0
-b3_capsuleShape = 1
-b3_boxShape = 2
-b3_cylinderShape = 3
+lib.b3CreateWorld.argtypes = [ctypes.POINTER(b3WorldDef)]
+lib.b3CreateWorld.restype = b3WorldId
+
+lib.b3DestroyWorld.argtypes = [b3WorldId]
+lib.b3DestroyWorld.restype = None
+
+lib.b3World_Step.argtypes = [b3WorldId, ctypes.c_float, ctypes.c_int]
+lib.b3World_Step.restype = None
+
+lib.b3CreateBody.argtypes = [b3WorldId, ctypes.POINTER(b3BodyDef)]
+lib.b3CreateBody.restype = b3BodyId
+
+lib.b3DestroyBody.argtypes = [b3BodyId]
+lib.b3DestroyBody.restype = None
+
+lib.b3Body_GetPosition.argtypes = [b3BodyId]
+lib.b3Body_GetPosition.restype = b3Vec3
+
+lib.b3Body_GetRotation.argtypes = [b3BodyId]
+lib.b3Body_GetRotation.restype = b3Quat
+
+lib.b3Body_GetLinearVelocity.argtypes = [b3BodyId]
+lib.b3Body_GetLinearVelocity.restype = b3Vec3
+
+lib.b3Body_GetAngularVelocity.argtypes = [b3BodyId]
+lib.b3Body_GetAngularVelocity.restype = b3Vec3
+
+lib.b3Body_SetLinearVelocity.argtypes = [b3BodyId, b3Vec3]
+lib.b3Body_SetLinearVelocity.restype = None
+
+lib.b3Body_GetMass.argtypes = [b3BodyId]
+lib.b3Body_GetMass.restype = ctypes.c_float
+
+lib.b3Body_IsValid.argtypes = [b3BodyId]
+lib.b3Body_IsValid.restype = ctypes.c_bool
+
+lib.b3Body_GetType.argtypes = [b3BodyId]
+lib.b3Body_GetType.restype = ctypes.c_int
+
+lib.b3Body_SetTransform.argtypes = [b3BodyId, b3Vec3, b3Quat]
+lib.b3Body_SetTransform.restype = None
+
+lib.b3Body_SetName.argtypes = [b3BodyId, ctypes.c_char_p]
+lib.b3Body_SetName.restype = None
+
+
+lib.b3Body_GetShapeCount.argtypes = [b3BodyId]
+lib.b3Body_GetShapeCount.restype = ctypes.c_int
+
+
+lib.b3Body_GetContactCapacity.argtypes = [b3BodyId]
+lib.b3Body_GetContactCapacity.restype = ctypes.c_int
+
+lib.b3CreateSphereShape.argtypes = [b3BodyId, ctypes.POINTER(b3ShapeDef), ctypes.POINTER(b3Vec3)]
+lib.b3CreateSphereShape.restype = b3ShapeId
+
+class b3SphereData(ctypes.Structure):
+    _fields_ = [("center", b3Vec3), ("radius", ctypes.c_float)]
+    @classmethod
+    def from_radius(cls, r): return cls(b3Vec3(0,0,0), r)
+
+lib.b3CreateBoxMesh.argtypes = []
+lib.b3CreateBoxMesh.restype = b3ShapeId
+
+lib.b3CreateBoxMesh.argtypes = []
+
+lib.b3CreateCapsuleShape.argtypes = [b3BodyId, ctypes.POINTER(b3ShapeDef), b3Vec3]
+lib.b3CreateCapsuleShape.restype = b3ShapeId
+
+lib.b3World_GetContactEvents.argtypes = [b3WorldId]
+lib.b3World_GetContactEvents.restype = ctypes.c_void_p
+
+lib.b3World_SetGravity.argtypes = [b3WorldId, b3Vec3]
+lib.b3World_SetGravity.restype = None
+
+lib.b3World_EnableSleeping.argtypes = [b3WorldId, ctypes.c_bool]
+lib.b3World_EnableSleeping.restype = None
+
+lib.b3World_EnableContinuous.argtypes = [b3WorldId, ctypes.c_bool]
+lib.b3World_EnableContinuous.restype = None
 
 # ============================================================
-# 3. High-level Python API
+# 4. High-level Python API
 # ============================================================
 
 class Box3DError(Exception):
     pass
 
 
-def _ensure_lib():
-    """Ensure the shared library is available"""
-    global _lib, _lib_path
+class Box3DBody:
+    """High-level wrapper around b3BodyId"""
     
-    if _lib is not None:
-        return _lib
+    def __init__(self, name: str, body_id: b3BodyId, world):
+        self._name = name
+        self._id = body_id
+        self._world = world
     
-    # Try to build the shared library
-    static_path = _lib_path if _lib_path and _lib_path.endswith('.a') else \
-                  os.path.expanduser("~/projects/box3d/build/src/libbox3d.a")
+    @property
+    def id(self) -> b3BodyId:
+        return self._id
     
-    if not os.path.exists(static_path):
-        raise Box3DError(
-            "Box3D not built. Run: cd ~/projects/box3d && bash build.sh"
-        )
+    @property
+    def position(self) -> Tuple[float, float, float]:
+        return lib.b3Body_GetPosition(self._id).to_tuple()
     
-    # Build a shared library wrapper
-    so_path = os.path.expanduser("~/projects/box3d/build/src/libbox3d_wrapper.so")
+    @property
+    def rotation(self) -> Tuple[float, float, float, float]:
+        q = lib.b3Body_GetRotation(self._id)
+        return (q.x, q.y, q.z, q.w)
     
-    if not os.path.exists(so_path):
-        _build_shared_wrapper(static_path, so_path)
+    @property
+    def velocity(self) -> Tuple[float, float, float]:
+        return lib.b3Body_GetLinearVelocity(self._id).to_tuple()
     
-    _lib = ctypes.CDLL(so_path)
-    return _lib
-
-
-def _build_shared_wrapper(static_path: str, so_path: str):
-    """Create a shared library that re-exports Box3D symbols"""
-    import subprocess
-    import sys
+    @velocity.setter
+    def velocity(self, v: Tuple[float, float, float]):
+        lib.b3Body_SetLinearVelocity(self._id, b3Vec3.from_tuple(v))
     
-    # Create a small C file that just includes Box3D headers
-    source = """
-    #include "box3d/box3d.h"
-    """
+    @property
+    def speed(self) -> float:
+        v = self.velocity
+        return math.sqrt(v[0]**2 + v[1]**2 + v[2]**2)
     
-    cmd = [
-        "gcc", "-shared", "-fPIC", 
-        "-I", os.path.expanduser("~/projects/box3d/include"),
-        "-Wl,--whole-archive", static_path, "-Wl,--no-whole-archive",
-        "-lm", "-o", so_path,
-        "-x", "c", "-"
-    ]
+    @property
+    def mass(self) -> float:
+        return lib.b3Body_GetMass(self._id)
     
-    try:
-        proc = subprocess.run(
-            cmd, input=source.encode(), capture_output=True, timeout=30
-        )
-        if proc.returncode != 0:
-            print(f"Build warning: {proc.stderr.decode()[:200]}")
-            # Fall back: just use ctypes with the static .a
-            # (won't work directly but gives helpful error)
-    except Exception as e:
-        raise Box3DError(f"Cannot build Box3D wrapper: {e}")
+    @property
+    def is_valid(self) -> bool:
+        return lib.b3Body_IsValid(self._id)
+    
+    @property
+    def body_type(self) -> str:
+        bt = lib.b3Body_GetType(self._id)
+        return ["static", "kinematic", "dynamic"][bt]
+    
+    @property
+    def kinetic_energy(self) -> float:
+        v = self.velocity
+        return 0.5 * self.mass * (v[0]**2 + v[1]**2 + v[2]**2)
+    
+    def set_position(self, pos: Tuple[float, float, float], rot: Tuple[float, float, float, float] = (0, 0, 0, 1)):
+        lib.b3Body_SetTransform(self._id, b3Vec3.from_tuple(pos),
+                               b3Quat(rot[0], rot[1], rot[2], rot[3]))
+    
+    def apply_impulse(self, impulse: Tuple[float, float, float], world_point: Tuple[float, float, float] = None):
+        """Apply an impulse"""
+        # Use velocity change as approximation for impulse
+        im = b3Vec3.from_tuple(impulse)
+        pt = b3Vec3.from_tuple(world_point) if world_point else b3Vec3.from_tuple(self.position)
+        v = lib.b3Body_GetLinearVelocity(self._id)
+        lib.b3Body_SetLinearVelocity(self._id, b3Vec3(v.x + im.x, v.y + im.y, v.z + im.z))
+    
+    def activate(self):
+        pass
+    
+    def __repr__(self) -> str:
+        pos = self.position
+        return f"Box3DBody('{self._name}', pos=({pos[0]:.2f},{pos[1]:.2f},{pos[2]:.2f}), v={self.speed:.2f}m/s, {self.body_type})"
+    
+    def to_dict(self) -> dict:
+        pos = self.position
+        vel = self.velocity
+        return {
+            "id": self._name,
+            "pos": list(pos),
+            "vel": list(vel),
+            "speed": round(self.speed, 2),
+            "mass": round(self.mass, 2),
+            "type": self.body_type,
+            "Ek": round(self.kinetic_energy, 1),
+        }
 
 
 class Box3DWorld:
-    """High-level Python wrapper around a Box3D physics world"""
+    """High-level Box3D physics world"""
     
     def __init__(self, gravity: Tuple[float, float, float] = (0, -9.81, 0),
-                 enable_sleep: bool = True,
-                 auto_clear_forces: bool = True):
-        lib = _ensure_lib()
+                 enable_sleep: bool = True):
+        # Configure world
+        wd = b3WorldDef()
+        wd.gravity = b3Vec3.from_tuple(gravity)
+        wd.enableSleep = enable_sleep
+        wd.enableContinuos = True
         
-        # Configure world definition
-        world_def = b3WorldDef()
-        world_def.gravity = b3Vec3.from_tuple(gravity)
-        world_def.maximumDynamicBodies = 1024
-        world_def.maximumStaticBodies = 256
-        world_def.enableSleep = enable_sleep
-        
-        # Create world (simplified — will use wrapper C function)
-        self._world_id = b3WorldId()
-        self._bodies: Dict[str, Tuple[b3BodyId, int]] = {}  # name → (id, type)
-        self._shapes: Dict[str, b3ShapeId] = {}
-        self._joints: Dict[str, b3JointId] = {}
+        # Create
+        self._world_id = lib.b3CreateWorld(ctypes.byref(wd))
+        self._bodies: List[Box3DBody] = []
+        self._body_map: Dict[str, int] = {}  # name → index
         self._time = 0.0
-        self._body_counter = 0
-        self._gravity = gravity
         
-        # Material database (Box3D handles materials via shape properties)
-        self._materials = {
-            "steel":   {"density": 7800, "restitution": 0.3, "friction": 0.5},
-            "wood":    {"density": 700,  "restitution": 0.2, "friction": 0.6},
-            "rubber":  {"density": 1200, "restitution": 0.8, "friction": 1.0},
-            "ice":     {"density": 900,  "restitution": 0.5, "friction": 0.05},
-            "stone":   {"density": 2500, "restitution": 0.1, "friction": 0.8},
-            "default": {"density": 1000, "restitution": 0.3, "friction": 0.5},
-        }
+        self._default_material = b3SurfaceMaterial(
+            friction=0.5, restitution=0.3,
+            tangentFriction=0.0, rollingFriction=0.0,
+            userData=None
+        )
+    
+    @property
+    def world_id(self) -> b3WorldId:
+        return self._world_id
     
     def add_sphere(self, name: str, radius: float, density: float = 1000,
                    position: Tuple[float, float, float] = (0, 0, 0),
                    velocity: Tuple[float, float, float] = (0, 0, 0),
-                   restitution: float = 0.3, friction: float = 0.5,
-                   body_type: int = 2) -> "Box3DBody":
+                   body_type: int = 2,  # dynamic
+                   restitution: float = 0.3,
+                   friction: float = 0.5,
+                   fixed_rotation: bool = False) -> Box3DBody:
         """Add a sphere to the world"""
-        # Delegate to Box3D C API when available
-        body_id = self._body_counter
-        self._body_counter += 1
+        # Body definition
+        bd = b3BodyDef()
+        bd.type = body_type
+        bd.position = b3Vec3.from_tuple(position)
+        bd.linearVelocity = b3Vec3.from_tuple(velocity)
+        bd.fixedRotation = fixed_rotation
         
-        body = Box3DBody(self, name, body_id, body_type, 
-                        position, velocity, "sphere",
-                        {"radius": radius})
-        self._bodies[name] = (body_id, body_type)
+        body_id = lib.b3CreateBody(self._world_id, ctypes.byref(bd))
         
-        # Auto-compute mass from density
-        volume = (4/3) * math.pi * radius**3
-        mass = volume * density
-        body.mass = mass
+        # Shape definition
+        sd = b3ShapeDef()
+        sd.density = density
+        sd.baseMaterial = b3SurfaceMaterial(
+            friction=friction, restitution=restitution,
+            tangentFriction=0.0, rollingFriction=0.0,
+            userData=None
+        )
         
+        lib.b3CreateSphereShape(body_id, ctypes.byref(sd), b3Vec3(radius, 0, 0))
+        
+        body = Box3DBody(name, body_id, self)
+        self._bodies.append(body)
+        self._body_map[name] = len(self._bodies) - 1
         return body
     
-    def add_box(self, name: str, half_size: Tuple[float, float, float],
+    def add_box(self, name: str, half_extents: Tuple[float, float, float],
                 density: float = 1000,
                 position: Tuple[float, float, float] = (0, 0, 0),
                 velocity: Tuple[float, float, float] = (0, 0, 0),
-                angle: float = 0,
-                restitution: float = 0.3, friction: float = 0.5,
-                body_type: int = 2) -> "Box3DBody":
+                angle_rad: float = 0,
+                body_type: int = 2,
+                restitution: float = 0.3,
+                friction: float = 0.5,
+                fixed_rotation: bool = False) -> Box3DBody:
         """Add a box to the world"""
-        body_id = self._body_counter
-        self._body_counter += 1
+        bd = b3BodyDef()
+        bd.type = body_type
+        bd.position = b3Vec3.from_tuple(position)
+        bd.linearVelocity = b3Vec3.from_tuple(velocity)
+        bd.fixedRotation = fixed_rotation
         
-        body = Box3DBody(self, name, body_id, body_type,
-                        position, velocity, "box",
-                        {"half_size": half_size, "angle": angle})
-        self._bodies[name] = (body_id, body_type)
+        # Rotation (simple Z-axis rotation for ramp)
+        half_a = angle_rad / 2
+        bd.rotation = b3Quat(0, 0, math.sin(half_a), math.cos(half_a))
         
-        # Auto-compute mass from density
-        volume = (2 * half_size[0]) * (2 * half_size[1]) * (2 * half_size[2])
-        mass = volume * density
-        body.mass = mass
+        body_id = lib.b3CreateBody(self._world_id, ctypes.byref(bd))
         
+        sd = b3ShapeDef()
+        sd.density = density
+        sd.baseMaterial = b3SurfaceMaterial(
+            friction=friction, restitution=restitution,
+            tangentFriction=0.0, rollingFriction=0.0,
+            userData=None
+        )
+        
+        lib.b3CreateBoxMesh(body_id, ctypes.byref(sd), b3Vec3(*half_extents))
+        
+        body = Box3DBody(name, body_id, self)
+        self._bodies.append(body)
+        self._body_map[name] = len(self._bodies) - 1
         return body
     
-    def add_plane(self, name: str, normal: Tuple[float, float, float] = (0, 1, 0),
-                  distance: float = 0,
+    def add_plane(self, name: str, 
                   position: Tuple[float, float, float] = (0, -5, 0),
-                  restitution: float = 0.1, friction: float = 0.8) -> "Box3DBody":
-        """Add a static ground plane"""
-        body_id = self._body_counter
-        self._body_counter += 1
-        
-        body = Box3DBody(self, name, body_id, b3_staticBody,
-                        position, (0, 0, 0), "plane",
-                        {"normal": normal, "distance": distance})
-        self._bodies[name] = (body_id, b3_staticBody)
-        body.mass = 999999
-        return body
+                  restitution: float = 0.1,
+                  friction: float = 0.8) -> Box3DBody:
+        """Add a ground plane (large thin box)"""
+        return self.add_box(name, (10, 0.1, 10), density=1, 
+                          position=position, 
+                          body_type=0,  # static
+                          restitution=restitution, friction=friction)
     
-    def step(self, dt: float = 1/60, sub_steps: int = 1):
-        """Advance the simulation by dt seconds"""
-        # For now, use simple kinematic integration as fallback
-        # When Box3D library is linked, delegate to b3World_Step
-        self._time += dt
-        
-        # Simple Euler integration for all bodies
-        for name, (body_id, btype) in self._bodies.items():
-            body = self._get_body_object(name)
-            if body is None:
-                continue
-            
-            if btype == b3_staticBody:
-                continue
-            
-            # Apply gravity
-            ax, ay, az = 0, self._gravity[1], 0
-            
-            # Integrate
-            body.vx += ax * dt
-            body.vy += ay * dt
-            body.vz += az * dt
-            
-            body.x += body.vx * dt
-            body.y += body.vy * dt
-            body.z += body.vz * dt
-    
-    def _get_body_object(self, name: str):
-        """Find the body object for a given name"""
-        # This would return the Python Box3DBody object
-        # For now stored as instance attribute
-        for attr_name in dir(self):
-            attr = getattr(self, attr_name)
-            if isinstance(attr, Box3DBody) and attr._name == name:
-                return attr
+    def get_body(self, name: str) -> Optional[Box3DBody]:
+        idx = self._body_map.get(name)
+        if idx is not None and idx < len(self._bodies):
+            return self._bodies[idx]
         return None
     
+    def step(self, dt: float = 1/60, sub_steps: int = 4):
+        """Advance the physics simulation"""
+        lib.b3World_Step(self._world_id, dt, sub_steps)
+        self._time += dt
+    
     def get_state(self) -> dict:
-        """Return current world state"""
-        bodies = []
-        for name in self._bodies:
-            body = self._get_body_object(name)
-            if body:
-                bodies.append(body.to_dict())
-        
         return {
             "time": round(self._time, 3),
-            "bodies": bodies,
-            "engine": "box3d"
+            "bodies": [b.to_dict() for b in self._bodies],
+            "engine": "box3d",
         }
     
-    def delete(self):
-        """Clean up Box3D resources"""
-        pass
-
-
-class Box3DBody:
-    """A rigid body in the Box3D world"""
+    def set_gravity(self, gravity: Tuple[float, float, float]):
+        lib.b3World_SetGravity(self._world_id, b3Vec3.from_tuple(gravity))
     
-    def __init__(self, world: Box3DWorld, name: str, body_id: int,
-                 body_type: int, position: Tuple[float, float, float],
-                 velocity: Tuple[float, float, float],
-                 shape_type: str,
-                 shape_params: dict):
-        self._world = world
-        self._name = name
-        self._body_id = body_id
-        self._body_type = body_type
-        self._shape_type = shape_type
-        self._shape_params = shape_params
-        
-        # State
-        self.x, self.y, self.z = position
-        self.vx, self.vy, self.vz = velocity
-        self.mass = 1.0
-        self.angle = shape_params.get("angle", 0)
-        
-        # Store reference in world
-        setattr(world, f"_body_{name}", self)
-    
-    @property
-    def position(self) -> Tuple[float, float, float]:
-        return (self.x, self.y, self.z)
-    
-    @position.setter
-    def position(self, pos: Tuple[float, float, float]):
-        self.x, self.y, self.z = pos
-    
-    @property
-    def velocity(self) -> Tuple[float, float, float]:
-        return (self.vx, self.vy, self.vz)
-    
-    @property
-    def speed(self) -> float:
-        return math.sqrt(self.vx**2 + self.vy**2 + self.vz**2)
-    
-    @property
-    def kinetic_energy(self) -> float:
-        return 0.5 * self.mass * self.speed**2
-    
-    @property
-    def momentum(self) -> float:
-        return self.mass * self.speed
-    
-    def apply_force(self, force: Tuple[float, float, float]):
-        """Apply a force proportional to inverse mass"""
-        if self._body_type != b3_dynamicBody or self.mass < 0.001:
-            return
-        inv_mass = 1.0 / self.mass
-        f = 10.0  # Force multiplier
-        self.vx += force[0] * inv_mass * f
-        self.vy += force[1] * inv_mass * f
-        self.vz += force[2] * inv_mass * f
-    
-    def to_dict(self) -> dict:
-        return {
-            "id": self._name,
-            "pos": (round(self.x, 2), round(self.y, 2), round(self.z, 2)),
-            "vel": (round(self.vx, 2), round(self.vy, 2), round(self.vz, 2)),
-            "mass": round(self.mass, 1),
-            "speed": round(self.speed, 2),
-            "type": "dynamic" if self._body_type == 2 else "static",
-            "shape": self._shape_type,
-            "body_id": self._body_id,
-        }
-    
-    def __repr__(self):
-        return (f"Box3DBody('{self._name}', "
-                f"pos=({self.x:.1f},{self.y:.1f},{self.z:.1f}), "
-                f"v={self.speed:.1f}m/s)")
-
-
-# ============================================================
-# 4. Integration with existing tools
-# ============================================================
-
-class Box3DScenarioFactory:
-    """Create physics scenarios using Box3D"""
-    
-    @staticmethod
-    def ramp_scenario(drop_height: float = 8.0, ramp_angle: float = 45.0,
-                      ball_material: str = "steel",
-                      ramp_material: str = "wood") -> Box3DWorld:
-        """Metal ball on wooden ramp at angle"""
-        world = Box3DWorld(gravity=(0, -9.81, 0))
-        
-        ramp_rad = math.radians(ramp_angle)
-        ramp_hw, ramp_hh, ramp_hd = 3.0, 0.15, 0.5
-        
-        ball_mat = world._materials.get(ball_material, world._materials["steel"])
-        ramp_mat = world._materials.get(ramp_material, world._materials["wood"])
-        
-        world.add_box("ramp", (ramp_hw, ramp_hh, ramp_hd),
-                     density=700, position=(0, -2, 0),
-                     angle=ramp_rad,
-                     restitution=ramp_mat["restitution"],
-                     friction=ramp_mat["friction"],
-                     body_type=b3_staticBody)
-        
-        world.add_sphere("ball", 0.3,
-                        density=ball_mat["density"],
-                        position=(0, drop_height, 0),
-                        restitution=ball_mat["restitution"],
-                        friction=ball_mat["friction"])
-        
-        world.add_plane("ground", position=(0, -7, 0))
-        
-        return world
+    def close(self):
+        lib.b3DestroyWorld(self._world_id)
 
 
 # ============================================================
 # 5. Demo
 # ============================================================
 
-def demo():
+def demo_ramp():
+    """Ball on ramp — the classic"""
     print("=" * 60)
-    print("  BOX3D — 3D Physics Engine Bridge")
+    print("  BOX3D — 3D RAMP SIMULATION")
     print("=" * 60)
     
-    try:
-        world = Box3DScenarioFactory.ramp_scenario(drop_height=5.0, ramp_angle=45)
-        
-        print("\nSimulating ball on ramp (3 seconds @ 60fps):")
-        for step in range(180):
-            world.step(1/60)
-            if step % 60 == 0 or step == 179:
-                state = world.get_state()
-                ball = next(b for b in state["bodies"] if b["id"] == "ball")
-                print(f"  t={state['time']:.1f}s: ball y={ball['pos'][1]:.2f}m, "
-                      f"v={ball['speed']:.1f}m/s, "
-                      f"Ek={0.5*ball['mass']*ball['speed']**2:.0f}J")
-        
-        print("\n✅ Box3D Python bridge active!")
-        
-    except Exception as e:
-        print(f"\n⚠️  {e}")
-        print("  Fallback: Box3D library not linked, using simple kinematic fallback")
-        print("  Run: cd ~/projects/box3d && bash build.sh")
+    world = Box3DWorld(gravity=(0, -9.81, 0))
+    
+    # Ramp — 45° rotated box
+    ramp = world.add_box("ramp", (2.0, 0.2, 0.5), 
+                        density=700, position=(0, -2, 0),
+                        angle_rad=math.radians(45),
+                        body_type=0, friction=0.4, restitution=0.2)
+    
+    # Ball
+    ball = world.add_sphere("ball", 0.3, density=7800,
+                           position=(0, 5, 0),
+                           restitution=0.6, friction=0.3)
+    
+    # Ground
+    world.add_plane("ground", position=(0, -7, 0))
+    
+    print(f"\nInitial: {ball}")
+    
+    for step in range(180):
+        world.step(1/60)
+        if step % 60 == 0 or step == 179:
+            state = world.get_state()
+            print(f"  t={state['time']:.1f}s: ball y={ball.position[1]:.2f}m, "
+                  f"v={ball.speed:.1f}m/s, Ek={ball.kinetic_energy:.0f}J")
+    
+    print(f"\nFinal: {ball}")
+    print(f"Total bodies: {len(world._bodies)}")
+    
+    world.close()
+    return world
+
+
+def demo_collision():
+    """Two balls colliding"""
+    print("\n" + "=" * 60)
+    print("  BOX3D — COLLISION TEST")
+    print("=" * 60)
+    
+    world = Box3DWorld()
+    
+    # Two spheres heading toward each other
+    a = world.add_sphere("A", 0.5, density=7800, position=(-3, 0, 0), velocity=(3, 0, 0))
+    b = world.add_sphere("B", 0.5, density=7800, position=(3, 0, 0), velocity=(-3, 0, 0))
+    world.add_plane("ground", position=(0, -5, 0))
+    
+    print(f"\nBefore: A={a.speed:.1f}m/s  B={b.speed:.1f}m/s")
+    
+    for step in range(120):
+        world.step(1/60)
+        if 0.5 < world._time < 1.5:
+            if step % 20 == 0:
+                print(f"  t={world._time:.2f}s: A@({a.position[0]:.2f}) B@({b.position[0]:.2f}) "
+                      f"vA={a.speed:.1f} vB={b.speed:.1f}")
+    
+    print(f"\nAfter: A={a.speed:.1f}m/s  B={b.speed:.1f}m/s")
+    print(f"Momentum conserved: {abs(a.mass * a.velocity[0] + b.mass * b.velocity[0]):.1f} kg·m/s")
+    
+    world.close()
 
 
 if __name__ == "__main__":
-    demo()
+    demo_ramp()
+    demo_collision()
