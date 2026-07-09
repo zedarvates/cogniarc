@@ -313,7 +313,7 @@ def predict_object_fate(scenario_name: str = "ramp", model_path: str = None) -> 
     Predict what will happen to each object: stay still, move a little, moderately, or a lot.
     This is the main LLM-callable function for approximate reasoning.
     """
-    from simulator.physics import SCENARIOS, create_ramp_scenario
+    from ..simulator.physics import SCENARIOS, create_ramp_scenario
     
     # Load or train model
     if model_path:
@@ -393,7 +393,7 @@ def _summarize_fates(results: dict) -> str:
 
 def train_discrete_model(scenario: str = "ramp", steps: int = 2000) -> dict:
     """Train and save a discrete state transition model"""
-    from simulator.physics import SCENARIOS, create_ramp_scenario
+    from ..simulator.physics import SCENARIOS, create_ramp_scenario
     
     world = (SCENARIOS.get(scenario, create_ramp_scenario))()
     print(f"Training discrete model on '{scenario}' scenario ({steps} frames)...")

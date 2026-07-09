@@ -136,7 +136,7 @@ def ask_llm_question(prompt: str) -> str:
         height = float(heights[0])
     
     # Build variant
-    from simulator.physics import create_ramp_scenario
+    from ..simulator.physics import create_ramp_scenario
     world = create_ramp_scenario(
         ball_material=material_ball,
         ramp_material=material_ramp,

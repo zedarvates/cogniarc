@@ -485,7 +485,7 @@ class ScenarioPredictor:
 # === Demo ===
 
 def demo_scene_graph():
-    from simulator.physics import create_ramp_scenario, SCENARIOS
+    from ..simulator.physics import create_ramp_scenario, SCENARIOS
     
     # Simulate ramp scene
     world = create_ramp_scenario(drop_height=8.0, ramp_angle_deg=45)

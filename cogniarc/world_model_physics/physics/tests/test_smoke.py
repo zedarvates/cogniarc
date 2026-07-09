@@ -15,7 +15,7 @@ def test_imports():
 
 def test_physics_v3():
     """Physics V3 scenarios create and run"""
-    from simulator.physics_v3 import V3_SCENARIOS
+    from ..simulator.physics_v3 import V3_SCENARIOS
     for name in ["ramp", "vehicle", "jenga"]:
         world = V3_SCENARIOS[name]()
         for _ in range(10):
@@ -26,7 +26,7 @@ def test_physics_v3():
 
 def test_discrete_classifier():
     """8-state classifier runs"""
-    from tools.discrete_classifier import train_discrete_model, predict_object_fate
+    from ..tools.discrete_classifier import train_discrete_model, predict_object_fate
     result = train_discrete_model("ramp", steps=100)
     assert result["trained"], "Training failed"
     pred = predict_object_fate("ramp")
@@ -36,8 +36,8 @@ def test_discrete_classifier():
 
 def test_scene_graph():
     """Scene graph builds without crash"""
-    from tools.scene_graph import SceneGraph
-    from simulator.physics import create_ramp_scenario
+    from ..tools.scene_graph import SceneGraph
+    from ..simulator.physics import create_ramp_scenario
     world = create_ramp_scenario()
     for _ in range(20):
         world.step(1/60)
@@ -50,8 +50,8 @@ def test_scene_graph():
 
 def test_spatial():
     """Spatial zoning + perception work"""
-    from tools.spatial_zoning import analyze_spatial_scene
-    from tools.spatial_reasoning import OcclusionEngine, Observer, Pathfinder
+    from ..tools.spatial_zoning import analyze_spatial_scene
+    from ..tools.spatial_reasoning import OcclusionEngine, Observer, Pathfinder
     # Zoning
     result = analyze_spatial_scene("test", [
         {"id": "table", "pos": [0, 0], "radius": 2.0, "tags": ["reference"]},
@@ -69,7 +69,7 @@ def test_spatial():
 
 def test_kinematic():
     """Kinematic engine runs"""
-    from tools.kinematic_engine import create_four_bar_linkage, analyze_mechanism
+    from ..tools.kinematic_engine import create_four_bar_linkage, analyze_mechanism
     joints, links = create_four_bar_linkage()
     result = analyze_mechanism("test", joints, links)
     assert "MOBILITÉ" in result, "Kinematic analysis failed"
@@ -78,7 +78,7 @@ def test_kinematic():
 
 def test_advanced_physics():
     """Advanced physics engines run"""
-    from tools.advanced_physics import (
+    from ..tools.advanced_physics import (
         BeamAnalysis, Oscillator, ChaosAnalyzer
     )
     beam = BeamAnalysis("bois_chene", 3.0, 0.1, 0.2, 2000)
@@ -94,7 +94,7 @@ def test_advanced_physics():
 
 def test_relation_engine():
     """Relation engine runs"""
-    from tools.relation_engine import RelationNetwork, RelationEdge, RelationCategory
+    from ..tools.relation_engine import RelationNetwork, RelationEdge, RelationCategory
     net = RelationNetwork("test")
     net.add_node("A", (0, 0))
     net.add_node("B", (1, 0))
