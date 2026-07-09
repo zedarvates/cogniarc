@@ -87,6 +87,10 @@ class ObjectTracker:
         self.action_displacements: Dict[int, List[Tuple[float, float]]] = defaultdict(list)
         self.wall_color_votes: Counter = Counter()
         self.n_observations = 0
+        # Perception gap counters (Phase 1 T1.1)
+        self.vanished_count = 0
+        self.total_match_attempts = 0
+        self.vanished_log: List[Dict] = []
         # Set by the most recent observe() call: True if the player-candidate
         # region moved that step, False if it's known but didn't move, None if
         # no player candidate is established yet. This is what lets callers
@@ -135,6 +139,21 @@ class ObjectTracker:
         """Colors confirmed (by repeated blocked-move observation) to be walls."""
         return {c for c, n in self.wall_color_votes.items() if n >= self.min_wall_votes}
 
+    def perception_gap_stats(self) -> Dict:
+        """Return measured perception gap statistics.
+
+        Used by Phase 1 T1.1 to decide whether neural vision is needed.
+        If vanish_rate < 0.05 (<5%), no neural matching is justified.
+        """
+        total = self.total_match_attempts
+        vanished = self.vanished_count
+        return {
+            "vanished_count": vanished,
+            "total_attempts": total,
+            "vanish_rate": round(vanished / max(1, total), 4),
+            "n_observations": self.n_observations,
+        }
+
     def observe(self, grid_before: np.ndarray, action: int, grid_after: np.ndarray) -> None:
         """Update player/action/wall evidence from one transition."""
         regions_before = segment_regions(grid_before)
@@ -143,8 +162,16 @@ class ObjectTracker:
         moved_this_step: Dict[int, Tuple[float, float]] = {}  # color -> displacement
 
         for rb in regions_before:
+            self.total_match_attempts += 1
             ra = _best_match(rb, regions_after)
             if ra is None:
+                self.vanished_count += 1
+                self.vanished_log.append({
+                    "color": int(rb.color),
+                    "area": int(rb.area),
+                    "center": (float(rb.center[0]), float(rb.center[1])),
+                    "step": self.n_observations,
+                })
                 continue  # region vanished (destroyed/consumed) — not evidence either way
             dr = ra.center[0] - rb.center[0]
             dc = ra.center[1] - rb.center[1]
