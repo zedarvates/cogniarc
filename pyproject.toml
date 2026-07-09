@@ -35,7 +35,7 @@ Homepage = "https://github.com/zedarvates/cogniarc"
 "Nano-NN models" = "https://huggingface.co/zedgamer/cogniarc-nano-nn"
 
 [tool.setuptools.packages.find]
-include = ["cogniarc*"]
+include = ["cogniarc*", "human_skills*"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "human_skills/tests"]
