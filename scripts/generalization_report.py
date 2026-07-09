@@ -11,6 +11,14 @@ Usage:
 import os
 import sys
 
+# The report contains non-cp1252 characters (e.g. the U+2212 minus sign in
+# "dev rate − holdout rate") — force UTF-8 so a Windows console doesn't crash.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from cogniarc.benchmark_tracker import BenchmarkTracker

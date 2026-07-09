@@ -159,7 +159,12 @@ class SkillsMixin:
         known_colors = {}  # color → position from ObjectTracker
         
         if ot is not None and ot.has_enough_observations():
-            summary = ot.get_perception_summary()
+            # Pass the grid: player_position/known_positions only exist in the
+            # summary when it can see the current frame (they were silently
+            # absent before — root cause of "no target ever found on holdout
+            # games", 2026-07-05 report bug B2).
+            _grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+            summary = ot.get_perception_summary(grid=_grid)
             player_color = summary.get("player_color")
             player_pos = summary.get("player_position")
             known_positions = summary.get("known_positions", {})
@@ -281,7 +286,8 @@ class SkillsMixin:
         elif player_pos:
             # Use ObjectTracker to find potential interaction targets
             if ot is not None:
-                summary = ot.get_perception_summary()
+                _grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+                summary = ot.get_perception_summary(grid=_grid)
                 known = summary.get("known_positions", {})
                 player_color = summary.get("player_color")
                 wall_set = getattr(self, '_detected_wall_colors', set())
@@ -431,6 +437,42 @@ class SkillsMixin:
 
         tx, ty = target_pos
 
+        # ═══ GENERIC TIER: ObjectTracker navigation when self.player is None ═══
+        # Every tier below is gated on `if self.player` — on any game whose
+        # internal player object isn't found by the attribute-name guesslist
+        # (all holdout games), a target could be set but NO tier could act on
+        # it: the skill silently failed 5x and force-skipped the level
+        # (2026-07-05 report, wa30/dc22/ar25 pattern). Here we navigate with
+        # what ObjectTracker actually learned: greedy step along the learned
+        # action direction that best reduces distance to the target.
+        if self.player is None:
+            ot = getattr(self, 'object_tracker', None)
+            grid = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+            if ot is not None and grid is not None and ot.has_enough_observations():
+                from .object_perception import best_action_toward
+                cur_rc = ot.current_position(grid)
+                if cur_rc is not None:
+                    # Arrived? (x=col, y=row target vs (row, col) position)
+                    if abs(cur_rc[1] - tx) + abs(cur_rc[0] - ty) <= 2:
+                        print(f"  🎯 OT-nav: arrived at target ({tx},{ty})")
+                        return True
+                    dirs = {a: d for a in ot.action_displacements
+                            if (d := ot.action_direction(a)) is not None}
+                    action = best_action_toward(dirs, cur_rc, (tx, ty))
+                    if action is not None:
+                        self.step(action)
+                        grid_after = self.obs.frame[0] if self.obs.frame and len(self.obs.frame) > 0 else None
+                        new_rc = ot.current_position(grid_after) if grid_after is not None else None
+                        moved = new_rc is not None and new_rc != cur_rc
+                        print(f"  🎯 OT-nav: action {action} toward ({tx},{ty}) — "
+                              f"{'moved to ' + str(new_rc) if moved else 'blocked'}")
+                        # blocked => honest failure so the phase machine can
+                        # escalate; the blocked-move wall evidence was already
+                        # recorded by observe() inside step().
+                        return moved
+            # No ObjectTracker position/directions yet — fall through to the
+            # player-gated tiers (which will no-op) rather than pretending.
+
         # Ensure pathfinder is initialized (needed for wall colors)
         pf = self._init_pathfinder()
 
@@ -464,11 +506,21 @@ class SkillsMixin:
             if actions:
                 action = random.choice(actions)
                 print(f"  🎲 Random explore: action {action} (stagnation={self.drives.stagnation_counter})")
-                prev_x, prev_y = self.player.x, self.player.y
+                # self.player is None on games where the attribute-name probe
+                # fails (all holdout games) — this line crashed with
+                # AttributeError before the guard. Fall back to ObjectTracker's
+                # movement evidence, which needs no player object at all.
+                prev_x, prev_y = (self.player.x, self.player.y) if self.player else (None, None)
                 self.step(action)
                 # If we moved, set flag so NanoPath is skipped next iteration
                 # (lets A*/heuristic try the new position first)
-                if self.player and (abs(self.player.x - prev_x) > 2 or abs(self.player.y - prev_y) > 2):
+                moved = False
+                if self.player and prev_x is not None:
+                    moved = abs(self.player.x - prev_x) > 2 or abs(self.player.y - prev_y) > 2
+                else:
+                    ot = getattr(self, 'object_tracker', None)
+                    moved = bool(ot and ot.last_step_player_moved)
+                if moved:
                     self.drives.stagnation_counter = 0
                     self._just_moved = True
                     print(f"  🎲 Moved! Flag set → NanoPath skipped next call.")

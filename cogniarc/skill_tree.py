@@ -209,14 +209,46 @@ class SkillTree:
         self.save_path.write_text(json.dumps(data, indent=2))
 
     def _load(self):
+        """Load the tree from disk, tolerating legacy/corrupt cache files.
+
+        Called from SkillTree.load_for_game() during ScientistAgent __init__
+        with NO try/except above it — before this hardening, a single cache
+        file in an old format crashed the whole agent at startup with
+        `'list' object has no attribute 'get'` (2026-07-05 holdout report:
+        sp80 could not start at all because of this). A cache file must never
+        be able to prevent an agent run: on any parse problem we warn and
+        start with an empty tree instead.
+        """
         if not self.save_path.exists():
             return
-        data = json.loads(self.save_path.read_text())
-        self.current_level = data.get("current_level", 0)
-        for name, d in data.get("skills", {}).items():
-            self.skills[name] = Skill.from_dict(d)
-        for lvl, names in data.get("level_caps", {}).items():
-            self.level_caps[int(lvl)] = names
+        try:
+            data = json.loads(self.save_path.read_text())
+
+            # Legacy format: top-level list of skill dicts (pre-dict schema).
+            if isinstance(data, list):
+                data = {"skills": {d.get("name", f"skill_{i}"): d
+                                   for i, d in enumerate(data) if isinstance(d, dict)}}
+
+            if not isinstance(data, dict):
+                raise ValueError(f"unsupported skill-tree JSON root: {type(data).__name__}")
+
+            self.current_level = data.get("current_level", 0)
+
+            skills = data.get("skills", {})
+            # Legacy variant: "skills" stored as a list instead of a dict.
+            if isinstance(skills, list):
+                skills = {d.get("name", f"skill_{i}"): d
+                          for i, d in enumerate(skills) if isinstance(d, dict)}
+            for name, d in skills.items():
+                self.skills[name] = Skill.from_dict(d)
+
+            for lvl, names in data.get("level_caps", {}).items():
+                self.level_caps[int(lvl)] = names
+        except Exception as e:
+            print(f"[SkillTree] Corrupt/legacy cache ignored ({self.save_path.name}): {e}")
+            self.skills = {}
+            self.level_caps = {}
+            self.current_level = 0
 
     # ── Cross-Game Transfer ─────────────────────────────────
 

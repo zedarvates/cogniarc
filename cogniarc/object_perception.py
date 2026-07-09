@@ -215,28 +215,60 @@ class ObjectTracker:
             if blocked_color != player_color:
                 self.wall_color_votes[blocked_color] += 1
 
-    def get_perception_summary(self) -> dict:
+    def get_perception_summary(self, grid: Optional[np.ndarray] = None) -> dict:
         """Return a structured dict consumable by the phase machine.
 
         Keys:
           - player_color: int or None
           - action_directions: {action_num: (dr, dc)} for movement actions
+            (row/col convention: dr = delta row, dc = delta col)
           - wall_colors: set[int] — colours with >= min_wall_votes
           - n_observations: int
           - player_moved_last_step: bool or None
+          - player_position: (x, y) or None       [only when `grid` is given]
+          - known_positions: {color: (x, y)}      [only when `grid` is given]
+
+        Positional keys use the (x=col, y=row) convention because every
+        consumer in scientist_agent_skills.py (hypothesis formation, sprite
+        tag targets via .x/.y, _ot_target) already speaks (x, y). Internally
+        current_position()/segmentation are (row, col); the conversion
+        happens here, at the boundary, so callers never have to flip.
+
+        Bug context: hypothesis formation read `player_position` and
+        `known_positions` from this summary since 2026-07-02, but this method
+        never returned either key — so target discovery silently yielded
+        nothing on every holdout game (2026-07-05 report, bug B2's root:
+        agents random-explored forever because no target could ever be found).
         """
         action_dirs = {
             a: self.action_direction(a)
             for a in self.action_displacements
             if self.action_direction(a) is not None
         }
-        return {
+        summary = {
             "player_color": self.player_color,
             "action_directions": action_dirs,
             "wall_colors": set(self.wall_colors),
             "n_observations": self.n_observations,
             "player_moved_last_step": self.last_step_player_moved,
         }
+
+        if grid is not None:
+            pos_rc = self.current_position(grid)
+            summary["player_position"] = (pos_rc[1], pos_rc[0]) if pos_rc else None
+
+            known: Dict[int, Tuple[int, int]] = {}
+            for region in segment_regions(grid):
+                color = region.color
+                if color == 0:
+                    continue
+                r, c = int(round(region.center[0])), int(round(region.center[1]))
+                # Keep the largest region per colour as its representative.
+                if color not in known or region.area > known[color][2]:
+                    known[color] = (c, r, region.area)
+            summary["known_positions"] = {col: (x, y) for col, (x, y, _a) in known.items()}
+
+        return summary
 
     def has_enough_observations(self, min_player: int = 3, min_directions: int = 1) -> bool:
         """Return True if enough data has been collected to be useful.
@@ -261,3 +293,41 @@ class ObjectTracker:
             f"player_color={pc}, wall_colors={sorted(self.wall_colors)}, "
             f"actions_seen={sorted(self.action_displacements.keys())}"
         )
+
+
+def best_action_toward(
+    action_directions: Dict[int, Tuple[float, float]],
+    current_rc: Tuple[int, int],
+    target_xy: Tuple[int, int],
+) -> Optional[int]:
+    """Pick the learned action whose direction best reduces the distance to
+    the target. Pure function (unit-testable without a live game) — the
+    planning half of generic target navigation; the executing half lives in
+    scientist_agent_skills._skill_navigate_to_target.
+
+    Args:
+        action_directions: {action: (dr, dc)} as learned by ObjectTracker
+            (row/col deltas, from get_perception_summary()["action_directions"]).
+        current_rc: player position as (row, col) — ObjectTracker convention
+            (current_position()).
+        target_xy: target as (x, y) = (col, row) — the skills-file convention
+            used by sprite tags and known_positions.
+
+    Returns the action with the highest positive dot-product between its
+    learned direction and the needed displacement, or None if no action makes
+    progress (all dot products <= 0, or nothing learned yet).
+    """
+    if not action_directions:
+        return None
+    cur_r, cur_c = current_rc
+    need_dr = target_xy[1] - cur_r   # rows to travel
+    need_dc = target_xy[0] - cur_c   # cols to travel
+    if need_dr == 0 and need_dc == 0:
+        return None  # already there — nothing to do
+
+    best, best_score = None, 0.0
+    for action, (dr, dc) in sorted(action_directions.items()):
+        score = dr * need_dr + dc * need_dc
+        if score > best_score:
+            best, best_score = action, score
+    return best
