@@ -17,6 +17,8 @@ from human_skills import (
 from human_skills.organic import SIGMA_MIN
 from human_skills.evaluate import closure_score, proportion_score, per_point_error
 from human_skills.practice import GlyphPracticeState
+from human_skills import shapes
+from human_skills.scenes import build_cluster_house_scene
 
 
 class TestGlyphs:
@@ -252,3 +254,132 @@ class TestIntegration:
         svg = strokes_to_svg(final)
         assert svg.startswith("<svg")
         assert state.summary()["global_sigma"] < 0.15
+
+
+class TestShapes:
+    def test_line_produces_stroke(self):
+        s = shapes.line(0, 0, 1, 1)
+        assert len(s) == 1
+        assert len(s[0]) == 2
+
+    def test_rectangle_four_sides(self):
+        s = shapes.rectangle(0.1, 0.1, 0.5, 0.5)
+        assert len(s) == 4  # four sides
+        for side in s:
+            assert len(side) == 2
+
+    def test_rectangle_loop(self):
+        s = shapes.rectangle_loop(0.1, 0.1, 0.5, 0.5)
+        assert len(s) == 1
+        # 5 points: 4 corners + back to start
+        assert len(s[0]) == 5
+
+    def test_triangle_three_sides(self):
+        s = shapes.triangle(0, 0, 0.5, 1, 1, 0)
+        assert len(s) == 3
+
+    def test_triangle_loop(self):
+        s = shapes.triangle_loop(0, 0, 0.5, 1, 1, 0)
+        assert len(s) == 1
+        assert len(s[0]) == 4  # 3 corners + back to start
+
+    def test_circle_points(self):
+        s = shapes.circle(0.5, 0.5, 0.2, n_points=12)
+        assert len(s) == 1
+        assert len(s[0]) == 13  # 12 pts + closure
+
+    def test_arc_not_full_circle(self):
+        s = shapes.arc(0.5, 0.5, 0.2, 0.2, 0, 180, n_points=8)
+        assert len(s) == 1
+        assert len(s[0]) == 9  # 8 segments + 1 = 9
+
+    def test_cross_two_lines(self):
+        s = shapes.cross(0, 0, 1, 1)
+        assert len(s) == 2
+
+    def test_wavy_line(self):
+        s = shapes.wavy_line(0, 1, 0.5, amplitude=0.02, frequency=5, n_points=10)
+        assert len(s) == 1
+        assert len(s[0]) == 11  # 10 segments + 1
+
+    def test_grass_tufts(self):
+        s = shapes.grass_tufts(0, 1, 0.5, count=10)
+        assert len(s) == 10
+
+    def test_sun_rays(self):
+        s = shapes.sun_rays(0.5, 0.5, 0.1, 0.2, n_rays=8)
+        assert len(s) == 8
+
+    def test_ellipse_aspect_ratio(self):
+        """Ellipse should produce different x/y spans."""
+        s = shapes.ellipse(0.5, 0.5, 0.3, 0.1, n_points=12)
+        xs = [p[0] for p in s[0]]
+        ys = [p[1] for p in s[0]]
+        x_span = max(xs) - min(xs)
+        y_span = max(ys) - min(ys)
+        assert x_span > y_span, f"Ellipse not wide: x={x_span:.3f} y={y_span:.3f}"
+
+    def test_plus_sign(self):
+        """Plus should produce a horizontal + vertical stroke."""
+        s = shapes.plus(0, 0, 1, 1)
+        assert len(s) == 2
+        # Horizontal: same y
+        assert abs(s[0][0][1] - s[0][1][1]) < 0.001
+        # Vertical: same x
+        assert abs(s[1][0][0] - s[1][1][0]) < 0.001
+
+
+class TestScenes:
+    def test_cluster_house_builds(self):
+        scene = build_cluster_house_scene()
+        assert len(scene) > 20, f"Too few elements: {len(scene)}"
+        # Check all elements have strokes, layer, color
+        for strokes, layer, color in scene:
+            assert len(strokes) > 0
+            assert isinstance(layer, int)
+            assert isinstance(color, str)
+
+    def test_cluster_house_has_sun(self):
+        scene = build_cluster_house_scene()
+        colors = [color for _, _, color in scene]
+        assert "#FFD700" in colors, "No gold/sun in scene"
+
+    def test_cluster_house_has_roof(self):
+        scene = build_cluster_house_scene()
+        colors = [color for _, _, color in scene]
+        assert "#CD5C5C" in colors or "#D2691E" in colors, "No roof colors"
+
+    def test_elements_sorted_by_layer(self):
+        scene = build_cluster_house_scene()
+        # Ground should be before roof
+        ground_layers = [
+            layer for strokes, layer, color in scene
+            if "#4a7c3f" in color or "#5a9c4f" in color
+        ]
+        roof_layers = [
+            layer for strokes, layer, color in scene
+            if "#CD5C5C" in color
+        ]
+        if ground_layers and roof_layers:
+            assert max(ground_layers) <= min(roof_layers), "Ground should be behind roof"
+
+    def test_jittered_scene_valid_svg(self):
+        """Apply jitter to scene and verify SVG output."""
+        scene = build_cluster_house_scene()
+        all_paths = []
+        for strokes, layer, color in scene:
+            j = jitter_strokes(strokes, sigma_global=0.01, seed=42)
+            for stroke in j:
+                all_paths.append((stroke, color))
+
+        from human_skills.render_svg import _stroke_to_svg_path
+        parts = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1">']
+        parts.append('<rect width="100%" height="100%" fill="#f0e6d3"/>')
+        for stroke, color in all_paths[:5]:  # just first 5 for speed
+            path = _stroke_to_svg_path(stroke, stroke_width=0.004, viewbox_size=1, padding=0)
+            if path:
+                parts.append(f'<g color="{color}">{path}</g>')
+        parts.append("</svg>")
+        svg = "\n".join(parts)
+        assert svg.startswith("<svg")
+        assert svg.endswith("</svg>")

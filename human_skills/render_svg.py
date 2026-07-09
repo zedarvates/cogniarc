@@ -98,7 +98,7 @@ def _stroke_to_svg_path(
         # Close path
         d_parts.append("Z")
 
-    return f'<path d="{" ".join(d_parts)}" fill="none" stroke="currentColor" stroke-width="{stroke_width:.2f}" stroke-linecap="round" stroke-linejoin="round"/>'
+    return f'<path d="{" ".join(d_parts)}" fill="none" stroke="currentColor" stroke-width="{stroke_width:.4f}" stroke-linecap="round" stroke-linejoin="round"/>'
 
 
 def strokes_to_svg(
