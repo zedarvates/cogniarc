@@ -11,6 +11,18 @@
 
 ---
 
+<p align="center">
+  <a href="assets/maison_cluster.svg">
+    <img src="assets/maison_cluster.svg" alt="🏠☀️ Maison Cluster Ensoleillée — signée NOTRE MAISON en lettres apprises par la boucle de pratique" width="600"/>
+  </a>
+  <br/>
+  <em>🏠☀️ « Notre maison » — dessinée à la main apprise (σ=0.012).<br/>
+  Chaque trait est organique, chaque lettre a été pratiquée.<br/>
+  <a href="outputs/maison_comparaison.html">Voir côte-à-côte σ=0.10 (enfant) vs σ=0.012 (appris)</a></em>
+</p>
+
+---
+
 ## 👤 About This Project
 
 This is a **one-person research project** by [Sylvain Galliez](https://github.com/zedarvates) (zedarvates). I have **zero prior knowledge of the ARC-AGI-3 games** — I have never looked at the solutions, never read walkthroughs, and never studied the game mechanics before building this agent. Every discovery (wall colors, changer positions, lock mechanics, action mappings) was made by the agent itself through observation and experimentation.
