@@ -4,15 +4,12 @@ The LLM calls these functions to simulate and predict physics.
 Discrete classification: 8 states, 4 human-readable levels.
 """
 
-import sys
-sys.path.insert(0, '/home/redgamer/projects/world-model-tool')
-
 import json
-from tools.discrete_classifier import (
+from .discrete_classifier import (
     MoveState, classify_per_body, predict_object_fate,
     train_discrete_model, DiscreteWorldModel, STATE_DESCRIPTIONS
 )
-from simulator.physics import SCENARIOS, create_ramp_scenario
+from ..simulator.physics import SCENARIOS, create_ramp_scenario
 
 
 def simulate(spec: str) -> str:

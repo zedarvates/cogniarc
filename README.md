@@ -245,6 +245,26 @@ python -m cogniarc.spatial_inference
 | L1 steps (LS20) | **40** (was 200+ before generic harness) |
 | L2 steps (LS20) | **48** |
 
+### 📉 Holdout generalization (latest measured: 2026-07-05, `scripts/run_holdout.py --max-steps 80`)
+
+| Metric | Value | Δ vs 2026-07-03 |
+|--------|-------|------------------|
+| Holdout games solved | **0 / 10** (0.0%) | → stable |
+| Holdout levels solved | **0 / 394** attempted | 5 more attempts, still 0 |
+| Dev games solved | **1 / 15** — only `ls20-9607627b` (the other 14 dev games have never been run) | → stable |
+| Dev levels solved (LS20) | **55 / 96** (57.3%) | → stable |
+| **Generalization gap** | **57.3 pp** | worse-looking, but see note below |
+
+> The 40-step LS20 milestone above is real and reproducible. It has **not
+> transferred** to any of the 10 pristine holdout games — full history and
+> raw run logs: [`docs/reports/2026-07-05-holdout.md`](./docs/reports/2026-07-05-holdout.md).
+> Reproduce: `python scripts/run_holdout.py --list` /
+> `python scripts/generalization_report.py`.
+
+**Two bugs are actively blocking holdout progress** (from the 2026-07-05 report):
+1. **Cross-game import crash** (`'list' object has no attribute 'get'` in `generalization.py`) — stops `sp80` from starting at all, slows every other holdout run.
+2. **`_navigate_one_step()` doesn't use `ObjectTracker` for real navigation** — it still assumes `self.player` is populated; on holdout games this loops through SocraticCritic `COUNTEREXAMPLE` warnings 8× before giving up, without ever attempting `ObjectTracker.current_position()`-based movement. This is the same class of bug documented in [`docs/EVALUATION.md`](./docs/EVALUATION.md) (hardcoded player-attribute lookups), now surfaced in the navigation path specifically rather than just discovery.
+
 ### Performance Evolution
 
 | Date | Version | Modules | L1 Resolution |
@@ -256,6 +276,8 @@ python -m cogniarc.spatial_inference
 | 2026-06-28 | v3.2 (World Model + micro-NN) | +WorldModelTool, micro-NN, heuristic path | 🚧 0% L1 (mechanics discovered) |
 | 2026-07-01 | v3.3 (audit) | Dev/holdout harness, ObjectTracker, program synthesis DSL | 📊 0% dev, 0% holdout |
 | **2026-07-04** | **v4.0 (generic harness)** 🎉 | GoalSanityChecker, generic phases, descend-then-left, random explore, ObjectTracker hypotheses | ✅ **LS20 L1 40 steps, L2 48 steps, SP80 17 steps** |
+| 2026-07-05 | Holdout measurement | Full 10-game holdout sweep, per-game error logs | 📊 0/10 holdout, 55/96 dev levels (57.3%), gap 57.3pp — 2 blocking bugs identified |
+| post-07-05 hotfix | Import/naming fix | `world_model/` (physics) renamed to `world_model_physics/` — it collided with `world_model.py` (WorldModelTool/k-NN), silently shadowing it; fixed 7 files' hardcoded `/home/redgamer/...` absolute imports to relative imports; guarded the physics-tools import block so a future physics-tree issue can't break `import cogniarc` again | 🔧 Package was unimportable outside the original dev machine — now fixed and guarded |
 
 ---
 

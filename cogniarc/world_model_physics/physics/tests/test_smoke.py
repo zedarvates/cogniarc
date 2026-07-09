@@ -1,17 +1,15 @@
 """Smoke tests — verify all modules import and basic functions work."""
-import sys
-sys.path.insert(0, '/home/redgamer/projects/world-model-tool')
 
 
 def test_imports():
     """All core modules import cleanly"""
-    import constants
-    from simulator import physics, physics_v3
-    from models import trainer
-    from tools import discrete_classifier, scene_graph, llm_tool, predictor
-    from tools import relation_engine, kinematic_engine, mass_gravity
-    from tools import momentum_inertia, torque_experts, advanced_physics
-    from tools import spatial_zoning, spatial_reasoning
+    from .. import constants
+    from ..simulator import physics, physics_v3
+    from ..models import trainer
+    from ..tools import discrete_classifier, scene_graph, llm_tool, predictor
+    from ..tools import relation_engine, kinematic_engine, mass_gravity
+    from ..tools import momentum_inertia, torque_experts, advanced_physics
+    from ..tools import spatial_zoning, spatial_reasoning
     return True
 
 

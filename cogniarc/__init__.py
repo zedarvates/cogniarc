@@ -39,14 +39,26 @@ __all__ = [
 ]
 
 # Physics World Model — Mode 10 (SIMULATION_PHYSIQUE)
-from .world_model.physics.simulator.physics_v3 import PhysicsWorldV3, V3_SCENARIOS
-from .world_model.physics.tools.spatial_zoning import SpatialAnalyzer
-from .world_model.physics.tools.mass_gravity import MassProperties, CenterOfMass
-from .world_model.physics.tools.kinematic_engine import MobilityAnalyzer
-from .world_model.physics.tools.scene_graph import SceneGraph
-from .world_model.physics.tools.momentum_inertia import MomentumAnalyzer, RotationalAnalyzer
-from .world_model.physics.tools.discrete_classifier import MoveState, classify_per_body
-from .world_model.physics.tools.torque_experts import ExpertRegistry, build_default_registry, MicroExpert
-from .world_model.physics.tools.spatial_reasoning import OcclusionEngine, Pathfinder
-from .world_model.physics.tools.phase_states import SubstanceData, PhaseDiagram, PhaseTransitionEngine, GasDynamics, SUBSTANCES
-from .world_model.physics.tools.box3d_bridge import Box3DWorld, Box3DBody
+# Guarded: this block previously imported unconditionally from a path
+# (world_model.physics) that collided with world_model.py (this package's
+# own WorldModelTool/WorldModelConfig) and, transitively, from a hardcoded
+# developer-machine path (/home/redgamer/projects/world-model-tool) that
+# doesn't exist anywhere else — breaking `import cogniarc` entirely for
+# everyone else. Fixed: package renamed to world_model_physics/, internal
+# imports switched to relative, and this block guarded so a future issue in
+# the physics tree degrades gracefully instead of breaking the core package.
+try:
+    from .world_model_physics.physics.simulator.physics_v3 import PhysicsWorldV3, V3_SCENARIOS
+    from .world_model_physics.physics.tools.spatial_zoning import SpatialAnalyzer
+    from .world_model_physics.physics.tools.mass_gravity import MassProperties, CenterOfMass
+    from .world_model_physics.physics.tools.kinematic_engine import MobilityAnalyzer
+    from .world_model_physics.physics.tools.scene_graph import SceneGraph
+    from .world_model_physics.physics.tools.momentum_inertia import MomentumAnalyzer, RotationalAnalyzer
+    from .world_model_physics.physics.tools.discrete_classifier import MoveState, classify_per_body
+    from .world_model_physics.physics.tools.torque_experts import ExpertRegistry, build_default_registry, MicroExpert
+    from .world_model_physics.physics.tools.spatial_reasoning import OcclusionEngine, Pathfinder
+    from .world_model_physics.physics.tools.phase_states import SubstanceData, PhaseDiagram, PhaseTransitionEngine, GasDynamics, SUBSTANCES
+    from .world_model_physics.physics.tools.box3d_bridge import Box3DWorld, Box3DBody
+    PHYSICS_AVAILABLE = True
+except ImportError:
+    PHYSICS_AVAILABLE = False

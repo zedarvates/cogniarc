@@ -10,13 +10,11 @@ Designed for Hermes Agent tool integration.
 
 import json
 import numpy as np
-import sys
-sys.path.insert(0, '/home/redgamer/projects/world-model-tool')
-from simulator.physics import (
+from ..simulator.physics import (
     PhysicsWorld, PhysicsBody, Vec2, SCENARIOS,
     create_ramp_scenario, generate_training_data
 )
-from models.trainer import SimpleWorldModel, WorldModelConfig
+from ..models.trainer import SimpleWorldModel, WorldModelConfig
 
 # Globals for tool state persistence
 _current_world = None

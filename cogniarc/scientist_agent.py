@@ -48,12 +48,21 @@ except ImportError:
 
 # Cognitive drives
 from .cognitive_player import CognitiveDrives, hash_grid
-from .world_model.physics.tools.mass_gravity import MassProperties
-from .world_model.physics.tools.momentum_inertia import MomentumAnalyzer
-from .world_model.physics.tools.spatial_zoning import SpatialAnalyzer
-from .world_model.physics.tools.scene_graph import SceneGraph
-from .world_model.physics.tools.torque_experts import ExpertRegistry, build_default_registry
-from .world_model.physics.tools.discrete_classifier import classify_per_body
+
+# Optional physics world-model tools (Mode 10 / SIMULATION_PHYSIQUE). Guarded
+# like benchmark_tracker above: a physics-tree issue must degrade gracefully,
+# not take down the whole package (this exact block did exactly that until
+# fixed — see world_model_physics/ rename + relative-import fixes).
+try:
+    from .world_model_physics.physics.tools.mass_gravity import MassProperties
+    from .world_model_physics.physics.tools.momentum_inertia import MomentumAnalyzer
+    from .world_model_physics.physics.tools.spatial_zoning import SpatialAnalyzer
+    from .world_model_physics.physics.tools.scene_graph import SceneGraph
+    from .world_model_physics.physics.tools.torque_experts import ExpertRegistry, build_default_registry
+    from .world_model_physics.physics.tools.discrete_classifier import classify_per_body
+    PHYSICS_AVAILABLE = True
+except ImportError:
+    PHYSICS_AVAILABLE = False
 
 # Mixins (see module docstring)
 from .scientist_agent_ml_tiers import MLTiersMixin

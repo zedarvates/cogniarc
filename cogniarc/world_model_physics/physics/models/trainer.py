@@ -9,9 +9,7 @@ import json
 import pickle
 from dataclasses import dataclass, field
 from typing import List, Tuple, Optional
-import sys
-sys.path.insert(0, '/home/redgamer/projects/world-model-tool')
-from simulator.physics import PhysicsWorld, Vec2, SCENARIOS, create_ramp_scenario, generate_training_data
+from ..simulator.physics import PhysicsWorld, Vec2, SCENARIOS, create_ramp_scenario, generate_training_data
 
 
 @dataclass 

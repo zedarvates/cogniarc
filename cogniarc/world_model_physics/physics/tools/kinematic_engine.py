@@ -4,16 +4,13 @@ Computes: mobility, workspaces, motion transmission, singularities.
 Designed for LLM approximate reasoning about mechanical systems.
 """
 
-import sys
-sys.path.insert(0, '/home/redgamer/projects/world-model-tool')
-
 import numpy as np
 import math
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Set, Optional
 from enum import Enum
 import json
-from simulator.physics import Vec2
+from ..simulator.physics import Vec2
 
 # ============================================================
 # 1. KINEMATIC ELEMENTS

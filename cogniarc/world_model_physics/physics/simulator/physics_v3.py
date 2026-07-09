@@ -8,9 +8,7 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Set, Tuple, Optional, Any
 from enum import Enum
 import json
-import sys
-sys.path.insert(0, '/home/redgamer/projects/world-model-tool')
-from simulator.physics import (
+from .physics import (
     Vec2, PhysicsWorld, PhysicsBody, Shape, ShapeType,
     Material, MATERIALS, Atmosphere, LiquidType, LIQUIDS,
     ForceField, create_ramp_scenario, SCENARIOS

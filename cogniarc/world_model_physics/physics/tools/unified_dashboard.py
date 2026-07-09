@@ -3,15 +3,12 @@ World Model Unified Dashboard — All V3 systems integrated.
 Launch: python3 tools/unified_dashboard.py
 """
 
-import sys
-sys.path.insert(0, '/home/redgamer/projects/world-model-tool')
-
-from simulator.physics_v3 import (
+from ..simulator.physics_v3 import (
     PhysicsWorldV3, V3_SCENARIOS,
     CausalEvent, EventType, CompoundBody, CompoundType,
     EnergySnapshot, AgentGoal, GoalType, ThermalProperties
 )
-from simulator.physics import Vec2, Shape, ShapeType, PhysicsBody, MATERIALS
+from ..simulator.physics import Vec2, Shape, ShapeType, PhysicsBody, MATERIALS
 
 
 def run_full_analysis(scenario: str = "vehicle", steps: int = 180):
