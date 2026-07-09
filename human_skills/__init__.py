@@ -11,6 +11,7 @@ from .evaluate import evaluate_strokes
 from .practice import practice_glyph, train_all_glyphs
 from . import shapes
 from . import scenes
+from . import abacus
 
 __all__ = [
     "GLYPHS", "Stroke", "get_glyph",
@@ -18,5 +19,5 @@ __all__ = [
     "strokes_to_svg", "render_glyph_plate",
     "evaluate_strokes",
     "practice_glyph", "train_all_glyphs",
-    "shapes", "scenes",
+    "shapes", "scenes", "abacus",
 ]

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html><head><title>Addition au boulier</title>
+<style>
+body { font-family: sans-serif; background: #1a1a2e; color: #eee; margin: 20px; }
+.step { background: #16213e; border-radius: 8px; padding: 10px; margin: 10px 0; }
+.step h3 { margin: 0 0 5px 0; color: #c0392b; }
+.step p { margin: 0 0 5px 0; color: #aaa; font-size: 0.9em; }
+object, img { max-width: 500px; display: block; }
+.carry { border-left: 3px solid #f39c12; }
+</style></head><body>
+<h1>🧮 47 + 35 = 82</h1>
+<div class="step"><h3>Étape 0</h3><p>Position initiale : 47</p><svg xmlns="http://www.w3.org/2000/svg" width="600" height="200" viewBox="0 0 1.0 1.0"><rect width="100%" height="100%" fill="#f5f0e1"/>
+<rect x="0.07" y="0.07" width="0.86" height="0.8600000000000001" rx="0.02" fill="none" stroke="#5D4037" stroke-width="0.008"/>
+<rect x="0.075" y="0.417" width="0.85" height="0.006" fill="#8D6E63"/>
+<line x1="0.185" y1="0.08" x2="0.185" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.185" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×1000</text>
+<line x1="0.395" y1="0.08" x2="0.395" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.395" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×100</text>
+<line x1="0.605" y1="0.08" x2="0.605" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.605" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×10</text>
+<line x1="0.815" y1="0.08" x2="0.815" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.815" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×1</text>
+<rect x="0.122" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.6004" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.6796000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.6004" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.6796000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.542" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.542" y="0.6676" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.542" y="0.5884" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.542" y="0.5092" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.542" y="0.43" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.752" y="0.218" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#c0392b" stroke="none"/>
+<rect x="0.752" y="0.6676" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.752" y="0.5884" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.752" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.752" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+</svg></div>
+<div class="step"><h3>Étape 1</h3><p>+5 → retenue ! 42 (reste 2, retient 1)</p><svg xmlns="http://www.w3.org/2000/svg" width="600" height="200" viewBox="0 0 1.0 1.0"><rect width="100%" height="100%" fill="#f5f0e1"/>
+<rect x="0.07" y="0.07" width="0.86" height="0.8600000000000001" rx="0.02" fill="none" stroke="#5D4037" stroke-width="0.008"/>
+<rect x="0.075" y="0.417" width="0.85" height="0.006" fill="#8D6E63"/>
+<line x1="0.185" y1="0.08" x2="0.185" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.185" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×1000</text>
+<line x1="0.395" y1="0.08" x2="0.395" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.395" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×100</text>
+<line x1="0.605" y1="0.08" x2="0.605" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.605" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×10</text>
+<line x1="0.815" y1="0.08" x2="0.815" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.815" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×1</text>
+<rect x="0.122" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.6004" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.6796000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.6004" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.6796000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.542" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.542" y="0.6676" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.542" y="0.5884" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.542" y="0.5092" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.542" y="0.43" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.752" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.752" y="0.6676" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.752" y="0.5884" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.752" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.752" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+</svg></div>
+<div class="step carry"><h3>Étape 1.5</h3><p>retenue propagée → 52</p><svg xmlns="http://www.w3.org/2000/svg" width="600" height="200" viewBox="0 0 1.0 1.0"><rect width="100%" height="100%" fill="#f5f0e1"/>
+<rect x="0.07" y="0.07" width="0.86" height="0.8600000000000001" rx="0.02" fill="none" stroke="#5D4037" stroke-width="0.008"/>
+<rect x="0.075" y="0.417" width="0.85" height="0.006" fill="#8D6E63"/>
+<line x1="0.185" y1="0.08" x2="0.185" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.185" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×1000</text>
+<line x1="0.395" y1="0.08" x2="0.395" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.395" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×100</text>
+<line x1="0.605" y1="0.08" x2="0.605" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.605" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×10</text>
+<line x1="0.815" y1="0.08" x2="0.815" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.815" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×1</text>
+<rect x="0.122" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.6004" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.6796000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.6004" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.6796000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.542" y="0.218" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#c0392b" stroke="none"/>
+<rect x="0.542" y="0.6004" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.542" y="0.6796000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.542" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.542" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.752" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.752" y="0.6676" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.752" y="0.5884" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.752" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.752" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+</svg></div>
+<div class="step"><h3>Étape 2</h3><p>+3 à la position des 10^1 : 82</p><svg xmlns="http://www.w3.org/2000/svg" width="600" height="200" viewBox="0 0 1.0 1.0"><rect width="100%" height="100%" fill="#f5f0e1"/>
+<rect x="0.07" y="0.07" width="0.86" height="0.8600000000000001" rx="0.02" fill="none" stroke="#5D4037" stroke-width="0.008"/>
+<rect x="0.075" y="0.417" width="0.85" height="0.006" fill="#8D6E63"/>
+<line x1="0.185" y1="0.08" x2="0.185" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.185" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×1000</text>
+<line x1="0.395" y1="0.08" x2="0.395" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.395" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×100</text>
+<line x1="0.605" y1="0.08" x2="0.605" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.605" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×10</text>
+<line x1="0.815" y1="0.08" x2="0.815" y2="0.92" stroke="#5D4037" stroke-width="0.004"/>
+<text x="0.815" y="0.9450000000000001" font-size="0.03" fill="#999" text-anchor="middle" font-family="monospace">×1</text>
+<rect x="0.122" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.6004" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.6796000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.122" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.6004" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.6796000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.332" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.542" y="0.218" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#c0392b" stroke="none"/>
+<rect x="0.542" y="0.6676" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.542" y="0.5884" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.542" y="0.5092" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.542" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.752" y="0.09" width="0.126" height="0.19199999999999998" rx="0.0378" fill="#ddd" stroke="none"/>
+<rect x="0.752" y="0.6676" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.752" y="0.5884" width="0.126" height="0.072" rx="0.021599999999999998" fill="#c0392b" stroke="none"/>
+<rect x="0.752" y="0.7588" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+<rect x="0.752" y="0.8380000000000001" width="0.126" height="0.072" rx="0.021599999999999998" fill="#ddd" stroke="none"/>
+</svg></div>
+<h2>= 82</h2></body></html>
