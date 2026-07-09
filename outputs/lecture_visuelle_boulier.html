@@ -1,0 +1,209 @@
+<!DOCTYPE html><html><head><title>👀 Lecture visuelle du boulier</title>
+<style>
+body{font-family:sans-serif;background:#1a1a2e;color:#eee;margin:20px}
+.card{background:#16213e;border-radius:8px;padding:15px;margin:10px 0}
+.reasoning{background:#0f3460;padding:10px;border-radius:4px;white-space:pre-wrap;font-family:monospace;font-size:0.85em}
+object{max-width:500px;display:block;margin:10px 0}
+</style></head><body>
+<h1>👀 Lecture visuelle du boulier</h1>
+<p>L'IA regarde le SVG, trouve les billes rouges, les compte par colonne, et lit le nombre comme un humain.</p>
+<div class="card"><h2>Nombre : 7</h2><object data="vision_7.svg" type="image/svg+xml"></object><p>Lu : 7 ✅</p><div class="reasoning">👀 Je regarde le boulier...
+  Je vois 4 colonnes (positions décimales).
+
+  Barre de séparation trouvée à y=0.417
+
+Colonne 1 (milliers) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 0 + 0 = 0
+
+Colonne 2 (centaines) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 0 + 0 = 0
+
+Colonne 3 (dizaines) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 0 + 0 = 0
+
+Colonne 4 (unités) :
+  • Bandeau ciel : 1 bille rouge ↓ → 5
+  • Bandeau terre : 2 billes rouges ↑ → 2
+  • → Chiffre = 5 + 2 = 7
+
+📝 Lecture complète : 0 0 0 7
+→ Nombre : 7</div></div>
+<div class="card"><h2>Nombre : 42</h2><object data="vision_42.svg" type="image/svg+xml"></object><p>Lu : 42 ✅</p><div class="reasoning">👀 Je regarde le boulier...
+  Je vois 4 colonnes (positions décimales).
+
+  Barre de séparation trouvée à y=0.417
+
+Colonne 1 (milliers) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 0 + 0 = 0
+
+Colonne 2 (centaines) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 0 + 0 = 0
+
+Colonne 3 (dizaines) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 4 billes rouges ↑ → 4
+  • → Chiffre = 0 + 4 = 4
+
+Colonne 4 (unités) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 2 billes rouges ↑ → 2
+  • → Chiffre = 0 + 2 = 2
+
+📝 Lecture complète : 0 0 4 2
+→ Nombre : 42</div></div>
+<div class="card"><h2>Nombre : 123</h2><object data="vision_123.svg" type="image/svg+xml"></object><p>Lu : 123 ✅</p><div class="reasoning">👀 Je regarde le boulier...
+  Je vois 4 colonnes (positions décimales).
+
+  Barre de séparation trouvée à y=0.417
+
+Colonne 1 (milliers) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 0 + 0 = 0
+
+Colonne 2 (centaines) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 1 bille rouge ↑ → 1
+  • → Chiffre = 0 + 1 = 1
+
+Colonne 3 (dizaines) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 2 billes rouges ↑ → 2
+  • → Chiffre = 0 + 2 = 2
+
+Colonne 4 (unités) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 3 billes rouges ↑ → 3
+  • → Chiffre = 0 + 3 = 3
+
+📝 Lecture complète : 0 1 2 3
+→ Nombre : 123</div></div>
+<div class="card"><h2>Nombre : 999</h2><object data="vision_999.svg" type="image/svg+xml"></object><p>Lu : 999 ✅</p><div class="reasoning">👀 Je regarde le boulier...
+  Je vois 4 colonnes (positions décimales).
+
+  Barre de séparation trouvée à y=0.417
+
+Colonne 1 (milliers) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 0 + 0 = 0
+
+Colonne 2 (centaines) :
+  • Bandeau ciel : 1 bille rouge ↓ → 5
+  • Bandeau terre : 4 billes rouges ↑ → 4
+  • → Chiffre = 5 + 4 = 9
+
+Colonne 3 (dizaines) :
+  • Bandeau ciel : 1 bille rouge ↓ → 5
+  • Bandeau terre : 4 billes rouges ↑ → 4
+  • → Chiffre = 5 + 4 = 9
+
+Colonne 4 (unités) :
+  • Bandeau ciel : 1 bille rouge ↓ → 5
+  • Bandeau terre : 4 billes rouges ↑ → 4
+  • → Chiffre = 5 + 4 = 9
+
+📝 Lecture complète : 0 9 9 9
+→ Nombre : 999</div></div>
+<div class="card"><h2>Nombre : 1234</h2><object data="vision_1234.svg" type="image/svg+xml"></object><p>Lu : 1234 ✅</p><div class="reasoning">👀 Je regarde le boulier...
+  Je vois 6 colonnes (positions décimales).
+
+  Barre de séparation trouvée à y=0.417
+
+Colonne 1 (10^5) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 0 + 0 = 0
+
+Colonne 2 (dizaines de milliers) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 0 + 0 = 0
+
+Colonne 3 (milliers) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 1 bille rouge ↑ → 1
+  • → Chiffre = 0 + 1 = 1
+
+Colonne 4 (centaines) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 2 billes rouges ↑ → 2
+  • → Chiffre = 0 + 2 = 2
+
+Colonne 5 (dizaines) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 3 billes rouges ↑ → 3
+  • → Chiffre = 0 + 3 = 3
+
+Colonne 6 (unités) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 4 billes rouges ↑ → 4
+  • → Chiffre = 0 + 4 = 4
+
+📝 Lecture complète : 0 0 1 2 3 4
+→ Nombre : 1234</div></div>
+<div class="card"><h2>Nombre : 1825</h2><object data="vision_1825.svg" type="image/svg+xml"></object><p>Lu : 1825 ✅</p><div class="reasoning">👀 Je regarde le boulier...
+  Je vois 6 colonnes (positions décimales).
+
+  Barre de séparation trouvée à y=0.417
+
+Colonne 1 (10^5) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 0 + 0 = 0
+
+Colonne 2 (dizaines de milliers) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 0 + 0 = 0
+
+Colonne 3 (milliers) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 1 bille rouge ↑ → 1
+  • → Chiffre = 0 + 1 = 1
+
+Colonne 4 (centaines) :
+  • Bandeau ciel : 1 bille rouge ↓ → 5
+  • Bandeau terre : 3 billes rouges ↑ → 3
+  • → Chiffre = 5 + 3 = 8
+
+Colonne 5 (dizaines) :
+  • Bandeau ciel : aucune bille rouge → 0
+  • Bandeau terre : 2 billes rouges ↑ → 2
+  • → Chiffre = 0 + 2 = 2
+
+Colonne 6 (unités) :
+  • Bandeau ciel : 1 bille rouge ↓ → 5
+  • Bandeau terre : 0 bille rouge ↑ → 0
+  • → Chiffre = 5 + 0 = 5
+
+📝 Lecture complète : 0 0 1 8 2 5
+→ Nombre : 1825</div></div>
+<h2>🧮 Addition visuelle</h2>
+<div class="card"><h3>47 + 35 = 82</h3><b>0. Poser 47 sur le boulier</b><br><pre></pre><br><b>1. Additionner 5 aux unités → RETENUE !</b><br><pre>  Avant : 7
+  +5 = 12 → dépasse 9
+  Je laisse 2 dans cette colonne
+  Je retiens 1 pour la colonne suivante</pre><br><b>2. Propager la retenue</b><br><pre>  → 42</pre><br><b>3. Retenue ajoutée à la colonne 3</b><br><pre>  → 52</pre><br><b>4. Additionner 3 aux dizaines</b><br><pre>  Avant : 5 (ciel=1, 0 terre)
+  J'ajoute 3 billes en terre
+  → 8 (ciel=1, 3 terre)</pre><br><b>5. Résultat intermédiaire</b><br><pre>  82</pre></div>
+<div class="card"><h3>123 + 987 = 1110</h3><b>0. Poser 123 sur le boulier</b><br><pre></pre><br><b>1. Additionner 7 aux unités → RETENUE !</b><br><pre>  Avant : 3
+  +7 = 10 → dépasse 9
+  Je laisse 0 dans cette colonne
+  Je retiens 1 pour la colonne suivante</pre><br><b>2. Propager la retenue</b><br><pre>  → 120</pre><br><b>3. Retenue ajoutée à la colonne 3</b><br><pre>  → 130</pre><br><b>4. Additionner 8 aux dizaines → RETENUE !</b><br><pre>  Avant : 3
+  +8 = 11 → dépasse 9
+  Je laisse 1 dans cette colonne
+  Je retiens 1 pour la colonne suivante</pre><br><b>5. Propager la retenue</b><br><pre>  → 110</pre><br><b>6. Retenue ajoutée à la colonne 2</b><br><pre>  → 210</pre><br><b>7. Additionner 9 aux centaines → RETENUE !</b><br><pre>  Avant : 2
+  +9 = 11 → dépasse 9
+  Je laisse 1 dans cette colonne
+  Je retiens 1 pour la colonne suivante</pre><br><b>8. Propager la retenue</b><br><pre>  → 110</pre><br><b>9. Retenue ajoutée à la colonne 1</b><br><pre>  → 1110</pre></div>
+</body></html>
