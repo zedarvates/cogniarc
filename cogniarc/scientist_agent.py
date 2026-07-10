@@ -87,6 +87,7 @@ class ReasoningMode(Enum):
     ANALOGICAL = "analogical"         # Transférer skill d'un autre jeu/niveau
     SOCRATIC = "socratic"             # Questionner hypothèses via SocraticCritic
     SIMULATION = "simulation"         # Mode 10: projeter état futur via physique
+    COUNTING = "counting"             # Mode 12: compter visuellement (soroban/boulier)
 
 
 # ═══ Mode-driven decision functions ═══
@@ -194,6 +195,15 @@ class ReasonModeManager:
                     ctx.get("needs_physical_verification", False)
                 ),
                 priority=9,
+            ),
+            ModeStrategy(
+                ReasoningMode.COUNTING,
+                "Compter visuellement (soroban) — pas, cycles, distances",
+                lambda ctx: (
+                    ctx.get("needs_counting", False) or
+                    ctx.get("has_goal_hypothesis", False) and ctx.get("stagnation", 0) >= 2
+                ),
+                priority=7,
             ),
             ModeStrategy(
                 ReasoningMode.ANALOGICAL,
@@ -701,6 +711,14 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
             "causal_ambiguity": causal_ambiguity,
             "drive_caution": self.drives.drive_values.get("caution", [0.0])[-1] if self.drives.drive_values.get("caution") else 0.0,
             "needs_physical_verification": needs_physical_verification,
+            "needs_counting": (
+                hasattr(self, '_phase') and (
+                    self._phase in ("navigate_to_target", "navigate_to_changer", "navigate_to_lock", "rotate_to_goal")
+                    or "navigate" in str(getattr(self, '_phase', ''))
+                )
+                and self.steps > 10
+                and causal_ambiguity is False
+            ),
         }
         new_mode = self.mode_manager.select_mode(mode_context)
         if new_mode != self.current_reasoning_mode:
@@ -804,10 +822,13 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                     self._run_physical_simulation(skill_id)
                 except Exception as e:
                     print(f"  ⚙️ Physics sim skipped: {e}")
-                    self.state.phase_attempts = 0
-                    continue  # Retry with new phase
-                else:
-                    print(f"     Aucune alternative - execution risquee")
+
+            # ═══ Mode 12 — COMPTAGE_VISUEL: count on abacus ═══
+            if self.current_reasoning_mode == ReasoningMode.COUNTING:
+                try:
+                    self._run_visual_counting(skill_id)
+                except Exception as e:
+                    print(f"  🧮 Counting skipped: {e}")
 
             # ═══ COGNITIVE DRIVES: adaptive dwell before skill execution ═══
             # If cognitive fatigue is high, skip deep planning and try random actions
@@ -984,6 +1005,51 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
             print(f"  ⚙️   Rotation hypothesis — no physics simulation available yet")
         else:
             print(f"  ⚙️   No physics simulation for '{skill_id}' yet")
+
+    def _run_visual_counting(self, skill_id: str) -> None:
+        """Mode 12 handler: visual counting on the soroban.
+
+        Uses the human_skills abacus module to render numbers visually
+        on a soroban (Japanese abacus). Each number becomes a visual
+        configuration of beads that the agent (and human observer)
+        can read at a glance.
+
+        Triggered when navigating (counting steps) or cycling rotation
+        (counting cycles).
+        """
+        try:
+            from human_skills.abacus import render_abacus_svg, number_to_beads
+        except ImportError:
+            print(f"  🧮 [Mode 12] human_skills not available")
+            return
+
+        ot = getattr(self, 'object_tracker', None)
+
+        # Count steps taken
+        steps = self.steps
+        svg = render_abacus_svg(steps, n_columns=4)
+
+        # Count distance to target if navigating
+        target_info = ""
+        if ot is not None and ot.has_enough_observations():
+            summary = ot.get_perception_summary(grid=self.obs.frame[0] if hasattr(self.obs, 'frame') and self.obs.frame else None)
+            pos = summary.get("player_position")
+            if pos:
+                # Estimate distance to known targets
+                known = summary.get("known_positions", {})
+                if known:
+                    pc = ot.player_color
+                    for color, (tx, ty) in list(known.items())[:2]:
+                        if color != pc:
+                            dist = abs(pos[0] - tx) + abs(pos[1] - ty)
+                            svg_dist = render_abacus_svg(int(dist), n_columns=3)
+                            target_info += f"\n  Distance to color_{color}: {dist}"
+                            target_info += f"\n  {svg_dist[:200]}..."
+
+        print(f"  🧮 [Mode 12] Steps: {steps}")
+        print(f"  {svg[:300]}...")
+        if target_info:
+            print(target_info)
 
     def _build_phase_hypothesis(self) -> str:
         """Build a human-readable hypothesis for the current phase."""
