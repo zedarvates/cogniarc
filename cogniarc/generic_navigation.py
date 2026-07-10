@@ -240,12 +240,44 @@ class GenericNavigator:
                         # Already stepped — continue tracking
                         steps_taken += 1
                         stuck_count = 0
+                        # Check rotation
+                        try:
+                            rot_actions = ot.rotation_actions_detected()
+                            if rot_actions and best_action in rot_actions:
+                                print(f"  🔄 Rotation action {best_action} detected — clearing old directions")
+                                ot.clear_action_displacements()
+                        except Exception:
+                            pass
                         self.update_grid(new_obs)
                         continue
                     else:
-                        print(f"  ⚠️ No action improves position, trying greedy")
-                        import random
-                        action = random.choice(avail)
+                        # No action improves distance — try actions that actually
+                        # move the player (any displacement), preferring larger
+                        # movements. On LS20, the player may need to go the
+                        # "wrong way" first (wraparound, teleporter).
+                        print(f"  🔄 No action toward target, trying movement actions")
+                        moved_actions = []
+                        for a in avail:
+                            gb = obs.frame[0].copy()
+                            try:
+                                test_obs = step_fn(a)
+                            except Exception:
+                                continue
+                            if hasattr(test_obs, 'frame') and test_obs.frame:
+                                ot.observe(gb, a, test_obs.frame[0].copy())
+                                dr, dc = ot.action_direction(a) or (0, 0)
+                                moved_actions.append((abs(dr) + abs(dc), a, test_obs))
+                                self.obs = test_obs
+
+                        if moved_actions:
+                            # Pick the action with largest displacement
+                            moved_actions.sort(key=lambda x: -x[0])
+                            _, action, new_obs = moved_actions[0]
+                            print(f"  ✅ Best movement: action {action}")
+                        else:
+                            import random
+                            action = random.choice(avail)
+                            new_obs = step_fn(action)
                 else:
                     return False
 
@@ -253,6 +285,15 @@ class GenericNavigator:
             new_obs = step_fn(action)
             steps_taken += 1
             self.obs = new_obs
+
+            # Check if the action changed rotation state
+            try:
+                rot_actions = ot.rotation_actions_detected()
+                if rot_actions and action in rot_actions:
+                    print(f"  🔄 Rotation action {action} detected — clearing old directions")
+                    ot.clear_action_displacements()
+            except Exception:
+                pass
 
             # Update grid with latest obs
             self.update_grid(new_obs)

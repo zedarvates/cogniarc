@@ -326,6 +326,7 @@ class ObjectTracker:
             "wall_colors": set(self.wall_colors),
             "n_observations": self.n_observations,
             "player_moved_last_step": self.last_step_player_moved,
+            "rotation_actions": self.rotation_actions_detected(),
         }
 
         if grid is not None:
