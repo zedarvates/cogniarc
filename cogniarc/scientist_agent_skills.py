@@ -364,8 +364,8 @@ class SkillsMixin:
         """Execute navigate-to-target skill using ObjectTracker-based generic
         navigation. Falls back to tag-based pathfinding for known games.
 
-        Generic path: use ObjectTracker action directions to move around,
-        recording wall/floor evidence with each step.
+        Generic path: use GenericNavigator + best_action_toward for
+        game-agnostic multi-step navigation.
         Tag-based path: A* with known wall colours (legacy, LS20-specific).
         """
         # Phase-specific tag-based target (legacy LS20 + generic)
@@ -391,45 +391,86 @@ class SkillsMixin:
             if ot_target is not None:
                 target_pos = ot_target
                 print(f"  🎯 Using ObjectTracker target: {target_pos}")
+
         ot = getattr(self, 'object_tracker', None)
+
+        # If we have a target and an ObjectTracker, use GenericNavigator
+        if target_pos is not None and ot is not None:
+            from .generic_navigation import GenericNavigator
+            nav = GenericNavigator(ot, self.obs)
+            print(f"  🧭 Navigating to {target_pos}...")
+            success = nav.navigate(
+                target_pos,
+                self.step,
+                max_steps=100,
+                obs=self.obs,
+            )
+            if success:
+                print(f"  ✅ Reached target!")
+                return True
+            else:
+                print(f"  ⚠️ Navigation to {target_pos} failed")
+                return False
+
+        # Single-step fallback (B2 fix)
         if ot is not None and ot.has_enough_observations() and target_pos is None:
             action = self._navigate_one_step()
             if action is not None:
                 return True
             return False
 
-        # LEGACY path: A* with known wall colours (LS20-specific)
-        if target_pos is None:
-            # No known target — explore to feed ObjectTracker and discover mechanics
-            import random
-            actions = [a for a in [1,2,3,4,5,6] if a in (self.obs.available_actions or [1,2,3,4])]
-            if not actions:
-                actions = [1,2,3,4]
-            
-            # Do 3-5 exploration steps to give ObjectTracker time to learn
-            explore_steps = 5
-            ot = getattr(self, 'object_tracker', None)
-            ot_ready = ot is not None and ot.has_enough_observations()
-            
-            if not ot_ready:
-                print(f"  🔍 Exploring to feed ObjectTracker ({explore_steps} steps)...")
-            
-            for i in range(explore_steps):
-                action = random.choice(actions)
-                self.step(action)
-                # Check if level completed during exploration
-                prev_lvl = getattr(self, '_explore_start_level', self.obs.levels_completed)
-                if i == 0:
-                    self._explore_start_level = self.obs.levels_completed
-                if self.obs.levels_completed > self._explore_start_level:
-                    print(f"  🎉 Level completed during exploration!")
-                    return True
-            
-            # After exploration, check if ObjectTracker learned something
-            if ot is not None:
-                summary = ot.get_perception_summary()
-                directions = summary.get("action_directions", {})
-                if directions:
+        # No target and no tracker — explore to feed ObjectTracker
+        import random
+        actions = [a for a in [1,2,3,4,5,6] if a in (self.obs.available_actions or [1,2,3,4])]
+        if not actions:
+            actions = [1,2,3,4]
+
+        explore_steps = 5
+        ot_ready = ot is not None and ot.has_enough_observations()
+
+        if not ot_ready:
+            print(f"  🔍 Exploring to feed ObjectTracker ({explore_steps} steps)...")
+
+        for i in range(explore_steps):
+            action = random.choice(actions)
+            self.step(action)
+            prev_lvl = getattr(self, '_explore_start_level', self.obs.levels_completed)
+            if i == 0:
+                self._explore_start_level = self.obs.levels_completed
+            if self.obs.levels_completed > self._explore_start_level:
+                print(f"  🎉 Level completed during exploration!")
+                return True
+
+        # After exploration, try navigation again if we have a target
+        if ot is not None and ot.has_enough_observations():
+            summary = ot.get_perception_summary()
+            directions = summary.get("action_directions", {})
+            if directions:
+                # Try to get a target from known_positions
+                known = summary.get("known_positions", {})
+                if known:
+                    # Pick the most interesting target (non-player, non-wall)
+                    pc = ot.player_color
+                    for color, pos in known.items():
+                        if color != pc and color not in ot.wall_colors:
+                            target_pos = (int(pos[0]), int(pos[1]))
+                            print(f"  🎯 Found potential target at {target_pos} (color {color})")
+                            from .generic_navigation import GenericNavigator
+                            nav = GenericNavigator(ot, self.obs)
+                            success = nav.navigate(
+                                target_pos,
+                                self.step,
+                                max_steps=100,
+                                obs=self.obs,
+                            )
+                            if success:
+                                return True
+                            break
+
+                # No known positions but actions exist — use best_action_toward
+                if target_pos is None and self._phase == "navigate_to_target":
+                    # Last resort: explore with a bias toward new areas
+                    action = random.choice(list(directions.keys()) if directions else actions)
                     print(f"  🔍 ObjectTracker learned {len(directions)} movement directions")
                     return True
             
