@@ -699,7 +699,7 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
             "has_target": hasattr(self, '_phase') and self._phase in ("navigate_to_changer", "navigate_to_lock", "navigate_to_target"),
             "has_goal_hypothesis": hasattr(self, '_phase') and self._phase in ("rotation_cycle", "interact"),
             "causal_ambiguity": causal_ambiguity,
-            "drive_caution": self.drives.drive_values.get("caution", 0.0),
+            "drive_caution": self.drives.drive_values.get("caution", [0.0])[-1] if self.drives.drive_values.get("caution") else 0.0,
             "needs_physical_verification": needs_physical_verification,
         }
         new_mode = self.mode_manager.select_mode(mode_context)

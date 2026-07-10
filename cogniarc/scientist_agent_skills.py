@@ -229,7 +229,12 @@ class SkillsMixin:
                             self.state.update_hypothesis(hypothesis_text, confidence=confidence)
                             print(f"  💡 Hypothesis: {hypothesis_text} (conf={confidence:.2f})")
                             # Don't return — continue to find navigation targets
-                            targets.append((f"interactable_via_A{act}", None))
+                            # Only add if we have a valid position to navigate to
+                            if len(self.obs.frame) > 0 and self.obs.frame[0] is not None:
+                                grid = self.obs.frame[0]
+                                # Find the grid cell that changed — we don't know which interaction
+                                # target this action affects, so skip position-based targeting
+                                pass
         
         # ── STRATEGY 3: Tagged sprites (LS20-specific fallback) ──
         if not targets:
@@ -270,7 +275,7 @@ class SkillsMixin:
         elif targets:
             # Skip already-failed targets
             viable = [(t, p) for t, p in targets 
-                      if f"Navigate to {t} at ({p[0]},{p[1]})" not in self._failed_hypotheses]
+                      if p is not None and f"Navigate to {t} at ({p[0]},{p[1]})" not in self._failed_hypotheses]
             if viable:
                 target_type, (tx, ty) = viable[0]
                 hypothesis_text = f"Navigate to {target_type} at ({tx},{ty})"
@@ -398,7 +403,33 @@ class SkillsMixin:
         if target_pos is not None and ot is not None:
             from .generic_navigation import GenericNavigator
             nav = GenericNavigator(ot, self.obs)
-            print(f"  🧭 Navigating to {target_pos}...")
+
+            # Ensure ObjectTracker has enough observations before navigating
+            if not ot.has_enough_observations():
+                print(f"  🔍 Feeding ObjectTracker before navigation...")
+                import random
+                for _ in range(10):
+                    avail = self.obs.available_actions or [1, 2, 3, 4]
+                    action = random.choice(avail)
+                    grid_before = self.obs.frame[0].copy() if self.obs.frame else None
+                    self.step(action)
+                    grid_after = self.obs.frame[0].copy() if self.obs.frame else None
+                    if grid_before is not None and grid_after is not None:
+                        ot.observe(grid_before, action, grid_after)
+                print(f"  ✅ ObjectTracker ready: player={ot.player_color}")
+
+            # Verify player position is known
+            pos = nav.get_player_position()
+            if pos is None:
+                print(f"  ⚠️ Cannot find player position — can't navigate")
+                # Try single-step fallback
+                if ot.has_enough_observations():
+                    action = self._navigate_one_step()
+                    if action is not None:
+                        return True
+                return False
+
+            print(f"  🧭 Navigating from {pos} to {target_pos}...")
             success = nav.navigate(
                 target_pos,
                 self.step,

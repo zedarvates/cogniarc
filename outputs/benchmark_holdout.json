@@ -1,0 +1,86 @@
+[
+  {
+    "game": "sp80",
+    "success": false,
+    "levels_completed": 0,
+    "steps_taken": 27,
+    "reasoning_modes_used": [
+      "exploration->goal_inference"
+    ],
+    "phases_used": [
+      "refine"
+    ],
+    "time_sec": 1.21,
+    "error": null
+  },
+  {
+    "game": "wa30",
+    "success": false,
+    "levels_completed": 0,
+    "steps_taken": 28,
+    "reasoning_modes_used": [
+      "exploration->goal_inference"
+    ],
+    "phases_used": [
+      "refine"
+    ],
+    "time_sec": 0.99,
+    "error": null
+  },
+  {
+    "game": "sc25",
+    "success": false,
+    "levels_completed": 0,
+    "steps_taken": 27,
+    "reasoning_modes_used": [
+      "exploration->goal_inference"
+    ],
+    "phases_used": [
+      "refine"
+    ],
+    "time_sec": 0.81,
+    "error": null
+  },
+  {
+    "game": "re86",
+    "success": false,
+    "levels_completed": 0,
+    "steps_taken": 25,
+    "reasoning_modes_used": [
+      "exploration->goal_inference"
+    ],
+    "phases_used": [
+      "refine"
+    ],
+    "time_sec": 2.5,
+    "error": null
+  },
+  {
+    "game": "bp35",
+    "success": false,
+    "levels_completed": 0,
+    "steps_taken": 1,
+    "reasoning_modes_used": [
+      "exploration->goal_inference"
+    ],
+    "phases_used": [
+      "hypothesize"
+    ],
+    "time_sec": 4.13,
+    "error": "solve_level error: 'NoneType' object has no attribute 'frame'"
+  },
+  {
+    "game": "ls20",
+    "success": false,
+    "levels_completed": 0,
+    "steps_taken": 132,
+    "reasoning_modes_used": [
+      "exploration->goal_inference"
+    ],
+    "phases_used": [
+      "refine"
+    ],
+    "time_sec": 1.6,
+    "error": null
+  }
+]
