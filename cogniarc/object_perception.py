@@ -87,6 +87,7 @@ class ObjectTracker:
         self.action_displacements: Dict[int, List[Tuple[float, float]]] = defaultdict(list)
         self.wall_color_votes: Counter = Counter()
         self.n_observations = 0
+        self._recent_window = 10  # use last 10 obs per action for direction averaging
         # Perception gap counters (Phase 1 T1.1)
         self.vanished_count = 0
         self.total_match_attempts = 0
@@ -115,16 +116,63 @@ class ObjectTracker:
         return max(movers, key=movers.get)
 
     def action_direction(self, action: int) -> Optional[Tuple[float, float]]:
-        """Average (d_row, d_col) displacement observed for this action.
+        """Average (d_row, d_col) displacement observed for this action,
+        using only the most recent observations to avoid rotation pollution.
 
         None if the action has never been observed to move anything.
+
+        Uses last N displacements (not all) so that rotation state changes
+        don't permanently pollute the average (LS20 cklxociuu etc.).
         """
         obs = self.action_displacements.get(action)
         if not obs:
             return None
-        dr = sum(o[0] for o in obs) / len(obs)
-        dc = sum(o[1] for o in obs) / len(obs)
+        # Use only last N observations to avoid rotation-averaging pollution
+        recent = obs[-self._recent_window:]
+        dr = sum(o[0] for o in recent) / len(recent)
+        dc = sum(o[1] for o in recent) / len(recent)
         return (dr, dc)
+
+    def rotation_actions_detected(self) -> List[int]:
+        """Return actions whose displacement pattern changed significantly,
+        suggesting they trigger rotation state changes.
+
+        Compares the direction of the first half of observations vs the
+        second half. If they differ by > 90°, the action likely changes
+        rotation.
+        """
+        import math
+        result = []
+        for action, obs_list in self.action_displacements.items():
+            if len(obs_list) < 6:
+                continue
+            mid = len(obs_list) // 2
+            first_half = obs_list[:mid]
+            second_half = obs_list[mid:]
+
+            # Average directions
+            dr1 = sum(o[0] for o in first_half) / len(first_half)
+            dc1 = sum(o[1] for o in first_half) / len(first_half)
+            dr2 = sum(o[0] for o in second_half) / len(second_half)
+            dc2 = sum(o[1] for o in second_half) / len(second_half)
+
+            # Compute angle between
+            dot = dr1*dr2 + dc1*dc2
+            mag1 = math.sqrt(dr1*dr1 + dc1*dc1) + 1e-8
+            mag2 = math.sqrt(dr2*dr2 + dc2*dc2) + 1e-8
+            cos_angle = dot / (mag1 * mag2)
+            cos_angle = max(-1, min(1, cos_angle))
+            angle = math.degrees(math.acos(cos_angle))
+
+            # If direction changed significantly (> 60°), likely a rotation action
+            if angle > 60:
+                result.append(action)
+
+        return result
+
+    @property  # kept for backward compat — was @property(is_movement_action)
+    def known_directions(self) -> List[int]:
+        return [a for a in self.action_displacements if self.action_direction(a) is not None]
 
     def is_movement_action(self, action: int) -> bool:
         """Whether this action reliably displaces the player-candidate region."""
@@ -312,6 +360,15 @@ class ObjectTracker:
             and known_dirs >= min_directions
             and self.color_move_count[self.player_color] >= 1
         )
+
+    def clear_action_displacements(self) -> None:
+        """Clear accumulated action displacements.
+
+        Called when the agent detects a rotation state change, so that
+        new observations reflect the current rotation context rather than
+        being averaged with the old one.
+        """
+        self.action_displacements.clear()
 
     def report(self) -> str:
         pc = self.player_color
