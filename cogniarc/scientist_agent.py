@@ -669,14 +669,38 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
         )
 
         # ═══ Select reasoning mode via ReasonModeManager ═══
+        # Compute causal ambiguity: do we have evidence that contradicts
+        # our current understanding? (e.g., ObjectTracker confused,
+        # unexpected grid changes, hypothesis refuted)
+        ot = getattr(self, 'object_tracker', None)
+        causal_ambiguity = False
+        if ot is not None and ot.has_enough_observations():
+            pc = ot.player_color
+            if pc is None:
+                # Player identification still ambiguous after enough steps
+                causal_ambiguity = self.steps > 15
+            # Check if last step had unexpected results
+            if ot.last_step_player_moved is False:
+                # Expected movement but didn't move — wall ambiguity
+                causal_ambiguity = causal_ambiguity or (self.steps > 10)
+                
+        needs_physical_verification = (
+            # Hypothesis involves movement prediction that can be verified
+            hasattr(self, '_phase') and self._phase in ("navigate_to_target", "interact")
+            and ot is not None and ot.last_step_player_moved is not None
+        )
+
         mode_context = {
             "stagnation": self.drives.stagnation_counter,
             "domain": self.state.domain_type,
             "available_actions": available,
             "skill_tree_available": self.skill_tree is not None,
             "doubt_active": self.drives.doubt_triggered,
-            "has_target": hasattr(self, '_phase') and self._phase in ("navigate_to_changer", "navigate_to_lock"),
+            "has_target": hasattr(self, '_phase') and self._phase in ("navigate_to_changer", "navigate_to_lock", "navigate_to_target"),
             "has_goal_hypothesis": hasattr(self, '_phase') and self._phase in ("rotation_cycle", "interact"),
+            "causal_ambiguity": causal_ambiguity,
+            "drive_caution": self.drives.drive_values.get("caution", 0.0),
+            "needs_physical_verification": needs_physical_verification,
         }
         new_mode = self.mode_manager.select_mode(mode_context)
         if new_mode != self.current_reasoning_mode:
@@ -773,6 +797,13 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
                     print(f"  🔀 Alternative trouvée: {alt}")
                     self._phase = alt
                     self.state.phase = alt
+
+            # ═══ Mode 10 — SIMULATION_PHYSIQUE: project future state ═══
+            if self.current_reasoning_mode == ReasoningMode.SIMULATION and PHYSICS_AVAILABLE:
+                try:
+                    self._run_physical_simulation(skill_id)
+                except Exception as e:
+                    print(f"  ⚙️ Physics sim skipped: {e}")
                     self.state.phase_attempts = 0
                     continue  # Retry with new phase
                 else:
@@ -908,6 +939,51 @@ class ScientistAgent(MLTiersMixin, DiscoveryMixin, SkillsMixin):
             print(f"  💾 WM saved: {self.world_model.memory_size()} transitions for {self.name}")
 
         return result
+
+    def _run_physical_simulation(self, skill_id: str) -> None:
+        """Mode 10 handler: project future state using physics engine.
+
+        Called when SIMULATION_PHYSIQUE mode is active. Uses the
+        existing physics tools to simulate the current hypothesis
+        and logs any contradictions found.
+
+        Current simulation: lightweight 2D physics (simulator/physics.py)
+        for movement prediction. Box3D 3D sim available when lib is built.
+        """
+        if not PHYSICS_AVAILABLE:
+            return
+
+        print(f"  ⚙️ [Mode 10] Simulating '{skill_id}'...")
+        hypothesis = self._build_phase_hypothesis()
+
+        if "navigate" in skill_id or "navigate" in hypothesis.lower():
+            # Navigation simulation: predict player displacement
+            ot = getattr(self, 'object_tracker', None)
+            if ot is not None and ot.has_enough_observations():
+                summary = ot.get_perception_summary(grid=self.obs.frame[0] if hasattr(self.obs, 'frame') else None)
+                directions = summary.get("action_directions", {})
+                pos = summary.get("player_position")
+                if pos and directions:
+                    print(f"  ⚙️   Player at {pos}, {len(directions)} action directions known")
+                    # Log predicted next positions for each action
+                    for action, (dr, dc) in list(directions.items())[:3]:
+                        nx = pos[0] + dc  # col displacement
+                        ny = pos[1] + dr  # row displacement
+                        # Check if within grid bounds
+                        grid = self.obs.frame[0] if hasattr(self.obs, 'frame') and self.obs.frame else None
+                        if grid is not None and 0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]:
+                            target_color = int(grid[ny, nx])
+                            wall = target_color in ot.wall_colors
+                            print(f"  ⚙️   Action {action}: predict ({nx:.0f}, {ny:.0f}) "
+                                  f"→ color {target_color} {'🧱' if wall else '✅'}")
+                        else:
+                            print(f"  ⚙️   Action {action}: predict ({nx:.0f}, {ny:.0f}) → out of bounds")
+
+        elif "rotate" in skill_id or "rotation" in hypothesis.lower():
+            # Rotation simulation: use discrete_classifier to predict movement class
+            print(f"  ⚙️   Rotation hypothesis — no physics simulation available yet")
+        else:
+            print(f"  ⚙️   No physics simulation for '{skill_id}' yet")
 
     def _build_phase_hypothesis(self) -> str:
         """Build a human-readable hypothesis for the current phase."""

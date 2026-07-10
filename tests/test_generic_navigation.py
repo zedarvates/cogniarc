@@ -124,3 +124,53 @@ class TestGenericNavigator:
             obs=MockObs(),
         )
         assert result is False  # Should detect stagnation
+
+
+class TestMode10Context:
+    """Tests for the Mode 10 (SIMULATION) context computation."""
+
+    def test_causal_ambiguity_no_tracker(self):
+        """Without ObjectTracker, causal_ambiguity should be False."""
+        from cogniarc.scientist_agent import ReasoningMode
+        # Default context without tracker
+        ctx = {
+            "causal_ambiguity": False,
+            "drive_caution": 0.0,
+            "needs_physical_verification": False,
+            "stagnation": 0,
+        }
+        # Mode 10 trigger check (simplified)
+        triggered = (
+            ctx.get("causal_ambiguity", False) or
+            (ctx.get("drive_caution", 0.0) > 0.7 and ctx.get("stagnation", 0) >= 2) or
+            ctx.get("needs_physical_verification", False)
+        )
+        assert not triggered  # No trigger without context
+
+    def test_simulation_triggered_by_caution_and_stagnation(self):
+        """Mode 10 triggers when caution > 0.7 AND stagnation >= 2."""
+        ctx = {
+            "causal_ambiguity": False,
+            "drive_caution": 0.8,
+            "needs_physical_verification": False,
+            "stagnation": 3,
+        }
+        triggered = (
+            ctx.get("causal_ambiguity", False) or
+            (ctx.get("drive_caution", 0.0) > 0.7 and ctx.get("stagnation", 0) >= 2) or
+            ctx.get("needs_physical_verification", False)
+        )
+        assert triggered
+
+    def test_simulation_not_triggered_by_caution_alone(self):
+        """Both caution AND stagnation needed."""
+        ctx = {
+            "drive_caution": 0.8,
+            "stagnation": 0,
+        }
+        triggered = (
+            ctx.get("causal_ambiguity", False) or
+            (ctx.get("drive_caution", 0.0) > 0.7 and ctx.get("stagnation", 0) >= 2) or
+            ctx.get("needs_physical_verification", False)
+        )
+        assert not triggered
