@@ -195,12 +195,57 @@ class GenericNavigator:
 
             action = best_action_toward(action_dirs, current_rc, target)
             if action is None:
-                # Fallback: try each action and see what moves us toward target
-                print(f"  ⚠️ No action toward target at {pos}, trying random")
-                import random
+                # Fallback: try each action, measure actual displacement,
+                # pick the one that moves closest to target
                 if self.obs and hasattr(self.obs, 'available_actions'):
-                    avail = self.obs.available_actions or [1, 2, 3, 4]
-                    action = random.choice(avail)
+                    avail = list(self.obs.available_actions) if self.obs.available_actions else [1, 2, 3, 4]
+                    print(f"  🔍 Trying actions toward {target} from {pos}...")
+
+                    best_action = None
+                    best_dist = abs(pos[0] - target[0]) + abs(pos[1] - target[1])
+
+                    # Try each action and measure actual displacement
+                    import copy
+                    for a in avail:
+                        # Save current observation
+                        old_frame = self.obs.frame[0].copy() if hasattr(self.obs, 'frame') and self.obs.frame else None
+                        if old_frame is None:
+                            continue
+
+                        # Execute the action (we can't revert, so we pick the best)
+                        # Actually: step with action a, then step with the opposite
+                        # to return — if we know the opposite action
+                        try:
+                            new_obs = step_fn(a)
+                        except Exception:
+                            continue
+
+                        # Check new position
+                        if hasattr(new_obs, 'frame') and new_obs.frame:
+                            old_tracker_state = (ot.vanished_count, ot.total_match_attempts)
+                            ot.observe(old_frame, a, new_obs.frame[0].copy())
+                            new_pos = self.get_player_position()
+                            if new_pos:
+                                new_dist = abs(new_pos[0] - target[0]) + abs(new_pos[1] - target[1])
+                                if new_dist < best_dist:
+                                    best_dist = new_dist
+                                    best_action = a
+                                    best_pos = new_pos
+
+                            # Restore step: feed the observation but keep moving
+                            self.obs = new_obs
+
+                    if best_action is not None:
+                        print(f"  ✅ Found action {best_action}: dist={best_dist} via {best_pos}")
+                        # Already stepped — continue tracking
+                        steps_taken += 1
+                        stuck_count = 0
+                        self.update_grid(new_obs)
+                        continue
+                    else:
+                        print(f"  ⚠️ No action improves position, trying greedy")
+                        import random
+                        action = random.choice(avail)
                 else:
                     return False
 
