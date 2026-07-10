@@ -1,0 +1,194 @@
+[
+  {
+    "game": "sp80",
+    "steps": 26,
+    "levels_completed": 0,
+    "vanished_count": 6,
+    "total_attempts": 200,
+    "vanish_rate": 0.03,
+    "n_observations": 25,
+    "player_color_found": true,
+    "player_color": 14,
+    "action_directions": {
+      "1": [
+        0.0,
+        -1.062
+      ],
+      "2": [
+        0.0,
+        -1.0
+      ],
+      "3": [
+        0.0,
+        -1.0
+      ],
+      "4": [
+        0.0,
+        -1.0
+      ],
+      "5": [
+        0.0,
+        -1.0
+      ],
+      "6": [
+        0.0,
+        -1.2
+      ]
+    },
+    "n_actions_found": 6
+  },
+  {
+    "game": "wa30",
+    "steps": 200,
+    "levels_completed": 0,
+    "vanished_count": 5,
+    "total_attempts": 2397,
+    "vanish_rate": 0.0021,
+    "n_observations": 200,
+    "player_color_found": true,
+    "player_color": 14,
+    "action_directions": {
+      "1": [
+        -3.463,
+        0.0
+      ],
+      "2": [
+        3.407,
+        -0.093
+      ],
+      "3": [
+        -0.026,
+        -3.368
+      ],
+      "4": [
+        0.016,
+        3.484
+      ]
+    },
+    "n_actions_found": 4
+  },
+  {
+    "game": "sc25",
+    "steps": 65,
+    "levels_completed": 0,
+    "vanished_count": 1,
+    "total_attempts": 1259,
+    "vanish_rate": 0.0008,
+    "n_observations": 64,
+    "player_color_found": true,
+    "player_color": 9,
+    "action_directions": {
+      "1": [
+        -1.143,
+        0.071
+      ],
+      "2": [
+        1.5,
+        0.2
+      ],
+      "3": [
+        0.091,
+        -4.636
+      ],
+      "4": [
+        0.25,
+        4.0
+      ]
+    },
+    "n_actions_found": 4
+  },
+  {
+    "game": "re86",
+    "steps": 101,
+    "levels_completed": 0,
+    "vanished_count": 1,
+    "total_attempts": 2361,
+    "vanish_rate": 0.0004,
+    "n_observations": 100,
+    "player_color_found": true,
+    "player_color": 9,
+    "action_directions": {
+      "1": [
+        -3.0,
+        0.0
+      ],
+      "2": [
+        2.844,
+        0.0
+      ],
+      "3": [
+        0.0,
+        -3.0
+      ],
+      "4": [
+        0.0,
+        3.0
+      ],
+      "5": [
+        -6.815,
+        0.073
+      ]
+    },
+    "n_actions_found": 5
+  },
+  {
+    "game": "bp35",
+    "steps": 37,
+    "levels_completed": 0,
+    "vanished_count": 1,
+    "total_attempts": 7788,
+    "vanish_rate": 0.0001,
+    "n_observations": 36,
+    "player_color_found": true,
+    "player_color": 5,
+    "action_directions": {
+      "3": [
+        -0.167,
+        -1.63
+      ],
+      "4": [
+        -0.682,
+        0.576
+      ],
+      "6": [
+        0.5,
+        -2.0
+      ],
+      "7": [
+        0.4,
+        -1.2
+      ]
+    },
+    "n_actions_found": 4
+  },
+  {
+    "game": "ls20",
+    "steps": 130,
+    "levels_completed": 0,
+    "vanished_count": 43,
+    "total_attempts": 2547,
+    "vanish_rate": 0.0169,
+    "n_observations": 129,
+    "player_color_found": true,
+    "player_color": 3,
+    "action_directions": {
+      "1": [
+        -0.294,
+        0.471
+      ],
+      "2": [
+        0.0,
+        0.5
+      ],
+      "3": [
+        0.0,
+        0.5
+      ],
+      "4": [
+        0.0,
+        0.5
+      ]
+    },
+    "n_actions_found": 4
+  }
+]
