@@ -7,7 +7,7 @@ name = "cogniarc"
 version = "0.3.0"
 description = "ARC-AGI-3 cognitive architecture: drives, reasoning modes, SkillDAG, SocraticCritic, V-JEPA world model tool."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "zedarvates" }]
 keywords = ["arc-agi", "reasoning", "world-model", "cognitive-architecture"]
