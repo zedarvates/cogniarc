@@ -3,6 +3,7 @@
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 [![Status](https://img.shields.io/badge/status-active-brightgreen.svg)]()
+[![Nano-NN on Hugging Face](https://img.shields.io/badge/Hugging%20Face-cogniarc--nano--nn-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/zedgamer/cogniarc-nano-nn)
 [![ARC-AGI-3](https://img.shields.io/badge/ARC--AGI--3-LS20_solved-brightgreen.svg)]()
 
 **ARC-AGI-3 Cognitive Architecture** — 6 human drives, 9 reasoning modes, SkillDAG, SocraticCritic, **V-JEPA World Model tool**, and human-like skill acquisition from zero.
