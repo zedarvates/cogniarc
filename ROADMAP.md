@@ -1,0 +1,28 @@
+# CogniARC research roadmap
+
+Updated: 2026-09-10. This scientific-transfer track complements the existing
+[implementation plans](docs/plans/). Checkboxes describe artifacts, not broad capabilities.
+
+## First: a verifiable physical reference
+
+- [x] Isolated 3-D particle-neighbour experiment: density, symmetric pressure and viscosity forces, deterministic stepping.
+- [x] Independent dense-neighbour/operator comparisons; mass, momentum, viscous dissipation and transformation controls.
+- [x] Reproducible 27-particle, 50-step fixture with persistence and constant-velocity prediction baselines. See [source and evidence](experiments/particle_graph/README.md).
+- [ ] Held-out initial conditions and particle counts, time-step refinement, boundaries and reference-solver comparisons before describing this as a water simulator.
+
+## Next: hypotheses that can fail
+
+- [ ] Adapt fixture observations to the existing [hypothesis and experiment selector](cogniarc/active_experiment.py). Distinguish friction, collision and gravity hypotheses through predicted observable outcomes.
+- [ ] Compare selected, random and fixed interventions at equal budgets. Record held-out prediction error, calibration, actions used and cases where no hypothesis fits. Keep hidden simulator state out of policy inputs.
+- [ ] Evaluate the drawing critic on stroke order, closure, junctions and perspective, reusing the existing organic-writing and Socratic-evaluation plans.
+- [ ] Compare targeted correction with random correction and unchanged output at equal budgets; retain failed transfers and prerequisite regressions. Separate reference rendering from practiced motor skill.
+
+## Later: learned prediction and consumers
+
+- [ ] Freeze scene-level training/validation/test splits before fitting a graph predictor. Compare persistence, constant velocity and an affine model first.
+- [ ] Publish per-horizon errors, longer rollouts, changed particle counts and material parameters. A graph structure alone is not a graph neural network or a JEPA result.
+- [ ] Export versioned observations/constraints only after reproducibility, units, coordinate frames, identities and fallback checks pass.
+
+[Detailed sequence, sources and acceptance criteria](docs/plans/2026-09-10-scientific-transfer.md).
+The existing fluid-zone buoyancy/drag implementation and agent defaults are not used
+by this first experiment. Runtime integration remains planned.

@@ -1,0 +1,421 @@
+{
+  "checks": {
+    "final_state_sha256": "083ff56f8be36386ca2415b3bdafb7160c4be60831df64507c6d5397c0a82588",
+    "max_internal_force_norm": 1.3848965374754777e-17,
+    "momentum_drift_norm": 2.7809732887839817e-17,
+    "neighbor_edges_max": 158,
+    "neighbor_edges_min": 158,
+    "particle_count": 27,
+    "total_mass_end": 6.75,
+    "total_mass_start": 6.75
+  },
+  "claim_class": "observed_on_synthetic_fixture",
+  "config": {
+    "radius": 0.85,
+    "rest_density": 1.0,
+    "stiffness": 0.05,
+    "viscosity": 0.02
+  },
+  "dt": 0.002,
+  "environment": {
+    "dependencies": "Python standard library only",
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "system": "Linux"
+  },
+  "gravity": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "initial_particles": [
+    {
+      "mass": 0.25,
+      "position": [
+        -0.45,
+        -0.45,
+        -0.45
+      ],
+      "velocity": [
+        0.030559629868506515,
+        -0.019719949914281106,
+        -0.02690355486952531
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        -0.45,
+        -0.45,
+        0.0
+      ],
+      "velocity": [
+        0.014233619788792035,
+        0.01731966635268043,
+        0.005358100684974734
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        -0.45,
+        -0.45,
+        0.45
+      ],
+      "velocity": [
+        0.026104711303081667,
+        -0.03265740145767043,
+        -0.02501505451359929
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        -0.45,
+        0.0,
+        -0.45
+      ],
+      "velocity": [
+        -0.0296606132995878,
+        0.015524297134979659,
+        0.0233650174968238
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        -0.45,
+        0.0,
+        0.0
+      ],
+      "velocity": [
+        -0.01083144872344027,
+        -0.03262949950043377,
+        0.01939881771030797
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        -0.45,
+        0.0,
+        0.45
+      ],
+      "velocity": [
+        -0.019845353612936652,
+        -0.02869518004211262,
+        -0.017989014318475077
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        -0.45,
+        0.45,
+        -0.45
+      ],
+      "velocity": [
+        -0.02226703503611189,
+        -0.00503316926227701,
+        0.02315865605635784
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        -0.45,
+        0.45,
+        0.0
+      ],
+      "velocity": [
+        0.013833670943670821,
+        0.03355029730831465,
+        0.009008870426351984
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        -0.45,
+        0.45,
+        0.45
+      ],
+      "velocity": [
+        0.005349619761193088,
+        -0.02643473777543175,
+        0.010849748118611696
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.0,
+        -0.45,
+        -0.45
+      ],
+      "velocity": [
+        0.0076204933406090955,
+        0.03821999926755806,
+        -0.039349341355867117
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.0,
+        -0.45,
+        0.0
+      ],
+      "velocity": [
+        -0.009780253343077226,
+        0.013785732873598827,
+        -0.01929396577799909
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.0,
+        -0.45,
+        0.45
+      ],
+      "velocity": [
+        0.03909264172997442,
+        -0.022593094615448645,
+        -0.003144553861154996
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.0,
+        0.0,
+        -0.45
+      ],
+      "velocity": [
+        0.0002174722125496964,
+        -0.013228115891677179,
+        0.03540206761670631
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "velocity": [
+        -0.0019290610825612384,
+        0.014165630194240088,
+        0.008540969025743743
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.0,
+        0.0,
+        0.45
+      ],
+      "velocity": [
+        0.03068142209107432,
+        0.030380576150906564,
+        0.02473306209223041
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.0,
+        0.45,
+        -0.45
+      ],
+      "velocity": [
+        0.013518047488396814,
+        -0.03756529248586525,
+        0.02587277557331919
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.0,
+        0.45,
+        0.0
+      ],
+      "velocity": [
+        0.022209025475193947,
+        0.020857965720162477,
+        0.0012353467390077075
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.0,
+        0.45,
+        0.45
+      ],
+      "velocity": [
+        0.0059781220744497265,
+        -0.02150136842062847,
+        0.02593225593574635
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.45,
+        -0.45,
+        -0.45
+      ],
+      "velocity": [
+        -0.020920672228612738,
+        0.031442778182127866,
+        0.014999757265320213
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.45,
+        -0.45,
+        0.0
+      ],
+      "velocity": [
+        -0.0041534426670621835,
+        0.02854827733211606,
+        0.038088007106495396
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.45,
+        -0.45,
+        0.45
+      ],
+      "velocity": [
+        -0.013828245825351554,
+        -0.021999675520423746,
+        -0.02908612839115153
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.45,
+        0.0,
+        -0.45
+      ],
+      "velocity": [
+        0.01911448466921877,
+        0.015679567622154167,
+        -0.017399794382097395
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.45,
+        0.0,
+        0.0
+      ],
+      "velocity": [
+        -0.0369533638469953,
+        -0.020187231757492485,
+        -0.013284717758601898
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.45,
+        0.0,
+        0.45
+      ],
+      "velocity": [
+        0.010568967155585612,
+        0.0037239001665808555,
+        0.025453363038331657
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.45,
+        0.45,
+        -0.45
+      ],
+      "velocity": [
+        -0.0029818518555117107,
+        0.03082496721308816,
+        0.03533386667093754
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.45,
+        0.45,
+        0.0
+      ],
+      "velocity": [
+        -0.02700924009821967,
+        -0.03529384343655681,
+        0.0010469990492708164
+      ]
+    },
+    {
+      "mass": 0.25,
+      "position": [
+        0.45,
+        0.45,
+        0.45
+      ],
+      "velocity": [
+        0.0015095839115587678,
+        0.03533502860119946,
+        0.002318652176689487
+      ]
+    }
+  ],
+  "limitations": [
+    "One synthetic 3-D fixture; no physical water calibration or scalability measurement.",
+    "Clamped non-tensile pressure, no boundaries, surface tension or incompressibility.",
+    "Semi-implicit Euler with a fixed dt; no guarantee for other fixtures or time steps.",
+    "Baselines start at t=0 and use no future observations; lower error is not learned skill.",
+    "No learned predictor, neural graph network, ShardJEPA runtime or production integration."
+  ],
+  "observations": [
+    {
+      "constant_velocity_position_rmse": 9.928519334957898e-08,
+      "horizon_steps": 1,
+      "persistence_position_rmse": 4.544596981899019e-05
+    },
+    {
+      "constant_velocity_position_rmse": 5.4600294443207425e-06,
+      "horizon_steps": 10,
+      "persistence_position_rmse": 0.0004533434239124647
+    },
+    {
+      "constant_velocity_position_rmse": 0.00012648353922715226,
+      "horizon_steps": 50,
+      "persistence_position_rmse": 0.0022444015405103995
+    }
+  ],
+  "provenance": {
+    "generator": "experiments.particle_graph.benchmark.fixture",
+    "license": "MIT (repository license)",
+    "seed": 20260910,
+    "source_sha256": {
+      "experiments/particle_graph/benchmark.py": "7d01d8608cd4d085d7a4523b67bdcd92171c8b8ff1e2da55fe98d9742ac98163",
+      "experiments/particle_graph/reference.py": "2ca936c43527e1a3802e240b216a856d827e9187fd75100d34f79bb268188d90",
+      "tests/test_particle_graph_reference.py": "3dd9e054c63cadf7e5f20f17b29b2319b5b366937dce3517050ce9ab48ddf2ec"
+    },
+    "units": "dimensionless"
+  },
+  "schema": "cogniarc.particle-graph-fixture-report.v1",
+  "steps": 50
+}

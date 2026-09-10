@@ -1,5 +1,7 @@
 # CogniARC 🧠✨
 
+[Research roadmap](ROADMAP.md) · [Scientific transfer plan](docs/plans/2026-09-10-scientific-transfer.md)
+
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 [![Status](https://img.shields.io/badge/status-active-brightgreen.svg)]()
