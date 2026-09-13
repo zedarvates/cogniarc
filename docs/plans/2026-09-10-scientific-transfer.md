@@ -1,6 +1,7 @@
 # Scientific transfer: physical graphs, drawing and experimentation
 
-Date: 2026-09-10. First offline reference implemented; learning and consumer integration planned.
+Date: 2026-09-10. Updated 2026-09-13: offline reference and direct affine baseline implemented;
+learned rollouts and consumer integration planned.
 This complements the world-model, organic-writing and Socratic-evaluation plans.
 
 ## Research questions
@@ -21,7 +22,7 @@ simulator learns message functions.
 | R0 | Dependency-free synthetic particle operators | Dense-search/operator agreement; finite outputs; mass/momentum controls; raw fixture | Implemented; see evidence |
 | R1 | Trajectories and numerical validation | Split by scene/seed before fitting; dt refinement, particle counts, gravity, velocities, boundaries; units, hashes, provenance | Partial: 10 split scenes, sparse snapshots, unbounded numerical convergence and fixed-box contact controls implemented; coupled boundary accuracy and physical water validation remain planned |
 | R2 | Offline physical hypothesis adapter | Selected/random/fixed interventions at equal budget on held-out observations; abstain when all hypotheses fail | Planned |
-| R3 | Learned rollout comparison | Persistence, constant velocity and affine baselines; horizons 1/10/50; unseen scenes, longer rollouts and resource use | Planned; no trained model |
+| R3 | Learned rollout comparison | Persistence, constant velocity and affine baselines; horizons 1/10/50; unseen scenes, longer rollouts and resource use | Partial: direct affine baseline fitted on train, selected on validation and measured on five test scenes; autoregressive rollouts, material conditioning and resource use remain planned |
 | D0 | Stroke-transfer protocol | Separate raster fit from motor trajectories, pressure and order; hold out compositions | Planned |
 | D1 | Socratic correction experiment | Targeted/no/random correction, equal budget; closure, intersections, perspective and rubric quality | Planned |
 | C0 | Authoring interchange | Versioned units/frames/IDs; deterministic replay; incompatible-input rejection; ordinary runtime fallback | Planned |
@@ -46,9 +47,15 @@ and source SHA-256 values. The [2026-09-13 numerical follow-up](../../experiment
 adds a frozen scene manifest, independent dense RK4, equal-time refinement and
 snapshots reserved by scene. The [box-contact follow-up](../../experiments/particle_graph/BOUNDARY_VALIDATION.md)
 adds analytic collision controls and coupled containment/ledger checks.
-Next, fit the affine baseline on training scenes only, with validation-only
-selection; extend physical validation to coupled contact accuracy, fluid wall
-treatment and longer rollouts. Keep generated targets out of policy observations.
+The [affine follow-up](../../experiments/particle_graph/AFFINE_BASELINE.md) adds
+training-only ridge fitting, validation-only selection and test errors at three
+horizons against persistence, constant velocity and known-gravity ballistic
+prediction. Its protocol was committed before test scoring; 45 focused tests pass.
+The stiffness case retains the largest prediction error. Next, freeze a v2 corpus
+with material variation in development and new test seeds before changing the
+features; compare material-conditioned prediction, then longer autoregressive
+rollouts. Extend physical validation to coupled contact accuracy and fluid wall
+treatment. Keep generated targets out of policy observations.
 R1 remains partial: numerical convergence and confinement do not establish
 calibrated water behaviour.
 

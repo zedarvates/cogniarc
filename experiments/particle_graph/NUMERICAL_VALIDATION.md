@@ -4,9 +4,10 @@
 equal-time refinement comparisons and sparse snapshot export.
 **Observed fixture:** all 10 synthetic scenes pass the numerical checks below;
 the particle-graph suite at that stage passed 21 tests. The later
-[box-contact follow-up](BOUNDARY_VALIDATION.md) brings the combined suite to 33.
+[box-contact follow-up](BOUNDARY_VALIDATION.md) brought the combined suite to 33;
+the subsequent [affine comparison](AFFINE_BASELINE.md) brings it to 45.
 **Planned:** physically validated fluid boundaries, calibrated fluid validation, longer rollouts,
-trained predictors and runtime integration. R1 is still partial.
+learned rollouts and runtime integration. R1 is still partial.
 
 ## Reproduce
 
@@ -109,9 +110,10 @@ validated by `validate_manifest`; the small end-to-end test checks snapshot
 identity, ordering, time alignment and conservation.
 
 Persistence and constant-velocity baselines use only step zero and are scored
-at steps 1/10/50 against the dense reference. No model has been trained or tuned
-on any split. Future affine/model fitting must use training scenes only;
-configuration selection belongs to validation, with test reported separately.
+at steps 1/10/50 against the dense reference. At the numerical-validation stage,
+no model had been fitted on any split. The subsequent [affine experiment](AFFINE_BASELINE.md)
+uses training scenes for fitting and validation for configuration selection,
+then reports the reserved test scenes separately.
 
 The equations still omit boundaries, contact, surface tension and
 incompressibility. No runtime speedup, water accuracy, production suitability

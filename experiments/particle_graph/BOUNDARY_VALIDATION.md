@@ -2,9 +2,10 @@
 
 **Implemented:** fixed, axis-aligned box walls, a shared contact radius,
 frictionless normal restitution and explicit collision impulse/energy ledgers.
-**Observed fixture:** 33 particle-graph tests pass; all 9 cases below pass their
-stated gates. **Planned:** fluid-specific wall treatment, physically validated
-water dynamics, trained prediction and runtime integration.
+**Observed fixture:** 33 particle-graph tests passed at this stage; all 9 cases
+below pass their stated gates. The later [affine comparison](AFFINE_BASELINE.md)
+brings the suite to 45 tests. **Planned:** fluid-specific wall treatment,
+physically validated water dynamics, learned wall prediction and runtime integration.
 
 ## Reproduce
 
@@ -100,8 +101,9 @@ are absent. Particles near walls can have biased density estimates. No water
 calibration, general stability guarantee, performance gain or neural ability is
 established by these results.
 
-Next: compare an affine predictor on the previously frozen training/validation/
-test scenes. Physical validation separately needs accelerated-impact and
+The subsequent [affine comparison](AFFINE_BASELINE.md) uses the previously frozen
+training/validation/test scenes, without adding these wall fixtures. Physical
+validation separately needs accelerated-impact and
 time-step refinement controls for coupled contacts, fluid-specific wall
 treatment and an independent fluid benchmark. The numerical-reference evidence
 remains available in [NUMERICAL_VALIDATION.md](NUMERICAL_VALIDATION.md).
