@@ -1,0 +1,264 @@
+{
+  "candidates": [
+    {
+      "active": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "alpha": 1e-08,
+      "coefficients": [
+        1.889564114057587,
+        9.423312979546806,
+        2.89855796222442,
+        3.4567296149216564
+      ],
+      "feature_rms": [
+        0.03564783893060354,
+        0.017611969710235813,
+        0.0018132960790525037,
+        0.000865650006322231
+      ],
+      "kkt_violation": 2.7755575615628914e-17,
+      "objective": 2.568620107037876e-05,
+      "scaled_coefficients": [
+        0.06735887718697343,
+        0.16596310276585033,
+        0.005255943787807956,
+        0.002992318013011175
+      ],
+      "train_acceleration_rmse": 0.005068123902874858,
+      "validation_acceleration_rmse": 0.004124213966239179
+    },
+    {
+      "active": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "alpha": 1e-06,
+      "coefficients": [
+        1.8931391035539697,
+        9.416080812669598,
+        2.899915559318021,
+        3.4545723347072683
+      ],
+      "feature_rms": [
+        0.03564783893060354,
+        0.017611969710235813,
+        0.0018132960790525037,
+        0.000865650006322231
+      ],
+      "kkt_violation": 2.7755575615628914e-17,
+      "objective": 2.5717985021535436e-05,
+      "scaled_coefficients": [
+        0.06748631783671909,
+        0.16583573006186958,
+        0.005258405513294716,
+        0.002990450563379951
+      ],
+      "train_acceleration_rmse": 0.0050681251499397695,
+      "validation_acceleration_rmse": 0.00412455318157669
+    },
+    {
+      "active": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "alpha": 0.0001,
+      "coefficients": [
+        2.1762702559308424,
+        8.84313798671391,
+        2.9961662935645013,
+        3.3064310017419283
+      ],
+      "feature_rms": [
+        0.03564783893060354,
+        0.017611969710235813,
+        0.0018132960790525037,
+        0.000865650006322231
+      ],
+      "kkt_violation": 2.7755575615628914e-17,
+      "objective": 2.879696126027618e-05,
+      "scaled_coefficients": [
+        0.07757933155288602,
+        0.15574507836544108,
+        0.005432936592309783,
+        0.0028622120175619205
+      ],
+      "train_acceleration_rmse": 0.005075990754777458,
+      "validation_acceleration_rmse": 0.004154742883071683
+    },
+    {
+      "active": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "alpha": 0.01,
+      "coefficients": [
+        3.202175701873546,
+        6.697258120611383,
+        1.9894143644948141,
+        5.241474159143733
+      ],
+      "feature_rms": [
+        0.03564783893060354,
+        0.017611969710235813,
+        0.0018132960790525037,
+        0.000865650006322231
+      ],
+      "kkt_violation": 6.938893903907228e-18,
+      "objective": 0.00029865853754125786,
+      "scaled_coefficients": [
+        0.11415064364788051,
+        0.1179519071618385,
+        0.003607397266749175,
+        0.004537282139000583
+      ],
+      "train_acceleration_rmse": 0.0053751573572653425,
+      "validation_acceleration_rmse": 0.00438687704093291
+    },
+    {
+      "active": [
+        0,
+        1
+      ],
+      "alpha": 1.0,
+      "coefficients": [
+        2.162625557261035,
+        4.381652842053345,
+        0.0,
+        0.0
+      ],
+      "feature_rms": [
+        0.03564783893060354,
+        0.017611969710235813,
+        0.0018132960790525037,
+        0.000865650006322231
+      ],
+      "kkt_violation": 2.7755575615628914e-17,
+      "objective": 0.017944440623313337,
+      "scaled_coefficients": [
+        0.07709292753244809,
+        0.07716953713501218,
+        0.0,
+        0.0
+      ],
+      "train_acceleration_rmse": 0.07775592380107138,
+      "validation_acceleration_rmse": 0.05674717083385696
+    }
+  ],
+  "coefficients": [
+    1.889564114057587,
+    9.423312979546806,
+    2.89855796222442,
+    3.4567296149216564
+  ],
+  "development_group_ids": [
+    "train-geometry-01",
+    "train-geometry-02",
+    "train-geometry-03",
+    "train-geometry-04",
+    "validation-geometry-01",
+    "validation-geometry-02"
+  ],
+  "feature_names": [
+    "pressure_q2",
+    "pressure_q3",
+    "viscosity_q1",
+    "viscosity_q2"
+  ],
+  "provenance": {
+    "command": "python -m experiments.particle_graph.local_pairs --output-dir experiments/particle_graph/evidence/2026-09-13-local-pairs",
+    "date": "2026-09-13",
+    "environment": {
+      "dependencies": "Python standard library only",
+      "machine": "x86_64",
+      "python": "3.12.14",
+      "system": "Linux"
+    },
+    "force_targets": {
+      "bytes": 86320,
+      "path": "force_targets.jsonl",
+      "records": 96,
+      "sha256": "f40e8407f04dd16732527e1769b368844af2bda84c4e838dde9f0eabe003c45a"
+    },
+    "frozen_inputs_sha256": {
+      "experiments/particle_graph/conservation.py": "c5d560d6dfc293caae820289590f0c9bb2e9854e6d32842c12edc3ca5ebadbc1",
+      "experiments/particle_graph/conservation_manifest.json": "6a313a8264ddd68d60a0180187781f49ca15c6a8ea16ab7942a2a88b59ac82a7",
+      "experiments/particle_graph/conservation_protocol.json": "7a280ceffe47732cf9b479d0f0ba000c243eee2b0b34ba6f199744857fa604bf",
+      "experiments/particle_graph/evidence/2026-09-13-affine/model.json": "1d179137c38de6d032a552e3973fc4b0fe923062dcc2ada15743ad710a8c7ccd",
+      "experiments/particle_graph/evidence/2026-09-13-conservation/initial.jsonl": "5e57f12c641daca5bbdf852ef0ad2d2e6e1b83155291f6fc27432af02594b39f",
+      "experiments/particle_graph/evidence/2026-09-13-materials/models.json": "698d24c09f77eb31625e0defda1896b5d8a2ae60c6c7332fc8f0c445cc8bf67d",
+      "experiments/particle_graph/evidence/2026-09-13-materials/numerics.json": "f4a704bd2639234da3400e05589df5865a0244c289be4d3ce306cb1696c6202b",
+      "experiments/particle_graph/evidence/2026-09-13-materials/test.jsonl": "0fba680c2082a87353b1d24ba7e29f61cc61725e9d9edb1c82fbfff4e84dc988",
+      "experiments/particle_graph/evidence/2026-09-13-materials/train.jsonl": "80882080552ff731f21d20f2217ee7dc54c0b1a0dbb560a5f6e8ee6802466519",
+      "experiments/particle_graph/evidence/2026-09-13-materials/validation.jsonl": "00c7cdf2301afd7b58859ccd2a28afd8318253f3a937c05bce1982f0a31fdec2",
+      "experiments/particle_graph/local_pair_manifest.json": "43169654a0370f7a755390c05d0b8e1b64a41c658be26c960e5f994458448578",
+      "experiments/particle_graph/material_manifest.json": "8ce938f7589da1b36687eacce887c9024393ddb78e11307b095338a7fd7c6abc",
+      "experiments/particle_graph/material_protocol.json": "b219a8b0a4515419f9a213e0759fcc632baa19a1c64bc62867344c03846c79a8",
+      "experiments/particle_graph/rollout_protocol.json": "9836b7e1f492bf387709869c5039031c8639580eee74682a601dc04f1afc2d8b",
+      "experiments/particle_graph/rollouts.py": "b225177984bf01af330277de3413c224f989fd595a13f2ad2f91cb1f350d2310",
+      "experiments/particle_graph/scene_manifest.json": "97ac88e2951ec6a96f4700fb4abb064be1ad260da05e19e6e511d7d168551160"
+    },
+    "license": "MIT (repository license)",
+    "protocol_revision": "c03ab1bcb3f56527f4b34cb49856f03226ab8f99",
+    "protocol_sha256": "3010a267fc99af035985efdd16434b709fb251035c3b8c894478717f56f780e0",
+    "source_sha256": {
+      "experiments/particle_graph/affine.py": "a37e18ae79207ea85ba4154a75a122b464c00b457533fec0744b6be2881c5527",
+      "experiments/particle_graph/conservation.py": "c5d560d6dfc293caae820289590f0c9bb2e9854e6d32842c12edc3ca5ebadbc1",
+      "experiments/particle_graph/dense_reference.py": "c00d6dfbdc1db1bbb87d971193ed104948e99dddaac70a9031576331e44aaafe",
+      "experiments/particle_graph/local_pair_evaluation.py": "6d53d2cf93942da42f5ad48360792ca3baf0e0929fd5380843d0e7cb1c775de2",
+      "experiments/particle_graph/local_pairs.py": "03d5ce94e4c9c552bc1c514002eb8c5e3ca5a60db844cee4cbd5b7e4810def9f",
+      "experiments/particle_graph/material_data.py": "a72882261654e63745942675e970e6a99bf885603657e8d1ba2c598432d9e946",
+      "experiments/particle_graph/materials.py": "f08d211be47cec5be78915821f1545f1b82061ba1b458f1acc8d34bab4e8b76c",
+      "experiments/particle_graph/reference.py": "2ca936c43527e1a3802e240b216a856d827e9187fd75100d34f79bb268188d90",
+      "experiments/particle_graph/rollouts.py": "b225177984bf01af330277de3413c224f989fd595a13f2ad2f91cb1f350d2310",
+      "experiments/particle_graph/validation.py": "8aad854ad73a980ce7650fd3483f9a3e1baafaa29c93dbe5f87fd58a70c7acbd",
+      "tests/test_particle_graph_local_pairs.py": "82ac5215ae30c0b153ac0cb09575c4a012d00890da0e2dba126be358c1b76c71",
+      "tests/test_particle_graph_materials.py": "4a50638bc77445b32eac1cba6b5f740330dfba671791e955be64a50a15c3fe94"
+    }
+  },
+  "refit_on_validation": false,
+  "schema": "cogniarc.local-pair-model.v1",
+  "selected_alpha": 1e-08,
+  "test_used_for_selection": false,
+  "train_coordinate_rows": 1920,
+  "train_scene_ids": [
+    "train-geometry-01/low-k-low-mu",
+    "train-geometry-01/low-k-high-mu",
+    "train-geometry-01/high-k-low-mu",
+    "train-geometry-01/high-k-high-mu",
+    "train-geometry-02/low-k-low-mu",
+    "train-geometry-02/low-k-high-mu",
+    "train-geometry-02/high-k-low-mu",
+    "train-geometry-02/high-k-high-mu",
+    "train-geometry-03/low-k-low-mu",
+    "train-geometry-03/low-k-high-mu",
+    "train-geometry-03/high-k-low-mu",
+    "train-geometry-03/high-k-high-mu",
+    "train-geometry-04/low-k-low-mu",
+    "train-geometry-04/low-k-high-mu",
+    "train-geometry-04/high-k-low-mu",
+    "train-geometry-04/high-k-high-mu"
+  ],
+  "train_snapshots": 64,
+  "validation_coordinate_rows": 960,
+  "validation_scene_ids": [
+    "validation-geometry-01/lower-k-lower-mu",
+    "validation-geometry-01/lower-k-upper-mu",
+    "validation-geometry-01/upper-k-lower-mu",
+    "validation-geometry-01/upper-k-upper-mu",
+    "validation-geometry-02/lower-k-lower-mu",
+    "validation-geometry-02/lower-k-upper-mu",
+    "validation-geometry-02/upper-k-lower-mu",
+    "validation-geometry-02/upper-k-upper-mu"
+  ],
+  "validation_snapshots": 32
+}
