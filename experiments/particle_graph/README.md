@@ -2,7 +2,9 @@
 
 **Implemented:** offline 3-D SPH-inspired operators and a deterministic fixture.
 **Observed on fixture:** dense-oracle agreement and structural controls below.
-**Planned:** validated fluid dynamics, learned prediction, ShardJEPA comparison and runtime adapters.
+**Added 2026-09-13:** [10-scene numerical validation](NUMERICAL_VALIDATION.md),
+independent dense RK4, frozen splits and reproducible reference snapshots.
+**Planned:** physically validated fluid dynamics, learned prediction, ShardJEPA comparison and runtime adapters.
 
 This module is outside the installed `cogniarc` packages and is not imported by
 the agent or existing simulator. It uses only Python's standard library.
@@ -56,4 +58,6 @@ The contribution guide mentions `scripts/run_tests.py`, absent at the base
 commit. The command above is the focused experiment gate; broader suite results
 or blockers are recorded in the PR.
 
-Next: [R1 numerical-validation and dataset gates](../../docs/plans/2026-09-10-scientific-transfer.md).
+The original 2026-09-10 source and evidence remain unchanged. The current
+combined suite passes 21 tests; [the follow-up](NUMERICAL_VALIDATION.md) records
+the numerical protocol, raw outputs, schema and remaining R1 gates.

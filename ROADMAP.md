@@ -1,6 +1,6 @@
 # CogniARC research roadmap
 
-Updated: 2026-09-10. This scientific-transfer track complements the existing
+Updated: 2026-09-13. This scientific-transfer track complements the existing
 [implementation plans](docs/plans/). Checkboxes describe artifacts, not broad capabilities.
 
 ## First: a verifiable physical reference
@@ -8,7 +8,9 @@ Updated: 2026-09-10. This scientific-transfer track complements the existing
 - [x] Isolated 3-D particle-neighbour experiment: density, symmetric pressure and viscosity forces, deterministic stepping.
 - [x] Independent dense-neighbour/operator comparisons; mass, momentum, viscous dissipation and transformation controls.
 - [x] Reproducible 27-particle, 50-step fixture with persistence and constant-velocity prediction baselines. See [source and evidence](experiments/particle_graph/README.md).
-- [ ] Held-out initial conditions and particle counts, time-step refinement, boundaries and reference-solver comparisons before describing this as a water simulator.
+- [x] Freeze 10 synthetic scenes into 3 train / 2 validation / 5 test scenes, including reserved particle counts and parameters; export sparse reference snapshots with hashes and split-leakage controls.
+- [x] Compare three semi-implicit Euler resolutions at identical physical times against independently coded dense RK4, with a second RK4 resolution checking reference error. All ten scenes pass the numerical gates; see [numerical evidence and scope](experiments/particle_graph/NUMERICAL_VALIDATION.md).
+- [ ] Add boundaries/contact, longer rollouts, physical calibration and comparison with an independently validated fluid solver before describing this as a water simulator. Dense RK4 checks the same simplified equations, not their physical adequacy.
 
 ## Next: hypotheses that can fail
 
@@ -19,7 +21,8 @@ Updated: 2026-09-10. This scientific-transfer track complements the existing
 
 ## Later: learned prediction and consumers
 
-- [ ] Freeze scene-level training/validation/test splits before fitting a graph predictor. Compare persistence, constant velocity and an affine model first.
+- [x] Freeze the initial scene-level training/validation/test manifest before fitting any predictor. This reserves future evaluation inputs; no learned generalisation result exists.
+- [ ] Fit an affine baseline using training scenes only and select settings using validation scenes; compare with persistence and constant velocity before a graph predictor. Keep test targets out of fitting and tuning.
 - [ ] Publish per-horizon errors, longer rollouts, changed particle counts and material parameters. A graph structure alone is not a graph neural network or a JEPA result.
 - [ ] Export versioned observations/constraints only after reproducibility, units, coordinate frames, identities and fallback checks pass.
 

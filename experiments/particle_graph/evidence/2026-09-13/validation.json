@@ -1,0 +1,712 @@
+{
+  "claim_class": "observed_on_synthetic_scenes",
+  "passed": true,
+  "protocol": {
+    "defaults": {
+      "config": {
+        "radius": 0.85,
+        "rest_density": 1.0,
+        "stiffness": 0.15,
+        "viscosity": 0.04
+      },
+      "jitter": 0.01,
+      "mass": 0.25,
+      "spacing": 0.35,
+      "velocity_scale": 0.05
+    },
+    "dt": 0.002,
+    "horizons": [
+      1,
+      10,
+      50
+    ],
+    "reference_factors": [
+      4,
+      8
+    ],
+    "refinement_factors": [
+      1,
+      2,
+      4
+    ],
+    "scenes": [
+      {
+        "condition": "development",
+        "config": {},
+        "gravity": [
+          0,
+          0,
+          0
+        ],
+        "id": "train-01",
+        "seed": 101,
+        "shape": [
+          2,
+          2,
+          2
+        ],
+        "split": "train"
+      },
+      {
+        "condition": "development",
+        "config": {},
+        "gravity": [
+          0,
+          -0.3,
+          0
+        ],
+        "id": "train-02",
+        "seed": 102,
+        "shape": [
+          2,
+          2,
+          2
+        ],
+        "split": "train"
+      },
+      {
+        "condition": "development",
+        "config": {},
+        "gravity": [
+          0,
+          0,
+          0
+        ],
+        "id": "train-03",
+        "seed": 103,
+        "shape": [
+          3,
+          2,
+          2
+        ],
+        "split": "train"
+      },
+      {
+        "condition": "development",
+        "config": {},
+        "gravity": [
+          0,
+          0,
+          0
+        ],
+        "id": "validation-01",
+        "seed": 201,
+        "shape": [
+          2,
+          2,
+          2
+        ],
+        "split": "validation"
+      },
+      {
+        "condition": "development",
+        "config": {},
+        "gravity": [
+          0,
+          -0.3,
+          0
+        ],
+        "id": "validation-02",
+        "seed": 202,
+        "shape": [
+          3,
+          2,
+          2
+        ],
+        "split": "validation"
+      },
+      {
+        "condition": "unseen_seed",
+        "config": {},
+        "gravity": [
+          0,
+          0,
+          0
+        ],
+        "id": "test-seed",
+        "seed": 301,
+        "shape": [
+          2,
+          2,
+          2
+        ],
+        "split": "test"
+      },
+      {
+        "condition": "held_out_particle_count",
+        "config": {},
+        "gravity": [
+          0,
+          -0.3,
+          0
+        ],
+        "id": "test-count-18",
+        "seed": 302,
+        "shape": [
+          3,
+          3,
+          2
+        ],
+        "split": "test"
+      },
+      {
+        "condition": "held_out_particle_count",
+        "config": {},
+        "gravity": [
+          0,
+          0,
+          0
+        ],
+        "id": "test-count-27",
+        "seed": 303,
+        "shape": [
+          3,
+          3,
+          3
+        ],
+        "split": "test"
+      },
+      {
+        "condition": "held_out_parameters",
+        "config": {
+          "viscosity": 0.2
+        },
+        "gravity": [
+          0,
+          -0.3,
+          0
+        ],
+        "id": "test-viscosity",
+        "seed": 304,
+        "shape": [
+          3,
+          2,
+          2
+        ],
+        "split": "test"
+      },
+      {
+        "condition": "held_out_parameters",
+        "config": {
+          "stiffness": 0.6
+        },
+        "gravity": [
+          0,
+          0,
+          0
+        ],
+        "id": "test-stiffness",
+        "seed": 305,
+        "shape": [
+          2,
+          2,
+          2
+        ],
+        "split": "test"
+      }
+    ],
+    "schema": "cogniarc.particle-graph-scenes.v1",
+    "steps": 50,
+    "units": "dimensionless"
+  },
+  "provenance": {
+    "environment": {
+      "dependencies": "Python standard library only",
+      "machine": "x86_64",
+      "python": "3.12.14",
+      "system": "Linux"
+    },
+    "license": "MIT (repository license)",
+    "manifest_sha256": "97ac88e2951ec6a96f4700fb4abb064be1ad260da05e19e6e511d7d168551160",
+    "snapshots_sha256": "27b525fdec468839dd1bbdf1fdb715d944015732caf67c5158a43845ceb1d204",
+    "source_sha256": {
+      "experiments/particle_graph/dense_reference.py": "c00d6dfbdc1db1bbb87d971193ed104948e99dddaac70a9031576331e44aaafe",
+      "experiments/particle_graph/reference.py": "2ca936c43527e1a3802e240b216a856d827e9187fd75100d34f79bb268188d90",
+      "experiments/particle_graph/validation.py": "8aad854ad73a980ce7650fd3483f9a3e1baafaa29c93dbe5f87fd58a70c7acbd",
+      "tests/test_particle_graph_validation.py": "fe40f08482628c3a067d8b0f39b5ab1947622e327f537b95d76a99c96e7f4136"
+    }
+  },
+  "scenes": [
+    {
+      "baselines": [
+        {
+          "constant_velocity_position_rmse": 3.255680778066883e-07,
+          "horizon_steps": 1,
+          "persistence_position_rmse": 5.560539796514005e-05,
+          "time": 0.002
+        },
+        {
+          "constant_velocity_position_rmse": 3.252266823391653e-05,
+          "horizon_steps": 10,
+          "persistence_position_rmse": 0.000552756914105852,
+          "time": 0.02
+        },
+        {
+          "constant_velocity_position_rmse": 0.0008084056482325642,
+          "horizon_steps": 50,
+          "persistence_position_rmse": 0.0027841496647999535,
+          "time": 0.1
+        }
+      ],
+      "condition": "development",
+      "gates": {
+        "mass_conservation": true,
+        "momentum_with_external_gravity": true,
+        "position_convergence": true,
+        "velocity_convergence": true
+      },
+      "initial_state_sha256": "5b35f968ba20098d773e52a36ca9bebe28ae04f67eac6bd395daa14e79fc839c",
+      "mass_error": 0.0,
+      "momentum_error": 2.823925224926892e-17,
+      "particles": 8,
+      "passed": true,
+      "position_rmse_by_refinement": [
+        1.6236672817505267e-05,
+        8.1177715537295e-06,
+        4.0587454210153916e-06
+      ],
+      "reference_position_gap": 1.7137803725070883e-16,
+      "reference_velocity_gap": 4.5807680787580193e-17,
+      "scene_id": "train-01",
+      "split": "train",
+      "velocity_rmse_by_refinement": [
+        3.0759483499916325e-06,
+        1.5340558440287186e-06,
+        7.660492516998891e-07
+      ]
+    },
+    {
+      "baselines": [
+        {
+          "constant_velocity_position_rmse": 4.7260011219352995e-07,
+          "horizon_steps": 1,
+          "persistence_position_rmse": 4.321234264930692e-05,
+          "time": 0.002
+        },
+        {
+          "constant_velocity_position_rmse": 4.72264927361886e-05,
+          "horizon_steps": 10,
+          "persistence_position_rmse": 0.0004433165010900576,
+          "time": 0.02
+        },
+        {
+          "constant_velocity_position_rmse": 0.0011763592444566512,
+          "horizon_steps": 50,
+          "persistence_position_rmse": 0.0026606939317979483,
+          "time": 0.1
+        }
+      ],
+      "condition": "development",
+      "gates": {
+        "mass_conservation": true,
+        "momentum_with_external_gravity": true,
+        "position_convergence": true,
+        "velocity_convergence": true
+      },
+      "initial_state_sha256": "7499d97d9671c66b5445fda40a16e3b49f02bcb1c82f2f03a8c8a46ed4f79eec",
+      "mass_error": 0.0,
+      "momentum_error": 4.63206900711648e-17,
+      "particles": 8,
+      "passed": true,
+      "position_rmse_by_refinement": [
+        2.360245973211499e-05,
+        1.1800703753979299e-05,
+        5.900220942404541e-06
+      ],
+      "reference_position_gap": 1.9287961727222527e-16,
+      "reference_velocity_gap": 4.102510325893881e-17,
+      "scene_id": "train-02",
+      "split": "train",
+      "velocity_rmse_by_refinement": [
+        4.048065214781512e-06,
+        2.0195115170711826e-06,
+        1.0086258417345192e-06
+      ]
+    },
+    {
+      "baselines": [
+        {
+          "constant_velocity_position_rmse": 3.1947273459881424e-07,
+          "horizon_steps": 1,
+          "persistence_position_rmse": 5.522080930456003e-05,
+          "time": 0.002
+        },
+        {
+          "constant_velocity_position_rmse": 3.190904950244317e-05,
+          "horizon_steps": 10,
+          "persistence_position_rmse": 0.0005555517221567139,
+          "time": 0.02
+        },
+        {
+          "constant_velocity_position_rmse": 0.0007927540668034175,
+          "horizon_steps": 50,
+          "persistence_position_rmse": 0.002935677641661723,
+          "time": 0.1
+        }
+      ],
+      "condition": "development",
+      "gates": {
+        "mass_conservation": true,
+        "momentum_with_external_gravity": true,
+        "position_convergence": true,
+        "velocity_convergence": true
+      },
+      "initial_state_sha256": "122bcae3e7aa0a52bacd5f0ea0f1dfa6c1318f03180ee8811d4b0bcc2b34a534",
+      "mass_error": 0.0,
+      "momentum_error": 6.437203310421897e-17,
+      "particles": 12,
+      "passed": true,
+      "position_rmse_by_refinement": [
+        1.5939628967319797e-05,
+        7.96920797624982e-06,
+        3.984453082297581e-06
+      ],
+      "reference_position_gap": 2.5163652484648315e-16,
+      "reference_velocity_gap": 3.398283505608875e-17,
+      "scene_id": "train-03",
+      "split": "train",
+      "velocity_rmse_by_refinement": [
+        3.302859973410954e-06,
+        1.6478713929852466e-06,
+        8.230465088075523e-07
+      ]
+    },
+    {
+      "baselines": [
+        {
+          "constant_velocity_position_rmse": 3.187647448809085e-07,
+          "horizon_steps": 1,
+          "persistence_position_rmse": 5.0933418201238154e-05,
+          "time": 0.002
+        },
+        {
+          "constant_velocity_position_rmse": 3.182845018998367e-05,
+          "horizon_steps": 10,
+          "persistence_position_rmse": 0.0005143374581816628,
+          "time": 0.02
+        },
+        {
+          "constant_velocity_position_rmse": 0.0007895122996408114,
+          "horizon_steps": 50,
+          "persistence_position_rmse": 0.0027684225860420413,
+          "time": 0.1
+        }
+      ],
+      "condition": "development",
+      "gates": {
+        "mass_conservation": true,
+        "momentum_with_external_gravity": true,
+        "position_convergence": true,
+        "velocity_convergence": true
+      },
+      "initial_state_sha256": "5912953885bd2a659aff27ba991448e88d55a02c08687e28af87b8bc052dab47",
+      "mass_error": 0.0,
+      "momentum_error": 2.307899478410173e-17,
+      "particles": 8,
+      "passed": true,
+      "position_rmse_by_refinement": [
+        1.589789206201427e-05,
+        7.948189742768539e-06,
+        3.973906658983385e-06
+      ],
+      "reference_position_gap": 2.0482473960739041e-16,
+      "reference_velocity_gap": 3.8669100634835034e-17,
+      "scene_id": "validation-01",
+      "split": "validation",
+      "velocity_rmse_by_refinement": [
+        3.880935199615246e-06,
+        1.9359107949761487e-06,
+        9.66816501493189e-07
+      ]
+    },
+    {
+      "baselines": [
+        {
+          "constant_velocity_position_rmse": 4.720518689085115e-07,
+          "horizon_steps": 1,
+          "persistence_position_rmse": 6.60057332922999e-05,
+          "time": 0.002
+        },
+        {
+          "constant_velocity_position_rmse": 4.7182257917645164e-05,
+          "horizon_steps": 10,
+          "persistence_position_rmse": 0.0006554693175940329,
+          "time": 0.02
+        },
+        {
+          "constant_velocity_position_rmse": 0.0011765165488591088,
+          "horizon_steps": 50,
+          "persistence_position_rmse": 0.0033406591627181195,
+          "time": 0.1
+        }
+      ],
+      "condition": "development",
+      "gates": {
+        "mass_conservation": true,
+        "momentum_with_external_gravity": true,
+        "position_convergence": true,
+        "velocity_convergence": true
+      },
+      "initial_state_sha256": "01ad5dd7ac8be03ec1ede011b7fe574b8f97c84f77a73cd76eb89e38a4565d17",
+      "mass_error": 0.0,
+      "momentum_error": 4.443059973708341e-17,
+      "particles": 12,
+      "passed": true,
+      "position_rmse_by_refinement": [
+        2.357920883488538e-05,
+        1.1789233875070523e-05,
+        5.894524791196062e-06
+      ],
+      "reference_position_gap": 2.0315930632794418e-14,
+      "reference_velocity_gap": 4.0483337795874163e-13,
+      "scene_id": "validation-02",
+      "split": "validation",
+      "velocity_rmse_by_refinement": [
+        3.4465060080128424e-06,
+        1.7202991237658221e-06,
+        8.594119096124491e-07
+      ]
+    },
+    {
+      "baselines": [
+        {
+          "constant_velocity_position_rmse": 3.2936710168003157e-07,
+          "horizon_steps": 1,
+          "persistence_position_rmse": 6.699272413784472e-05,
+          "time": 0.002
+        },
+        {
+          "constant_velocity_position_rmse": 3.292205647977776e-05,
+          "horizon_steps": 10,
+          "persistence_position_rmse": 0.0006575748678745778,
+          "time": 0.02
+        },
+        {
+          "constant_velocity_position_rmse": 0.0008205519543730257,
+          "horizon_steps": 50,
+          "persistence_position_rmse": 0.003087337105815815,
+          "time": 0.1
+        }
+      ],
+      "condition": "unseen_seed",
+      "gates": {
+        "mass_conservation": true,
+        "momentum_with_external_gravity": true,
+        "position_convergence": true,
+        "velocity_convergence": true
+      },
+      "initial_state_sha256": "5a514ba4263dd59e5145ed167d31f332620d0bfe2fb4018f05bf2243482a3a8a",
+      "mass_error": 0.0,
+      "momentum_error": 3.894444544739273e-17,
+      "particles": 8,
+      "passed": true,
+      "position_rmse_by_refinement": [
+        1.642509655995073e-05,
+        8.212252692408848e-06,
+        4.106053296178736e-06
+      ],
+      "reference_position_gap": 2.3187398362216133e-16,
+      "reference_velocity_gap": 4.287312637970467e-17,
+      "scene_id": "test-seed",
+      "split": "test",
+      "velocity_rmse_by_refinement": [
+        2.230782234925552e-06,
+        1.1134805347133518e-06,
+        5.562656063293093e-07
+      ]
+    },
+    {
+      "baselines": [
+        {
+          "constant_velocity_position_rmse": 4.5877298050695386e-07,
+          "horizon_steps": 1,
+          "persistence_position_rmse": 6.225765707329002e-05,
+          "time": 0.002
+        },
+        {
+          "constant_velocity_position_rmse": 4.5853538464156235e-05,
+          "horizon_steps": 10,
+          "persistence_position_rmse": 0.0006301815054875236,
+          "time": 0.02
+        },
+        {
+          "constant_velocity_position_rmse": 0.0011433180886227048,
+          "horizon_steps": 50,
+          "persistence_position_rmse": 0.003465238055404276,
+          "time": 0.1
+        }
+      ],
+      "condition": "held_out_particle_count",
+      "gates": {
+        "mass_conservation": true,
+        "momentum_with_external_gravity": true,
+        "position_convergence": true,
+        "velocity_convergence": true
+      },
+      "initial_state_sha256": "7cd1e0835f25092c21c541cbd01d2bacf1b8fecbd1e0db2025a4ddcd21565fec",
+      "mass_error": 0.0,
+      "momentum_error": 7.402616121945881e-17,
+      "particles": 18,
+      "passed": true,
+      "position_rmse_by_refinement": [
+        2.2921117196107036e-05,
+        1.146018812068208e-05,
+        5.73000181103536e-06
+      ],
+      "reference_position_gap": 7.0844964894800575e-15,
+      "reference_velocity_gap": 3.4648380771615273e-13,
+      "scene_id": "test-count-18",
+      "split": "test",
+      "velocity_rmse_by_refinement": [
+        3.529262784430973e-06,
+        1.7620433841687367e-06,
+        8.80374358943177e-07
+      ]
+    },
+    {
+      "baselines": [
+        {
+          "constant_velocity_position_rmse": 2.8668473792752215e-07,
+          "horizon_steps": 1,
+          "persistence_position_rmse": 6.25580283520515e-05,
+          "time": 0.002
+        },
+        {
+          "constant_velocity_position_rmse": 2.8653680732635874e-05,
+          "horizon_steps": 10,
+          "persistence_position_rmse": 0.0006241938795979166,
+          "time": 0.02
+        },
+        {
+          "constant_velocity_position_rmse": 0.000714233569719382,
+          "horizon_steps": 50,
+          "persistence_position_rmse": 0.003154229066457266,
+          "time": 0.1
+        }
+      ],
+      "condition": "held_out_particle_count",
+      "gates": {
+        "mass_conservation": true,
+        "momentum_with_external_gravity": true,
+        "position_convergence": true,
+        "velocity_convergence": true
+      },
+      "initial_state_sha256": "cdb112b8942952ef4616760c460f8ef51f0a0d3e80a80e52ca705d352438e49c",
+      "mass_error": 0.0,
+      "momentum_error": 6.098731183695384e-17,
+      "particles": 27,
+      "passed": true,
+      "position_rmse_by_refinement": [
+        1.431194155754505e-05,
+        7.155715482283831e-06,
+        3.5777944224571146e-06
+      ],
+      "reference_position_gap": 3.48957710199259e-14,
+      "reference_velocity_gap": 4.583279038179372e-13,
+      "scene_id": "test-count-27",
+      "split": "test",
+      "velocity_rmse_by_refinement": [
+        2.3013647189760033e-06,
+        1.149459089607849e-06,
+        5.744254405059558e-07
+      ]
+    },
+    {
+      "baselines": [
+        {
+          "constant_velocity_position_rmse": 4.792754684203116e-07,
+          "horizon_steps": 1,
+          "persistence_position_rmse": 6.556558102371852e-05,
+          "time": 0.002
+        },
+        {
+          "constant_velocity_position_rmse": 4.7821638491375875e-05,
+          "horizon_steps": 10,
+          "persistence_position_rmse": 0.0006592264034899312,
+          "time": 0.02
+        },
+        {
+          "constant_velocity_position_rmse": 0.0011836284027820043,
+          "horizon_steps": 50,
+          "persistence_position_rmse": 0.00353769303046466,
+          "time": 0.1
+        }
+      ],
+      "condition": "held_out_parameters",
+      "gates": {
+        "mass_conservation": true,
+        "momentum_with_external_gravity": true,
+        "position_convergence": true,
+        "velocity_convergence": true
+      },
+      "initial_state_sha256": "9d7d00078934e7df2eed2c83a48d3cebeae5e226f89155fa436033194652cba5",
+      "mass_error": 0.0,
+      "momentum_error": 4.2349997174859565e-17,
+      "particles": 12,
+      "passed": true,
+      "position_rmse_by_refinement": [
+        2.3937519729263137e-05,
+        1.1967269526114403e-05,
+        5.983262933045633e-06
+      ],
+      "reference_position_gap": 2.6704498917732337e-16,
+      "reference_velocity_gap": 3.5596893532277083e-17,
+      "scene_id": "test-viscosity",
+      "split": "test",
+      "velocity_rmse_by_refinement": [
+        1.2055072005488685e-05,
+        6.020530298152104e-06,
+        3.00851535794144e-06
+      ]
+    },
+    {
+      "baselines": [
+        {
+          "constant_velocity_position_rmse": 1.2840165510440547e-06,
+          "horizon_steps": 1,
+          "persistence_position_rmse": 4.858766387764758e-05,
+          "time": 0.002
+        },
+        {
+          "constant_velocity_position_rmse": 0.0001282510673241183,
+          "horizon_steps": 10,
+          "persistence_position_rmse": 0.00048260894390210663,
+          "time": 0.02
+        },
+        {
+          "constant_velocity_position_rmse": 0.003175628060766211,
+          "horizon_steps": 50,
+          "persistence_position_rmse": 0.0036588456226964838,
+          "time": 0.1
+        }
+      ],
+      "condition": "held_out_parameters",
+      "gates": {
+        "mass_conservation": true,
+        "momentum_with_external_gravity": true,
+        "position_convergence": true,
+        "velocity_convergence": true
+      },
+      "initial_state_sha256": "82349836b7f10345397c0134640497a135d0d8f19bc09f95564d1ded7276e724",
+      "mass_error": 0.0,
+      "momentum_error": 3.8711939217460003e-17,
+      "particles": 8,
+      "passed": true,
+      "position_rmse_by_refinement": [
+        6.350317759585343e-05,
+        3.174806482337357e-05,
+        1.587316475368161e-05
+      ],
+      "reference_position_gap": 2.4552312978479334e-16,
+      "reference_velocity_gap": 1.5677732366818905e-15,
+      "scene_id": "test-stiffness",
+      "split": "test",
+      "velocity_rmse_by_refinement": [
+        1.2064719207089124e-05,
+        5.973265939792998e-06,
+        2.9719114606883087e-06
+      ]
+    }
+  ],
+  "schema": "cogniarc.particle-graph-numerical-validation.v1"
+}
