@@ -1,0 +1,2929 @@
+{
+  "by_material_condition": {
+    "interpolation_base": {
+      "1": {
+        "blind_v2": {
+          "position_rmse": 2.2117130435296962e-07,
+          "velocity_rmse": 0.00022114171261111855
+        },
+        "constant_velocity": {
+          "position_rmse": 3.550854611144531e-07,
+          "velocity_rmse": 0.00035506870942792965
+        },
+        "frozen_v1": {
+          "position_rmse": 1.484821329492222e-07,
+          "velocity_rmse": 0.00014846526974134221
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.030747998040226e-07,
+          "velocity_rmse": 0.000303056692356152
+        },
+        "material_v2": {
+          "position_rmse": 1.472616834918811e-07,
+          "velocity_rmse": 0.00014723887361717486
+        },
+        "persistence": {
+          "position_rmse": 5.973378942451435e-05,
+          "velocity_rmse": 0.00035506870942792965
+        }
+      },
+      "10": {
+        "blind_v2": {
+          "position_rmse": 2.20615222153064e-05,
+          "velocity_rmse": 0.0022029332539889672
+        },
+        "constant_velocity": {
+          "position_rmse": 3.5477444031475386e-05,
+          "velocity_rmse": 0.0035459640302809813
+        },
+        "frozen_v1": {
+          "position_rmse": 1.481705682007652e-05,
+          "velocity_rmse": 0.0014799311143676031
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.0273826104455987e-05,
+          "velocity_rmse": 0.003025454260820454
+        },
+        "material_v2": {
+          "position_rmse": 1.4683826578127752e-05,
+          "velocity_rmse": 0.001465960015419348
+        },
+        "persistence": {
+          "position_rmse": 0.0006020722106201754,
+          "velocity_rmse": 0.0035459640302809813
+        }
+      },
+      "50": {
+        "blind_v2": {
+          "position_rmse": 0.0005439363142576167,
+          "velocity_rmse": 0.010769198744195982
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0008829078482029516,
+          "velocity_rmse": 0.017602010544683012
+        },
+        "frozen_v1": {
+          "position_rmse": 0.00036647693852849805,
+          "velocity_rmse": 0.007275281149935544
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0007524664410667789,
+          "velocity_rmse": 0.01498810097596895
+        },
+        "material_v2": {
+          "position_rmse": 0.0003616124317685123,
+          "velocity_rmse": 0.007155875136137992
+        },
+        "persistence": {
+          "position_rmse": 0.003212600856301788,
+          "velocity_rmse": 0.017602010544683012
+        }
+      }
+    },
+    "interpolation_joint": {
+      "1": {
+        "blind_v2": {
+          "position_rmse": 1.6618127633405388e-07,
+          "velocity_rmse": 0.0001661540997214796
+        },
+        "constant_velocity": {
+          "position_rmse": 4.93416857697819e-07,
+          "velocity_rmse": 0.0004933856937418952
+        },
+        "frozen_v1": {
+          "position_rmse": 1.4287727613220243e-07,
+          "velocity_rmse": 0.00014285739119460796
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.547629677513172e-07,
+          "velocity_rmse": 0.0004547302409033022
+        },
+        "material_v2": {
+          "position_rmse": 2.1843960958566963e-07,
+          "velocity_rmse": 0.00021840676332880943
+        },
+        "persistence": {
+          "position_rmse": 5.9752434659456146e-05,
+          "velocity_rmse": 0.0004933856937418952
+        }
+      },
+      "10": {
+        "blind_v2": {
+          "position_rmse": 1.656772489484397e-05,
+          "velocity_rmse": 0.0016538911872010405
+        },
+        "constant_velocity": {
+          "position_rmse": 4.928336373103821e-05,
+          "velocity_rmse": 0.0049249729655524155
+        },
+        "frozen_v1": {
+          "position_rmse": 1.42509472925545e-05,
+          "velocity_rmse": 0.0014229978289766263
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.541501160986133e-05,
+          "velocity_rmse": 0.004537964743544223
+        },
+        "material_v2": {
+          "position_rmse": 2.178260274986283e-05,
+          "velocity_rmse": 0.0021747284533125536
+        },
+        "persistence": {
+          "position_rmse": 0.0006047596522377471,
+          "velocity_rmse": 0.0049249729655524155
+        }
+      },
+      "50": {
+        "blind_v2": {
+          "position_rmse": 0.0004076909513907596,
+          "velocity_rmse": 0.008063487180951415
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0012242610992560046,
+          "velocity_rmse": 0.024373835260314267
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0003515866180346863,
+          "velocity_rmse": 0.006967132208477802
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0011271320379556016,
+          "velocity_rmse": 0.02242505297113086
+        },
+        "material_v2": {
+          "position_rmse": 0.0005363870866470452,
+          "velocity_rmse": 0.01061169216418737
+        },
+        "persistence": {
+          "position_rmse": 0.003358799344131823,
+          "velocity_rmse": 0.024373835260314267
+        }
+      }
+    },
+    "stiffness_extrapolation": {
+      "1": {
+        "blind_v2": {
+          "position_rmse": 7.413583056773575e-07,
+          "velocity_rmse": 0.0007413242197464883
+        },
+        "constant_velocity": {
+          "position_rmse": 1.230673088557087e-06,
+          "velocity_rmse": 0.0012305991982027246
+        },
+        "frozen_v1": {
+          "position_rmse": 8.218329787371007e-07,
+          "velocity_rmse": 0.0008217838375634812
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 1.2146275325404717e-06,
+          "velocity_rmse": 0.0012145530125991222
+        },
+        "material_v2": {
+          "position_rmse": 5.792884944511846e-07,
+          "velocity_rmse": 0.000579200749090783
+        },
+        "persistence": {
+          "position_rmse": 5.98682735108907e-05,
+          "velocity_rmse": 0.0012305991982027246
+        }
+      },
+      "10": {
+        "blind_v2": {
+          "position_rmse": 7.4060850660697e-05,
+          "velocity_rmse": 0.007401164621735179
+        },
+        "constant_velocity": {
+          "position_rmse": 0.00012291743381615854,
+          "velocity_rmse": 0.01228248089909134
+        },
+        "frozen_v1": {
+          "position_rmse": 8.207951992679653e-05,
+          "velocity_rmse": 0.00820133696515375
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.00012131154396187884,
+          "velocity_rmse": 0.012121806574258556
+        },
+        "material_v2": {
+          "position_rmse": 5.776566458203573e-05,
+          "velocity_rmse": 0.0057672114744666105
+        },
+        "persistence": {
+          "position_rmse": 0.0006251340679676345,
+          "velocity_rmse": 0.01228248089909134
+        }
+      },
+      "50": {
+        "blind_v2": {
+          "position_rmse": 0.001834983668687237,
+          "velocity_rmse": 0.03640987621154226
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0030461144599396145,
+          "velocity_rmse": 0.06048391586245852
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0020312223779826544,
+          "velocity_rmse": 0.04027127692838038
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0030056965958527465,
+          "velocity_rmse": 0.059670891628137046
+        },
+        "material_v2": {
+          "position_rmse": 0.0014227890452275897,
+          "velocity_rmse": 0.028156162774354426
+        },
+        "persistence": {
+          "position_rmse": 0.004531848305180621,
+          "velocity_rmse": 0.06048391586245852
+        }
+      }
+    },
+    "viscosity_extrapolation": {
+      "1": {
+        "blind_v2": {
+          "position_rmse": 2.3119957351241773e-07,
+          "velocity_rmse": 0.00023120331525752769
+        },
+        "constant_velocity": {
+          "position_rmse": 3.551440448637026e-07,
+          "velocity_rmse": 0.0003550749479767402
+        },
+        "frozen_v1": {
+          "position_rmse": 1.588693885607101e-07,
+          "velocity_rmse": 0.0001588649348105161
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.041018703602426e-07,
+          "velocity_rmse": 0.0003040251255810442
+        },
+        "material_v2": {
+          "position_rmse": 1.4593748984547985e-07,
+          "velocity_rmse": 0.00014592244905005698
+        },
+        "persistence": {
+          "position_rmse": 5.968837049891388e-05,
+          "velocity_rmse": 0.0003550749479767402
+        }
+      },
+      "10": {
+        "blind_v2": {
+          "position_rmse": 2.31245023958278e-05,
+          "velocity_rmse": 0.0023125905230002314
+        },
+        "constant_velocity": {
+          "position_rmse": 3.53895553184648e-05,
+          "velocity_rmse": 0.0035319945276144197
+        },
+        "frozen_v1": {
+          "position_rmse": 1.5878824635363883e-05,
+          "velocity_rmse": 0.0015874484229711362
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.027148470193581e-05,
+          "velocity_rmse": 0.003019411996621813
+        },
+        "material_v2": {
+          "position_rmse": 1.4565986574485445e-05,
+          "velocity_rmse": 0.0014550386364233017
+        },
+        "persistence": {
+          "position_rmse": 0.0005975704200852561,
+          "velocity_rmse": 0.0035319945276144197
+        }
+      },
+      "50": {
+        "blind_v2": {
+          "position_rmse": 0.0005772612606185009,
+          "velocity_rmse": 0.011521190083211062
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0008705804409203929,
+          "velocity_rmse": 0.01723189111567897
+        },
+        "frozen_v1": {
+          "position_rmse": 0.00039600552445467305,
+          "velocity_rmse": 0.007909560392124572
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0007410348942170943,
+          "velocity_rmse": 0.01462036387193393
+        },
+        "material_v2": {
+          "position_rmse": 0.000360639798980216,
+          "velocity_rmse": 0.007166607100290142
+        },
+        "persistence": {
+          "position_rmse": 0.0031049863525558063,
+          "velocity_rmse": 0.01723189111567897
+        }
+      }
+    }
+  },
+  "by_particles": {
+    "18": {
+      "1": {
+        "blind_v2": {
+          "position_rmse": 3.5575761850520623e-07,
+          "velocity_rmse": 0.00035573879499132394
+        },
+        "constant_velocity": {
+          "position_rmse": 6.942152984773893e-07,
+          "velocity_rmse": 0.0006941848594736001
+        },
+        "frozen_v1": {
+          "position_rmse": 3.2842382587142536e-07,
+          "velocity_rmse": 0.00032841073137725553
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 5.759010871446337e-07,
+          "velocity_rmse": 0.0005758622510413483
+        },
+        "material_v2": {
+          "position_rmse": 3.038808316746146e-07,
+          "velocity_rmse": 0.000303840802225656
+        },
+        "persistence": {
+          "position_rmse": 6.146140285721903e-05,
+          "velocity_rmse": 0.0006941848594736001
+        }
+      },
+      "10": {
+        "blind_v2": {
+          "position_rmse": 3.553715615893708e-05,
+          "velocity_rmse": 0.003551310291423304
+        },
+        "constant_velocity": {
+          "position_rmse": 6.936226573478962e-05,
+          "velocity_rmse": 0.006932687087353862
+        },
+        "frozen_v1": {
+          "position_rmse": 3.2814735689500986e-05,
+          "velocity_rmse": 0.0032797137337769572
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 5.7515317845535916e-05,
+          "velocity_rmse": 0.005747105951883279
+        },
+        "material_v2": {
+          "position_rmse": 3.0313833084401708e-05,
+          "velocity_rmse": 0.003027139362535028
+        },
+        "persistence": {
+          "position_rmse": 0.0006186578778942106,
+          "velocity_rmse": 0.006932687087353862
+        }
+      },
+      "50": {
+        "blind_v2": {
+          "position_rmse": 0.0008812854415536145,
+          "velocity_rmse": 0.017507532535528145
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0017247841070986004,
+          "velocity_rmse": 0.0343527536530634
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0008148350871537474,
+          "velocity_rmse": 0.016202724129367158
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0014266336976785437,
+          "velocity_rmse": 0.028362321151090417
+        },
+        "material_v2": {
+          "position_rmse": 0.0007482375313996764,
+          "velocity_rmse": 0.014830728024332634
+        },
+        "persistence": {
+          "position_rmse": 0.0035759044912425063,
+          "velocity_rmse": 0.0343527536530634
+        }
+      }
+    },
+    "27": {
+      "1": {
+        "blind_v2": {
+          "position_rmse": 3.5525794896776483e-07,
+          "velocity_rmse": 0.00035523471360487507
+        },
+        "constant_velocity": {
+          "position_rmse": 5.386508314745421e-07,
+          "velocity_rmse": 0.0005386184320960018
+        },
+        "frozen_v1": {
+          "position_rmse": 3.0295797782620057e-07,
+          "velocity_rmse": 0.0003029448375759449
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 5.386508314745421e-07,
+          "velocity_rmse": 0.0005386184320960018
+        },
+        "material_v2": {
+          "position_rmse": 3.962756295583523e-07,
+          "velocity_rmse": 0.00039622236370241183
+        },
+        "persistence": {
+          "position_rmse": 5.866495280613193e-05,
+          "velocity_rmse": 0.0005386184320960018
+        }
+      },
+      "10": {
+        "blind_v2": {
+          "position_rmse": 3.5479592781234184e-05,
+          "velocity_rmse": 0.003545150609566221
+        },
+        "constant_velocity": {
+          "position_rmse": 5.380287650060217e-05,
+          "velocity_rmse": 0.005376616734775753
+        },
+        "frozen_v1": {
+          "position_rmse": 3.0268800290782247e-05,
+          "velocity_rmse": 0.0030251961712698303
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 5.380287650060217e-05,
+          "velocity_rmse": 0.005376616734775753
+        },
+        "material_v2": {
+          "position_rmse": 3.9528157364847287e-05,
+          "velocity_rmse": 0.003947098035112557
+        },
+        "persistence": {
+          "position_rmse": 0.0005953900513359478,
+          "velocity_rmse": 0.005376616734775753
+        }
+      },
+      "50": {
+        "blind_v2": {
+          "position_rmse": 0.0008792217753815728,
+          "velocity_rmse": 0.017460783633676702
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0013358355831981797,
+          "velocity_rmse": 0.026577956546585683
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0007517140707332914,
+          "velocity_rmse": 0.014951638758761513
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0013358355831981797,
+          "velocity_rmse": 0.026577956546585683
+        },
+        "material_v2": {
+          "position_rmse": 0.0009749901319740062,
+          "velocity_rmse": 0.019312218061428986
+        },
+        "persistence": {
+          "position_rmse": 0.003424822122124143,
+          "velocity_rmse": 0.026577956546585683
+        }
+      }
+    },
+    "8": {
+      "1": {
+        "blind_v2": {
+          "position_rmse": 3.08917277434628e-07,
+          "velocity_rmse": 0.0003088940019062616
+        },
+        "constant_velocity": {
+          "position_rmse": 5.928734592228646e-07,
+          "velocity_rmse": 0.0005927931204423654
+        },
+        "frozen_v1": {
+          "position_rmse": 3.226645285868006e-07,
+          "velocity_rmse": 0.00032262300602926017
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 5.928734592228646e-07,
+          "velocity_rmse": 0.0005927931204423654
+        },
+        "material_v2": {
+          "position_rmse": 1.1803899679769444e-07,
+          "velocity_rmse": 0.00011801346038705037
+        },
+        "persistence": {
+          "position_rmse": 5.9155795406980344e-05,
+          "velocity_rmse": 0.0005927931204423654
+        }
+      },
+      "10": {
+        "blind_v2": {
+          "position_rmse": 3.084420118483511e-05,
+          "velocity_rmse": 0.0030814737884545386
+        },
+        "constant_velocity": {
+          "position_rmse": 5.9135705437460896e-05,
+          "velocity_rmse": 0.005904755494774753
+        },
+        "frozen_v1": {
+          "position_rmse": 3.218622552581035e-05,
+          "velocity_rmse": 0.0032138758435550484
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 5.9135705437460896e-05,
+          "velocity_rmse": 0.005904755494774753
+        },
+        "material_v2": {
+          "position_rmse": 1.1756569914134832e-05,
+          "velocity_rmse": 0.0011729665370687758
+        },
+        "persistence": {
+          "position_rmse": 0.0006081043339529514,
+          "velocity_rmse": 0.005904755494774753
+        }
+      },
+      "50": {
+        "blind_v2": {
+          "position_rmse": 0.0007623969292803983,
+          "velocity_rmse": 0.015104497995720691
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0014572781959424426,
+          "velocity_rmse": 0.028838029387701993
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0007924194363633451,
+          "velocity_rmse": 0.015663075121060053
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0014572781959424426,
+          "velocity_rmse": 0.028838029387701993
+        },
+        "material_v2": {
+          "position_rmse": 0.0002878436085938399,
+          "velocity_rmse": 0.005674806795465829
+        },
+        "persistence": {
+          "position_rmse": 0.0036554495302608793,
+          "velocity_rmse": 0.028838029387701993
+        }
+      }
+    }
+  },
+  "macro_mean_scene_rmse": {
+    "1": {
+      "blind_v2": {
+        "position_rmse": 3.399776149691997e-07,
+        "velocity_rmse": 0.00033995583683415353
+      },
+      "constant_velocity": {
+        "position_rmse": 6.085798630582654e-07,
+        "velocity_rmse": 0.0006085321373373223
+      },
+      "frozen_v1": {
+        "position_rmse": 3.1801544409480885e-07,
+        "velocity_rmse": 0.00031799285832748685
+      },
+      "known_gravity_ballistic": {
+        "position_rmse": 5.691417926140135e-07,
+        "velocity_rmse": 0.0005690912678599051
+      },
+      "material_v2": {
+        "position_rmse": 2.7273181934355377e-07,
+        "velocity_rmse": 0.0002726922087717061
+      },
+      "persistence": {
+        "position_rmse": 5.976071702344377e-05,
+        "velocity_rmse": 0.0006085321373373223
+      }
+    },
+    "10": {
+      "blind_v2": {
+        "position_rmse": 3.395365004166879e-05,
+        "velocity_rmse": 0.0033926448964813546
+      },
+      "constant_velocity": {
+        "position_rmse": 6.076694922428423e-05,
+        "velocity_rmse": 0.00607135310563479
+      },
+      "frozen_v1": {
+        "position_rmse": 3.1756587168697865e-05,
+        "velocity_rmse": 0.003172928582867279
+      },
+      "known_gravity_ballistic": {
+        "position_rmse": 5.6817966594533e-05,
+        "velocity_rmse": 0.0056761593938112614
+      },
+      "material_v2": {
+        "position_rmse": 2.7199520121127938e-05,
+        "velocity_rmse": 0.0027157346449054533
+      },
+      "persistence": {
+        "position_rmse": 0.0006073840877277033,
+        "velocity_rmse": 0.00607135310563479
+      }
+    },
+    "50": {
+      "blind_v2": {
+        "position_rmse": 0.0008409680487385285,
+        "velocity_rmse": 0.01669093805497518
+      },
+      "constant_velocity": {
+        "position_rmse": 0.001505965962079741,
+        "velocity_rmse": 0.02992291319578369
+      },
+      "frozen_v1": {
+        "position_rmse": 0.0007863228647501281,
+        "velocity_rmse": 0.015605812669729574
+      },
+      "known_gravity_ballistic": {
+        "position_rmse": 0.0014065824922730554,
+        "velocity_rmse": 0.027926102361792698
+      },
+      "material_v2": {
+        "position_rmse": 0.0006703570906558408,
+        "velocity_rmse": 0.01327258429374248
+      },
+      "persistence": {
+        "position_rmse": 0.0035520587145425092,
+        "velocity_rmse": 0.02992291319578369
+      }
+    }
+  },
+  "paired_material_changes": [
+    {
+      "group_id": "test-geometry-08",
+      "horizon": 1,
+      "material_condition": "interpolation_joint",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.586401604615812e-07,
+          "velocity_rmse": 0.00015861681426721893
+        },
+        "constant_velocity": {
+          "position_rmse": 1.586401604615812e-07,
+          "velocity_rmse": 0.00015861681426721893
+        },
+        "frozen_v1": {
+          "position_rmse": 1.586401604615812e-07,
+          "velocity_rmse": 0.00015861681426721893
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 1.586401604615812e-07,
+          "velocity_rmse": 0.00015861681426721893
+        },
+        "material_v2": {
+          "position_rmse": 3.283636787844148e-08,
+          "velocity_rmse": 3.282822475117858e-05
+        },
+        "persistence": {
+          "position_rmse": 1.586401604615812e-07,
+          "velocity_rmse": 0.00015861681426721893
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 1.586401604615812e-07,
+        "velocity_rmse": 0.00015861681426721893
+      }
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizon": 10,
+      "material_condition": "interpolation_joint",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.582022834308038e-05,
+          "velocity_rmse": 0.0015794921558030552
+        },
+        "constant_velocity": {
+          "position_rmse": 1.582022834308038e-05,
+          "velocity_rmse": 0.0015794921558030552
+        },
+        "frozen_v1": {
+          "position_rmse": 1.582022834308038e-05,
+          "velocity_rmse": 0.0015794921558030552
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 1.582022834308038e-05,
+          "velocity_rmse": 0.0015794921558030552
+        },
+        "material_v2": {
+          "position_rmse": 3.268629149238964e-06,
+          "velocity_rmse": 0.0003260111505378593
+        },
+        "persistence": {
+          "position_rmse": 1.582022834308038e-05,
+          "velocity_rmse": 0.0015794921558030552
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 1.582022834308038e-05,
+        "velocity_rmse": 0.0015794921558030552
+      }
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizon": 50,
+      "material_condition": "interpolation_joint",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0003895697863709211,
+          "velocity_rmse": 0.007706251441908451
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0003895697863709211,
+          "velocity_rmse": 0.007706251441908451
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0003895697863709211,
+          "velocity_rmse": 0.007706251441908451
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0003895697863709211,
+          "velocity_rmse": 0.007706251441908451
+        },
+        "material_v2": {
+          "position_rmse": 7.983738298052756e-05,
+          "velocity_rmse": 0.0015713142490144942
+        },
+        "persistence": {
+          "position_rmse": 0.0003895697863709211,
+          "velocity_rmse": 0.007706251441908451
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 0.0003895697863709211,
+        "velocity_rmse": 0.007706251441908451
+      }
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizon": 1,
+      "material_condition": "stiffness_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 9.567394733419703e-07,
+          "velocity_rmse": 0.0009566449749964398
+        },
+        "constant_velocity": {
+          "position_rmse": 9.567394733419703e-07,
+          "velocity_rmse": 0.0009566449749964398
+        },
+        "frozen_v1": {
+          "position_rmse": 9.567394733419703e-07,
+          "velocity_rmse": 0.0009566449749964398
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 9.567394733419703e-07,
+          "velocity_rmse": 0.0009566449749964398
+        },
+        "material_v2": {
+          "position_rmse": 1.9669029158772688e-07,
+          "velocity_rmse": 0.0001966599416764061
+        },
+        "persistence": {
+          "position_rmse": 9.567394733419703e-07,
+          "velocity_rmse": 0.0009566449749964398
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 9.567394733419703e-07,
+        "velocity_rmse": 0.0009566449749964398
+      }
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizon": 10,
+      "material_condition": "stiffness_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 9.548236196044063e-05,
+          "velocity_rmse": 0.00953639857002273
+        },
+        "constant_velocity": {
+          "position_rmse": 9.548236196044063e-05,
+          "velocity_rmse": 0.00953639857002273
+        },
+        "frozen_v1": {
+          "position_rmse": 9.548236196044063e-05,
+          "velocity_rmse": 0.00953639857002273
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 9.548236196044063e-05,
+          "velocity_rmse": 0.00953639857002273
+        },
+        "material_v2": {
+          "position_rmse": 1.9607960231255556e-05,
+          "velocity_rmse": 0.0019570488880352984
+        },
+        "persistence": {
+          "position_rmse": 9.548236196044063e-05,
+          "velocity_rmse": 0.00953639857002273
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 9.548236196044063e-05,
+        "velocity_rmse": 0.00953639857002273
+      }
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizon": 50,
+      "material_condition": "stiffness_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.002352740729365971,
+          "velocity_rmse": 0.04649261833660386
+        },
+        "constant_velocity": {
+          "position_rmse": 0.002352740729365971,
+          "velocity_rmse": 0.04649261833660386
+        },
+        "frozen_v1": {
+          "position_rmse": 0.002352740729365971,
+          "velocity_rmse": 0.04649261833660386
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.002352740729365971,
+          "velocity_rmse": 0.04649261833660386
+        },
+        "material_v2": {
+          "position_rmse": 0.00047958426661606296,
+          "velocity_rmse": 0.009423248189623324
+        },
+        "persistence": {
+          "position_rmse": 0.002352740729365971,
+          "velocity_rmse": 0.04649261833660386
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 0.002352740729365971,
+        "velocity_rmse": 0.04649261833660386
+      }
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizon": 1,
+      "material_condition": "viscosity_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 5.2996152300627076e-08,
+          "velocity_rmse": 5.299523086113978e-05
+        },
+        "constant_velocity": {
+          "position_rmse": 5.2996152300627076e-08,
+          "velocity_rmse": 5.299523086113978e-05
+        },
+        "frozen_v1": {
+          "position_rmse": 5.2996152300627076e-08,
+          "velocity_rmse": 5.299523086113978e-05
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 5.2996152300627076e-08,
+          "velocity_rmse": 5.299523086113978e-05
+        },
+        "material_v2": {
+          "position_rmse": 5.955096824112595e-09,
+          "velocity_rmse": 5.926453290848419e-06
+        },
+        "persistence": {
+          "position_rmse": 5.2996152300627076e-08,
+          "velocity_rmse": 5.299523086113978e-05
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 5.2996152300627076e-08,
+        "velocity_rmse": 5.299523086113978e-05
+      }
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizon": 10,
+      "material_condition": "viscosity_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 5.300054252173892e-06,
+          "velocity_rmse": 0.0005302143338166185
+        },
+        "constant_velocity": {
+          "position_rmse": 5.300054252173892e-06,
+          "velocity_rmse": 0.0005302143338166185
+        },
+        "frozen_v1": {
+          "position_rmse": 5.300054252173892e-06,
+          "velocity_rmse": 0.0005302143338166185
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 5.300054252173892e-06,
+          "velocity_rmse": 0.0005302143338166185
+        },
+        "material_v2": {
+          "position_rmse": 5.611591487235358e-07,
+          "velocity_rmse": 5.587879951025155e-05
+        },
+        "persistence": {
+          "position_rmse": 5.300054252173892e-06,
+          "velocity_rmse": 0.0005302143338166185
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 5.300054252173892e-06,
+        "velocity_rmse": 0.0005302143338166185
+      }
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizon": 50,
+      "material_condition": "viscosity_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0001337954318097107,
+          "velocity_rmse": 0.00271067333518429
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0001337954318097107,
+          "velocity_rmse": 0.00271067333518429
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0001337954318097107,
+          "velocity_rmse": 0.00271067333518429
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0001337954318097107,
+          "velocity_rmse": 0.00271067333518429
+        },
+        "material_v2": {
+          "position_rmse": 2.0311462880810042e-05,
+          "velocity_rmse": 0.0005667772040934134
+        },
+        "persistence": {
+          "position_rmse": 0.0001337954318097107,
+          "velocity_rmse": 0.00271067333518429
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 0.0001337954318097107,
+        "velocity_rmse": 0.00271067333518429
+      }
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizon": 1,
+      "material_condition": "interpolation_joint",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.5292860974292486e-07,
+          "velocity_rmse": 0.00015291740621847346
+        },
+        "constant_velocity": {
+          "position_rmse": 1.5292860974292486e-07,
+          "velocity_rmse": 0.00015291740621847346
+        },
+        "frozen_v1": {
+          "position_rmse": 1.5292860974292486e-07,
+          "velocity_rmse": 0.00015291740621847346
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 1.5292860974292486e-07,
+          "velocity_rmse": 0.00015291740621847346
+        },
+        "material_v2": {
+          "position_rmse": 7.993848204056528e-08,
+          "velocity_rmse": 7.992874800281275e-05
+        },
+        "persistence": {
+          "position_rmse": 1.5292860974292486e-07,
+          "velocity_rmse": 0.00015291740621847346
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 1.5292860974292486e-07,
+        "velocity_rmse": 0.00015291740621847346
+      }
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizon": 10,
+      "material_condition": "interpolation_joint",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.5271473724513938e-05,
+          "velocity_rmse": 0.0015258915172566944
+        },
+        "constant_velocity": {
+          "position_rmse": 1.5271473724513938e-05,
+          "velocity_rmse": 0.0015258915172566944
+        },
+        "frozen_v1": {
+          "position_rmse": 1.5271473724513938e-05,
+          "velocity_rmse": 0.0015258915172566944
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 1.5271473724513938e-05,
+          "velocity_rmse": 0.0015258915172566944
+        },
+        "material_v2": {
+          "position_rmse": 7.975307677118669e-06,
+          "velocity_rmse": 0.0007964442203839894
+        },
+        "persistence": {
+          "position_rmse": 1.5271473724513938e-05,
+          "velocity_rmse": 0.0015258915172566944
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 1.5271473724513938e-05,
+        "velocity_rmse": 0.0015258915172566944
+      }
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizon": 50,
+      "material_condition": "interpolation_joint",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.00037867608095482286,
+          "velocity_rmse": 0.0075272032568488205
+        },
+        "constant_velocity": {
+          "position_rmse": 0.00037867608095482286,
+          "velocity_rmse": 0.0075272032568488205
+        },
+        "frozen_v1": {
+          "position_rmse": 0.00037867608095482286,
+          "velocity_rmse": 0.0075272032568488205
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.00037867608095482286,
+          "velocity_rmse": 0.0075272032568488205
+        },
+        "material_v2": {
+          "position_rmse": 0.0001966997202743444,
+          "velocity_rmse": 0.003894047291244789
+        },
+        "persistence": {
+          "position_rmse": 0.00037867608095482286,
+          "velocity_rmse": 0.0075272032568488205
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 0.00037867608095482286,
+        "velocity_rmse": 0.0075272032568488205
+      }
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizon": 1,
+      "material_condition": "stiffness_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 9.160215637615016e-07,
+          "velocity_rmse": 0.0009159837497830733
+        },
+        "constant_velocity": {
+          "position_rmse": 9.160215637615016e-07,
+          "velocity_rmse": 0.0009159837497830733
+        },
+        "frozen_v1": {
+          "position_rmse": 9.160215637615016e-07,
+          "velocity_rmse": 0.0009159837497830733
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 9.160215637615016e-07,
+          "velocity_rmse": 0.0009159837497830733
+        },
+        "material_v2": {
+          "position_rmse": 4.805418016987106e-07,
+          "velocity_rmse": 0.0004804714784142033
+        },
+        "persistence": {
+          "position_rmse": 9.160215637615016e-07,
+          "velocity_rmse": 0.0009159837497830733
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 9.160215637615016e-07,
+        "velocity_rmse": 0.0009159837497830733
+      }
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizon": 10,
+      "material_condition": "stiffness_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 9.151923972360569e-05,
+          "velocity_rmse": 0.009146493558809731
+        },
+        "constant_velocity": {
+          "position_rmse": 9.151923972360569e-05,
+          "velocity_rmse": 0.009146493558809731
+        },
+        "frozen_v1": {
+          "position_rmse": 9.151923972360569e-05,
+          "velocity_rmse": 0.009146493558809731
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 9.151923972360569e-05,
+          "velocity_rmse": 0.009146493558809731
+        },
+        "material_v2": {
+          "position_rmse": 4.792571847734226e-05,
+          "velocity_rmse": 0.004785331618664602
+        },
+        "persistence": {
+          "position_rmse": 9.151923972360569e-05,
+          "velocity_rmse": 0.009146493558809731
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 9.151923972360569e-05,
+        "velocity_rmse": 0.009146493558809731
+      }
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizon": 50,
+      "material_condition": "stiffness_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0022698347980270117,
+          "velocity_rmse": 0.045079442765531594
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0022698347980270117,
+          "velocity_rmse": 0.045079442765531594
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0022698347980270117,
+          "velocity_rmse": 0.045079442765531594
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0022698347980270117,
+          "velocity_rmse": 0.045079442765531594
+        },
+        "material_v2": {
+          "position_rmse": 0.0011826495743391201,
+          "velocity_rmse": 0.023445845344586255
+        },
+        "persistence": {
+          "position_rmse": 0.0022698347980270117,
+          "velocity_rmse": 0.045079442765531594
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 0.0022698347980270117,
+        "velocity_rmse": 0.045079442765531594
+      }
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizon": 1,
+      "material_condition": "viscosity_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 4.578830428592657e-08,
+          "velocity_rmse": 4.5760931438090166e-05
+        },
+        "constant_velocity": {
+          "position_rmse": 4.578830428592657e-08,
+          "velocity_rmse": 4.5760931438090166e-05
+        },
+        "frozen_v1": {
+          "position_rmse": 4.578830428592657e-08,
+          "velocity_rmse": 4.5760931438090166e-05
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.578830428592657e-08,
+          "velocity_rmse": 4.5760931438090166e-05
+        },
+        "material_v2": {
+          "position_rmse": 1.0543282329792574e-08,
+          "velocity_rmse": 1.0541321824759231e-05
+        },
+        "persistence": {
+          "position_rmse": 4.578830428592657e-08,
+          "velocity_rmse": 4.5760931438090166e-05
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 4.578830428592657e-08,
+        "velocity_rmse": 4.5760931438090166e-05
+      }
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizon": 10,
+      "material_condition": "viscosity_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 4.530893447828444e-06,
+          "velocity_rmse": 0.0004505365495438384
+        },
+        "constant_velocity": {
+          "position_rmse": 4.530893447828444e-06,
+          "velocity_rmse": 0.0004505365495438384
+        },
+        "frozen_v1": {
+          "position_rmse": 4.530893447828444e-06,
+          "velocity_rmse": 0.0004505365495438384
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.530893447828444e-06,
+          "velocity_rmse": 0.0004505365495438384
+        },
+        "material_v2": {
+          "position_rmse": 1.05776090014777e-06,
+          "velocity_rmse": 0.00010659207651386992
+        },
+        "persistence": {
+          "position_rmse": 4.530893447828444e-06,
+          "velocity_rmse": 0.0004505365495438384
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 4.530893447828444e-06,
+        "velocity_rmse": 0.0004505365495438384
+      }
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizon": 50,
+      "material_condition": "viscosity_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.00010878390078393338,
+          "velocity_rmse": 0.0021324620461767286
+        },
+        "constant_velocity": {
+          "position_rmse": 0.00010878390078393338,
+          "velocity_rmse": 0.0021324620461767286
+        },
+        "frozen_v1": {
+          "position_rmse": 0.00010878390078393338,
+          "velocity_rmse": 0.0021324620461767286
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.00010878390078393338,
+          "velocity_rmse": 0.0021324620461767286
+        },
+        "material_v2": {
+          "position_rmse": 3.077037901046904e-05,
+          "velocity_rmse": 0.0007164867496267138
+        },
+        "persistence": {
+          "position_rmse": 0.00010878390078393338,
+          "velocity_rmse": 0.0021324620461767286
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 0.00010878390078393338,
+        "velocity_rmse": 0.0021324620461767286
+      }
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizon": 1,
+      "material_condition": "interpolation_joint",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.435514003506776e-07,
+          "velocity_rmse": 0.00014354209718622896
+        },
+        "constant_velocity": {
+          "position_rmse": 1.435514003506776e-07,
+          "velocity_rmse": 0.00014354209718622896
+        },
+        "frozen_v1": {
+          "position_rmse": 1.435514003506776e-07,
+          "velocity_rmse": 0.00014354209718622896
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 1.435514003506776e-07,
+          "velocity_rmse": 0.00014354209718622896
+        },
+        "material_v2": {
+          "position_rmse": 1.0433662271530334e-07,
+          "velocity_rmse": 0.00010432359185507398
+        },
+        "persistence": {
+          "position_rmse": 1.435514003506776e-07,
+          "velocity_rmse": 0.00014354209718622896
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 1.435514003506776e-07,
+        "velocity_rmse": 0.00014354209718622896
+      }
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizon": 10,
+      "material_condition": "interpolation_joint",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.4337429596793897e-05,
+          "velocity_rmse": 0.0014327057015500997
+        },
+        "constant_velocity": {
+          "position_rmse": 1.4337429596793897e-05,
+          "velocity_rmse": 0.0014327057015500997
+        },
+        "frozen_v1": {
+          "position_rmse": 1.4337429596793897e-05,
+          "velocity_rmse": 0.0014327057015500997
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 1.4337429596793897e-05,
+          "velocity_rmse": 0.0014327057015500997
+        },
+        "material_v2": {
+          "position_rmse": 1.0408687056634072e-05,
+          "velocity_rmse": 0.001039396841705897
+        },
+        "persistence": {
+          "position_rmse": 1.4337429596793897e-05,
+          "velocity_rmse": 0.0014327057015500997
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 1.4337429596793897e-05,
+        "velocity_rmse": 0.0014327057015500997
+      }
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizon": 50,
+      "material_condition": "interpolation_joint",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.00035589047086083945,
+          "velocity_rmse": 0.007080185629573595
+        },
+        "constant_velocity": {
+          "position_rmse": 0.00035589047086083945,
+          "velocity_rmse": 0.007080185629573595
+        },
+        "frozen_v1": {
+          "position_rmse": 0.00035589047086083945,
+          "velocity_rmse": 0.007080185629573595
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.00035589047086083945,
+          "velocity_rmse": 0.007080185629573595
+        },
+        "material_v2": {
+          "position_rmse": 0.0002565127662195245,
+          "velocity_rmse": 0.005074386038884132
+        },
+        "persistence": {
+          "position_rmse": 0.00035589047086083945,
+          "velocity_rmse": 0.007080185629573595
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 0.00035589047086083945,
+        "velocity_rmse": 0.007080185629573595
+      }
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizon": 1,
+      "material_condition": "stiffness_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 8.623963196956448e-07,
+          "velocity_rmse": 0.0008623593649663002
+        },
+        "constant_velocity": {
+          "position_rmse": 8.623963196956448e-07,
+          "velocity_rmse": 0.0008623593649663002
+        },
+        "frozen_v1": {
+          "position_rmse": 8.623963196956448e-07,
+          "velocity_rmse": 0.0008623593649663002
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 8.623963196956448e-07,
+          "velocity_rmse": 0.0008623593649663002
+        },
+        "material_v2": {
+          "position_rmse": 6.266738343393289e-07,
+          "velocity_rmse": 0.0006265785333504457
+        },
+        "persistence": {
+          "position_rmse": 8.623963196956448e-07,
+          "velocity_rmse": 0.0008623593649663002
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 8.623963196956448e-07,
+        "velocity_rmse": 0.0008623593649663002
+      }
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizon": 10,
+      "material_condition": "stiffness_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 8.616141225187679e-05,
+          "velocity_rmse": 0.00861114761068007
+        },
+        "constant_velocity": {
+          "position_rmse": 8.616141225187679e-05,
+          "velocity_rmse": 0.00861114761068007
+        },
+        "frozen_v1": {
+          "position_rmse": 8.616141225187679e-05,
+          "velocity_rmse": 0.00861114761068007
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 8.616141225187679e-05,
+          "velocity_rmse": 0.00861114761068007
+        },
+        "material_v2": {
+          "position_rmse": 6.249204031787864e-05,
+          "velocity_rmse": 0.0062392515181945146
+        },
+        "persistence": {
+          "position_rmse": 8.616141225187679e-05,
+          "velocity_rmse": 0.00861114761068007
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 8.616141225187679e-05,
+        "velocity_rmse": 0.00861114761068007
+      }
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizon": 50,
+      "material_condition": "stiffness_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.002138352379649012,
+          "velocity_rmse": 0.042500901101126885
+        },
+        "constant_velocity": {
+          "position_rmse": 0.002138352379649012,
+          "velocity_rmse": 0.042500901101126885
+        },
+        "frozen_v1": {
+          "position_rmse": 0.002138352379649012,
+          "velocity_rmse": 0.042500901101126885
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.002138352379649012,
+          "velocity_rmse": 0.042500901101126885
+        },
+        "material_v2": {
+          "position_rmse": 0.0015404163779354234,
+          "velocity_rmse": 0.03050913804854771
+        },
+        "persistence": {
+          "position_rmse": 0.002138352379649012,
+          "velocity_rmse": 0.042500901101126885
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 0.002138352379649012,
+        "velocity_rmse": 0.042500901101126885
+      }
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizon": 1,
+      "material_condition": "viscosity_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 4.205805658029958e-08,
+          "velocity_rmse": 4.204498363041995e-05
+        },
+        "constant_velocity": {
+          "position_rmse": 4.205805658029958e-08,
+          "velocity_rmse": 4.204498363041995e-05
+        },
+        "frozen_v1": {
+          "position_rmse": 4.205805658029958e-08,
+          "velocity_rmse": 4.204498363041995e-05
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.205805658029958e-08,
+          "velocity_rmse": 4.204498363041995e-05
+        },
+        "material_v2": {
+          "position_rmse": 1.1853818165682637e-08,
+          "velocity_rmse": 1.1851299917965628e-05
+        },
+        "persistence": {
+          "position_rmse": 4.205805658029958e-08,
+          "velocity_rmse": 4.204498363041995e-05
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 4.205805658029958e-08,
+        "velocity_rmse": 4.204498363041995e-05
+      }
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizon": 10,
+      "material_condition": "viscosity_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 4.182866121650676e-06,
+          "velocity_rmse": 0.00041706123314661067
+        },
+        "constant_velocity": {
+          "position_rmse": 4.182866121650676e-06,
+          "velocity_rmse": 0.00041706123314661067
+        },
+        "frozen_v1": {
+          "position_rmse": 4.182866121650676e-06,
+          "velocity_rmse": 0.00041706123314661067
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.182866121650676e-06,
+          "velocity_rmse": 0.00041706123314661067
+        },
+        "material_v2": {
+          "position_rmse": 1.1835963919465478e-06,
+          "velocity_rmse": 0.00011850475113740941
+        },
+        "persistence": {
+          "position_rmse": 4.182866121650676e-06,
+          "velocity_rmse": 0.00041706123314661067
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 4.182866121650676e-06,
+        "velocity_rmse": 0.00041706123314661067
+      }
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizon": 50,
+      "material_condition": "viscosity_extrapolation",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.00010239655714808801,
+          "velocity_rmse": 0.0020263699721088223
+        },
+        "constant_velocity": {
+          "position_rmse": 0.00010239655714808801,
+          "velocity_rmse": 0.0020263699721088223
+        },
+        "frozen_v1": {
+          "position_rmse": 0.00010239655714808801,
+          "velocity_rmse": 0.0020263699721088223
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.00010239655714808801,
+          "velocity_rmse": 0.0020263699721088223
+        },
+        "material_v2": {
+          "position_rmse": 3.1075783733636274e-05,
+          "velocity_rmse": 0.0006642726773606437
+        },
+        "persistence": {
+          "position_rmse": 0.00010239655714808801,
+          "velocity_rmse": 0.0020263699721088223
+        }
+      },
+      "target_change_rms": {
+        "position_rmse": 0.00010239655714808801,
+        "velocity_rmse": 0.0020263699721088223
+      }
+    }
+  ],
+  "provenance": {
+    "command": "python -m experiments.particle_graph.materials evaluate --data-dir experiments/particle_graph/evidence/2026-09-13-materials --model experiments/particle_graph/evidence/2026-09-13-materials/models.json --output experiments/particle_graph/evidence/2026-09-13-materials/evaluation.json",
+    "corpus_sha256": {
+      "test": "0fba680c2082a87353b1d24ba7e29f61cc61725e9d9edb1c82fbfff4e84dc988",
+      "train": "80882080552ff731f21d20f2217ee7dc54c0b1a0dbb560a5f6e8ee6802466519",
+      "validation": "00c7cdf2301afd7b58859ccd2a28afd8318253f3a937c05bce1982f0a31fdec2"
+    },
+    "date": "2026-09-13",
+    "environment": {
+      "dependencies": "Python standard library only",
+      "machine": "x86_64",
+      "python": "3.12.14",
+      "system": "Linux"
+    },
+    "license": "MIT (repository license)",
+    "manifest_sha256": "8ce938f7589da1b36687eacce887c9024393ddb78e11307b095338a7fd7c6abc",
+    "model_sha256": "698d24c09f77eb31625e0defda1896b5d8a2ae60c6c7332fc8f0c445cc8bf67d",
+    "numerics_sha256": "f4a704bd2639234da3400e05589df5865a0244c289be4d3ce306cb1696c6202b",
+    "prior_model_sha256": "1d179137c38de6d032a552e3973fc4b0fe923062dcc2ada15743ad710a8c7ccd",
+    "protocol_revision": "0751eb36ca1b01d7a1cc2f1484f49cd563d900e9",
+    "protocol_sha256": "b219a8b0a4515419f9a213e0759fcc632baa19a1c64bc62867344c03846c79a8",
+    "source_sha256": {
+      "experiments/particle_graph/affine.py": "a37e18ae79207ea85ba4154a75a122b464c00b457533fec0744b6be2881c5527",
+      "experiments/particle_graph/dense_reference.py": "c00d6dfbdc1db1bbb87d971193ed104948e99dddaac70a9031576331e44aaafe",
+      "experiments/particle_graph/material_data.py": "a72882261654e63745942675e970e6a99bf885603657e8d1ba2c598432d9e946",
+      "experiments/particle_graph/materials.py": "f08d211be47cec5be78915821f1545f1b82061ba1b458f1acc8d34bab4e8b76c",
+      "experiments/particle_graph/reference.py": "2ca936c43527e1a3802e240b216a856d827e9187fd75100d34f79bb268188d90",
+      "experiments/particle_graph/validation.py": "8aad854ad73a980ce7650fd3483f9a3e1baafaa29c93dbe5f87fd58a70c7acbd",
+      "tests/test_particle_graph_materials.py": "4a50638bc77445b32eac1cba6b5f740330dfba671791e955be64a50a15c3fe94"
+    }
+  },
+  "scenes": [
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 1,
+      "material_condition": "interpolation_base",
+      "material_id": "base-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 8.641690151859626e-08,
+          "velocity_rmse": 8.640798884176883e-05
+        },
+        "constant_velocity": {
+          "position_rmse": 3.1584126476983763e-07,
+          "velocity_rmse": 0.00031581075921772306
+        },
+        "frozen_v1": {
+          "position_rmse": 5.932765952472403e-08,
+          "velocity_rmse": 5.931749913651359e-05
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.1584126476983763e-07,
+          "velocity_rmse": 0.00031581075921772306
+        },
+        "material_v2": {
+          "position_rmse": 6.220960971821359e-08,
+          "velocity_rmse": 6.2201087992537e-05
+        },
+        "persistence": {
+          "position_rmse": 5.908729916707145e-05,
+          "velocity_rmse": 0.00031581075921772306
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/base-material",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 10,
+      "material_condition": "interpolation_base",
+      "material_id": "base-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 8.624630286044406e-06,
+          "velocity_rmse": 0.0008614597311450695
+        },
+        "constant_velocity": {
+          "position_rmse": 3.152778848441766e-05,
+          "velocity_rmse": 0.0031495697359510046
+        },
+        "frozen_v1": {
+          "position_rmse": 5.914250464722929e-06,
+          "velocity_rmse": 0.0005903856531877894
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.152778848441766e-05,
+          "velocity_rmse": 0.0031495697359510046
+        },
+        "material_v2": {
+          "position_rmse": 6.205479513742875e-06,
+          "velocity_rmse": 0.0006196814838208607
+        },
+        "persistence": {
+          "position_rmse": 0.0005985947084410596,
+          "velocity_rmse": 0.0031495697359510046
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/base-material",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 50,
+      "material_condition": "interpolation_base",
+      "material_id": "base-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0002131003117911819,
+          "velocity_rmse": 0.004224300860233363
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0007810699026888917,
+          "velocity_rmse": 0.015523516479873933
+        },
+        "frozen_v1": {
+          "position_rmse": 0.00014566363781507062,
+          "velocity_rmse": 0.002884711198427605
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0007810699026888917,
+          "velocity_rmse": 0.015523516479873933
+        },
+        "material_v2": {
+          "position_rmse": 0.00015333132271640485,
+          "velocity_rmse": 0.0030433646731216593
+        },
+        "persistence": {
+          "position_rmse": 0.00323103421762888,
+          "velocity_rmse": 0.015523516479873933
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/base-material",
+      "time": 0.1
+    },
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 1,
+      "material_condition": "interpolation_joint",
+      "material_id": "interpolated-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.3182055550545095e-07,
+          "velocity_rmse": 0.00013179721678083255
+        },
+        "constant_velocity": {
+          "position_rmse": 4.7445944277526873e-07,
+          "velocity_rmse": 0.000474405589514905
+        },
+        "frozen_v1": {
+          "position_rmse": 1.8256487972707705e-07,
+          "velocity_rmse": 0.00018253082279068089
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.7445944277526873e-07,
+          "velocity_rmse": 0.000474405589514905
+        },
+        "material_v2": {
+          "position_rmse": 9.289478542763286e-08,
+          "velocity_rmse": 9.287858713469048e-05
+        },
+        "persistence": {
+          "position_rmse": 5.913027570839263e-05,
+          "velocity_rmse": 0.000474405589514905
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/interpolated-material",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 10,
+      "material_condition": "interpolation_joint",
+      "material_id": "interpolated-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.3139313403687143e-05,
+          "velocity_rmse": 0.0013115172381569452
+        },
+        "constant_velocity": {
+          "position_rmse": 4.734581654009631e-05,
+          "velocity_rmse": 0.004728841790363543
+        },
+        "frozen_v1": {
+          "position_rmse": 1.8193328353339368e-05,
+          "velocity_rmse": 0.001815721507086771
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.734581654009631e-05,
+          "velocity_rmse": 0.004728841790363543
+        },
+        "material_v2": {
+          "position_rmse": 9.259860017538974e-06,
+          "velocity_rmse": 0.0009243169375483917
+        },
+        "persistence": {
+          "position_rmse": 0.0006037397580902361,
+          "velocity_rmse": 0.004728841790363543
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/interpolated-material",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 50,
+      "material_condition": "interpolation_joint",
+      "material_id": "interpolated-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0003232912286502629,
+          "velocity_rmse": 0.006396558413010468
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0011705849553780867,
+          "velocity_rmse": 0.023228682992421874
+        },
+        "frozen_v1": {
+          "position_rmse": 0.00044669077151091464,
+          "velocity_rmse": 0.008820644263632181
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0011705849553780867,
+          "velocity_rmse": 0.023228682992421874
+        },
+        "material_v2": {
+          "position_rmse": 0.00022792410337941476,
+          "velocity_rmse": 0.004511149968326356
+        },
+        "persistence": {
+          "position_rmse": 0.0034359397358427347,
+          "velocity_rmse": 0.023228682992421874
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/interpolated-material",
+      "time": 0.1
+    },
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 1,
+      "material_condition": "stiffness_extrapolation",
+      "material_id": "high-stiffness",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 9.115464733611905e-07,
+          "velocity_rmse": 0.0009114530741413834
+        },
+        "constant_velocity": {
+          "position_rmse": 1.272384964875826e-06,
+          "velocity_rmse": 0.0012722599589999406
+        },
+        "frozen_v1": {
+          "position_rmse": 9.73118274429728e-07,
+          "velocity_rmse": 0.000973013459442098
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 1.272384964875826e-06,
+          "velocity_rmse": 0.0012722599589999406
+        },
+        "material_v2": {
+          "position_rmse": 2.542240617173326e-07,
+          "velocity_rmse": 0.00025418568439525383
+        },
+        "persistence": {
+          "position_rmse": 5.937071240092747e-05,
+          "velocity_rmse": 0.0012722599589999406
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/high-stiffness",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 10,
+      "material_condition": "stiffness_extrapolation",
+      "material_id": "high-stiffness",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 9.096625322102788e-05,
+          "velocity_rmse": 0.00908503287217177
+        },
+        "constant_velocity": {
+          "position_rmse": 0.00012699057101128256,
+          "velocity_rmse": 0.012684010345337915
+        },
+        "frozen_v1": {
+          "position_rmse": 9.710158281181734e-05,
+          "velocity_rmse": 0.009697279433661265
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.00012699057101128256,
+          "velocity_rmse": 0.012684010345337915
+        },
+        "material_v2": {
+          "position_rmse": 2.5346919054123103e-05,
+          "velocity_rmse": 0.002530146467118729
+        },
+        "persistence": {
+          "position_rmse": 0.0006367254817558148,
+          "velocity_rmse": 0.012684010345337915
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/high-stiffness",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 50,
+      "material_condition": "stiffness_extrapolation",
+      "material_id": "high-stiffness",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.002240930583512536,
+          "velocity_rmse": 0.044277705903732915
+        },
+        "constant_velocity": {
+          "position_rmse": 0.00313332282258782,
+          "velocity_rmse": 0.06200643109022688
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0023910950346317417,
+          "velocity_rmse": 0.047232641657968984
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.00313332282258782,
+          "velocity_rmse": 0.06200643109022688
+        },
+        "material_v2": {
+          "position_rmse": 0.000621458235628282,
+          "velocity_rmse": 0.012240078165450207
+        },
+        "persistence": {
+          "position_rmse": 0.004855314428904298,
+          "velocity_rmse": 0.06200643109022688
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/high-stiffness",
+      "time": 0.1
+    },
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 1,
+      "material_condition": "viscosity_extrapolation",
+      "material_id": "high-viscosity",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.0588517935327428e-07,
+          "velocity_rmse": 0.00010591772786106155
+        },
+        "constant_velocity": {
+          "position_rmse": 3.0880816447052625e-07,
+          "velocity_rmse": 0.00030869617403689266
+        },
+        "frozen_v1": {
+          "position_rmse": 7.564730066567347e-08,
+          "velocity_rmse": 7.563024274774818e-05
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.0880816447052625e-07,
+          "velocity_rmse": 0.00030869617403689266
+        },
+        "material_v2": {
+          "position_rmse": 6.282753032759877e-08,
+          "velocity_rmse": 6.278848202572014e-05
+        },
+        "persistence": {
+          "position_rmse": 5.903489435152982e-05,
+          "velocity_rmse": 0.00030869617403689266
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/high-viscosity",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 10,
+      "material_condition": "viscosity_extrapolation",
+      "material_id": "high-viscosity",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.0646607828581014e-05,
+          "velocity_rmse": 0.0010678853123443693
+        },
+        "constant_velocity": {
+          "position_rmse": 3.0678645714047065e-05,
+          "velocity_rmse": 0.0030566001074465473
+        },
+        "frozen_v1": {
+          "position_rmse": 7.5357404733617494e-06,
+          "velocity_rmse": 0.0007521167802843698
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.0678645714047065e-05,
+          "velocity_rmse": 0.0030566001074465473
+        },
+        "material_v2": {
+          "position_rmse": 6.214021071134374e-06,
+          "velocity_rmse": 0.0006177212597871218
+        },
+        "persistence": {
+          "position_rmse": 0.0005933573875246951,
+          "velocity_rmse": 0.0030566001074465473
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/high-viscosity",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "unseen_seed",
+      "group_id": "test-geometry-08",
+      "horizon": 50,
+      "material_condition": "viscosity_extrapolation",
+      "material_id": "high-viscosity",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0002722655931676125,
+          "velocity_rmse": 0.005519426805906018
+        },
+        "constant_velocity": {
+          "position_rmse": 0.000744135103114972,
+          "velocity_rmse": 0.014593486988285283
+        },
+        "frozen_v1": {
+          "position_rmse": 0.00018622830149565364,
+          "velocity_rmse": 0.0037143033642114427
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.000744135103114972,
+          "velocity_rmse": 0.014593486988285283
+        },
+        "material_v2": {
+          "position_rmse": 0.00014866077265125784,
+          "velocity_rmse": 0.0029046343749650917
+        },
+        "persistence": {
+          "position_rmse": 0.0030995097386676044,
+          "velocity_rmse": 0.014593486988285283
+        }
+      },
+      "particles": 8,
+      "scene_id": "test-geometry-08/high-viscosity",
+      "time": 0.1
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 1,
+      "material_condition": "interpolation_base",
+      "material_id": "base-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 2.5087535306425895e-07,
+          "velocity_rmse": 0.0002508398602097306
+        },
+        "constant_velocity": {
+          "position_rmse": 4.625525368882359e-07,
+          "velocity_rmse": 0.00046254454709210784
+        },
+        "frozen_v1": {
+          "position_rmse": 1.6832114994408998e-07,
+          "velocity_rmse": 0.00016830428361979871
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.0652055295694454e-07,
+          "velocity_rmse": 0.000306508495876775
+        },
+        "material_v2": {
+          "position_rmse": 1.6497800258983202e-07,
+          "velocity_rmse": 0.0001649524736903798
+        },
+        "persistence": {
+          "position_rmse": 6.147880012922546e-05,
+          "velocity_rmse": 0.00046254454709210784
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/base-material",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 10,
+      "material_condition": "interpolation_base",
+      "material_id": "base-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 2.5021043107793434e-05,
+          "velocity_rmse": 0.002498266060431185
+        },
+        "constant_velocity": {
+          "position_rmse": 4.6240224142226594e-05,
+          "velocity_rmse": 0.004623151708852343
+        },
+        "frozen_v1": {
+          "position_rmse": 1.6800871263798875e-05,
+          "velocity_rmse": 0.0016783027484210274
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.06293703611684e-05,
+          "velocity_rmse": 0.003061622400470761
+        },
+        "material_v2": {
+          "position_rmse": 1.6450332283364916e-05,
+          "velocity_rmse": 0.0016423129852899086
+        },
+        "persistence": {
+          "position_rmse": 0.0006176266375390181,
+          "velocity_rmse": 0.004623151708852343
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/base-material",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 50,
+      "material_condition": "interpolation_base",
+      "material_id": "base-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0006165578731406826,
+          "velocity_rmse": 0.0122029661192728
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0011539467746340545,
+          "velocity_rmse": 0.023049299628128454
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0004160115275440721,
+          "velocity_rmse": 0.008264629012879046
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0007626225532255364,
+          "velocity_rmse": 0.015207570921986274
+        },
+        "material_v2": {
+          "position_rmse": 0.00040506612237641953,
+          "velocity_rmse": 0.00801470645420939
+        },
+        "persistence": {
+          "position_rmse": 0.0033121537844656135,
+          "velocity_rmse": 0.023049299628128454
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/base-material",
+      "time": 0.1
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 1,
+      "material_condition": "interpolation_joint",
+      "material_id": "interpolated-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.691524162929634e-07,
+          "velocity_rmse": 0.00016912996635046055
+        },
+        "constant_velocity": {
+          "position_rmse": 5.753931840442224e-07,
+          "velocity_rmse": 0.0005753746087028012
+        },
+        "frozen_v1": {
+          "position_rmse": 1.4226952716581765e-07,
+          "velocity_rmse": 0.00014226052275456274
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.594315142047173e-07,
+          "velocity_rmse": 0.00045940825018702205
+        },
+        "material_v2": {
+          "position_rmse": 2.4426218687065297e-07,
+          "velocity_rmse": 0.0002442270598395685
+        },
+        "persistence": {
+          "position_rmse": 6.147189164246523e-05,
+          "velocity_rmse": 0.0005753746087028012
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/interpolated-material",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 10,
+      "material_condition": "interpolation_joint",
+      "material_id": "interpolated-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.6873470114495332e-05,
+          "velocity_rmse": 0.001684952624755898
+        },
+        "constant_velocity": {
+          "position_rmse": 5.750412972552872e-05,
+          "velocity_rmse": 0.0057483611958141344
+        },
+        "frozen_v1": {
+          "position_rmse": 1.4210033460715855e-05,
+          "velocity_rmse": 0.0014200249234348043
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.589907336199808e-05,
+          "velocity_rmse": 0.004587336529789558
+        },
+        "material_v2": {
+          "position_rmse": 2.4360454837125117e-05,
+          "velocity_rmse": 0.0024322520165268795
+        },
+        "persistence": {
+          "position_rmse": 0.0006177928240458719,
+          "velocity_rmse": 0.0057483611958141344
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/interpolated-material",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 50,
+      "material_condition": "interpolation_joint",
+      "material_id": "interpolated-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.00041637092625480593,
+          "velocity_rmse": 0.008250948468542657
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0014326410649979763,
+          "velocity_rmse": 0.028580221056550562
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0003529375372829035,
+          "velocity_rmse": 0.007025475357403119
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0011412538810967668,
+          "velocity_rmse": 0.022733874189000344
+        },
+        "material_v2": {
+          "position_rmse": 0.0006001629505755023,
+          "velocity_rmse": 0.011876990091435558
+        },
+        "persistence": {
+          "position_rmse": 0.0034018660383087398,
+          "velocity_rmse": 0.028580221056550562
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/interpolated-material",
+      "time": 0.1
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 1,
+      "material_condition": "stiffness_extrapolation",
+      "material_id": "high-stiffness",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 7.45116148755766e-07,
+          "velocity_rmse": 0.0007451066086420593
+        },
+        "constant_velocity": {
+          "position_rmse": 1.270519375053333e-06,
+          "velocity_rmse": 0.0012704714137209794
+        },
+        "frozen_v1": {
+          "position_rmse": 8.233114534959245e-07,
+          "velocity_rmse": 0.0008232872153920423
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 1.222382707003487e-06,
+          "velocity_rmse": 0.0012223328569101724
+        },
+        "material_v2": {
+          "position_rmse": 6.44092976494411e-07,
+          "velocity_rmse": 0.0006439974073991286
+        },
+        "persistence": {
+          "position_rmse": 6.14591889300737e-05,
+          "velocity_rmse": 0.0012704714137209794
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/high-stiffness",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 10,
+      "material_condition": "stiffness_extrapolation",
+      "material_id": "high-stiffness",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 7.448208047135232e-05,
+          "velocity_rmse": 0.007445882412111189
+        },
+        "constant_velocity": {
+          "position_rmse": 0.000126950377569804,
+          "velocity_rmse": 0.012688550956180805
+        },
+        "frozen_v1": {
+          "position_rmse": 8.22734437880314e-05,
+          "velocity_rmse": 0.008223358530168168
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.000122132708006965,
+          "velocity_rmse": 0.012206527981682456
+        },
+        "material_v2": {
+          "position_rmse": 6.423390644812654e-05,
+          "velocity_rmse": 0.00641346148472885
+        },
+        "persistence": {
+          "position_rmse": 0.0006258080889773996,
+          "velocity_rmse": 0.012688550956180805
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/high-stiffness",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 50,
+      "material_condition": "stiffness_extrapolation",
+      "material_id": "high-stiffness",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0018513354446383155,
+          "velocity_rmse": 0.036817538590507466
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0031533186744378966,
+          "velocity_rmse": 0.06271831817036466
+        },
+        "frozen_v1": {
+          "position_rmse": 0.002041957535290697,
+          "velocity_rmse": 0.04056743835397269
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.003032065082177293,
+          "velocity_rmse": 0.060279245467400246
+        },
+        "material_v2": {
+          "position_rmse": 0.0015842350163901785,
+          "velocity_rmse": 0.031391825240518687
+        },
+        "persistence": {
+          "position_rmse": 0.004371627658706914,
+          "velocity_rmse": 0.06271831817036466
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/high-stiffness",
+      "time": 0.1
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 1,
+      "material_condition": "viscosity_extrapolation",
+      "material_id": "high-viscosity",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 2.5788655590783666e-07,
+          "velocity_rmse": 0.0002578787447630453
+        },
+        "constant_velocity": {
+          "position_rmse": 4.6839609792376615e-07,
+          "velocity_rmse": 0.0004683488683785119
+        },
+        "frozen_v1": {
+          "position_rmse": 1.7979317287986928e-07,
+          "velocity_rmse": 0.00017979090374261827
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.152695744133862e-07,
+          "velocity_rmse": 0.0003151994011914239
+        },
+        "material_v2": {
+          "position_rmse": 1.621901607435625e-07,
+          "velocity_rmse": 0.00016218626797354712
+        },
+        "persistence": {
+          "position_rmse": 6.143573072711171e-05,
+          "velocity_rmse": 0.0004683488683785119
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/high-viscosity",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 10,
+      "material_condition": "viscosity_extrapolation",
+      "material_id": "high-viscosity",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 2.5772030942107248e-05,
+          "velocity_rmse": 0.002576140068394944
+        },
+        "constant_velocity": {
+          "position_rmse": 4.675433150159916e-05,
+          "velocity_rmse": 0.0046706844885681656
+        },
+        "frozen_v1": {
+          "position_rmse": 1.7974594245457818e-05,
+          "velocity_rmse": 0.0017971687330838293
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 3.14001196520122e-05,
+          "velocity_rmse": 0.003132936895590344
+        },
+        "material_v2": {
+          "position_rmse": 1.6210638768990253e-05,
+          "velocity_rmse": 0.001620530963594474
+        },
+        "persistence": {
+          "position_rmse": 0.0006134039610145528,
+          "velocity_rmse": 0.0046706844885681656
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/high-viscosity",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-18",
+      "horizon": 50,
+      "material_condition": "viscosity_extrapolation",
+      "material_id": "high-viscosity",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0006408775221806543,
+          "velocity_rmse": 0.01275867696378966
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0011592299143244743,
+          "velocity_rmse": 0.023063175757209925
+        },
+        "frozen_v1": {
+          "position_rmse": 0.00044843374849731706,
+          "velocity_rmse": 0.008953353793213775
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0007705932742145781,
+          "velocity_rmse": 0.015228594025974805
+        },
+        "material_v2": {
+          "position_rmse": 0.00040348603625660524,
+          "velocity_rmse": 0.0080393903111669
+        },
+        "persistence": {
+          "position_rmse": 0.0032179704834887587,
+          "velocity_rmse": 0.023063175757209925
+        }
+      },
+      "particles": 18,
+      "scene_id": "test-geometry-18/high-viscosity",
+      "time": 0.1
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 1,
+      "material_condition": "interpolation_base",
+      "material_id": "base-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 3.262216584760537e-07,
+          "velocity_rmse": 0.00032617728878185626
+        },
+        "constant_velocity": {
+          "position_rmse": 2.868625816852856e-07,
+          "velocity_rmse": 0.000286850821973958
+        },
+        "frozen_v1": {
+          "position_rmse": 2.177975893788526e-07,
+          "velocity_rmse": 0.0002177740264677143
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 2.868625816852856e-07,
+          "velocity_rmse": 0.000286850821973958
+        },
+        "material_v2": {
+          "position_rmse": 2.145974381675977e-07,
+          "velocity_rmse": 0.00021456305916860778
+        },
+        "persistence": {
+          "position_rmse": 5.863526897724612e-05,
+          "velocity_rmse": 0.000286850821973958
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/base-material",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 10,
+      "material_condition": "interpolation_base",
+      "material_id": "base-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 3.253889325208136e-05,
+          "velocity_rmse": 0.0032490739703906466
+        },
+        "constant_velocity": {
+          "position_rmse": 2.8664319467781905e-05,
+          "velocity_rmse": 0.0028651706460395966
+        },
+        "frozen_v1": {
+          "position_rmse": 2.173604873170776e-05,
+          "velocity_rmse": 0.0021711049414939922
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 2.8664319467781905e-05,
+          "velocity_rmse": 0.0028651706460395966
+        },
+        "material_v2": {
+          "position_rmse": 2.1395667937275467e-05,
+          "velocity_rmse": 0.0021358855771472745
+        },
+        "persistence": {
+          "position_rmse": 0.0005899952858804485,
+          "velocity_rmse": 0.0028651706460395966
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/base-material",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 50,
+      "material_condition": "interpolation_base",
+      "material_id": "base-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0008021507578409857,
+          "velocity_rmse": 0.01588032925308178
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0007137068672859089,
+          "velocity_rmse": 0.014233215526046648
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0005377556502263513,
+          "velocity_rmse": 0.010676503238499979
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0007137068672859089,
+          "velocity_rmse": 0.014233215526046648
+        },
+        "material_v2": {
+          "position_rmse": 0.0005264398502127125,
+          "velocity_rmse": 0.010409554281082927
+        },
+        "persistence": {
+          "position_rmse": 0.003094614566810872,
+          "velocity_rmse": 0.014233215526046648
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/base-material",
+      "time": 0.1
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 1,
+      "material_condition": "interpolation_joint",
+      "material_id": "interpolated-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.9757085720374732e-07,
+          "velocity_rmse": 0.00019753511603314561
+        },
+        "constant_velocity": {
+          "position_rmse": 4.3039794627396556e-07,
+          "velocity_rmse": 0.00043037688300797956
+        },
+        "frozen_v1": {
+          "position_rmse": 1.0379742150371258e-07,
+          "velocity_rmse": 0.00010378082803858023
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.3039794627396556e-07,
+          "velocity_rmse": 0.00043037688300797956
+        },
+        "material_v2": {
+          "position_rmse": 3.1816185645872313e-07,
+          "velocity_rmse": 0.00031811464301216937
+        },
+        "persistence": {
+          "position_rmse": 5.865513662751056e-05,
+          "velocity_rmse": 0.00043037688300797956
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/interpolated-material",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 10,
+      "material_condition": "interpolation_joint",
+      "material_id": "interpolated-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 1.9690391166349433e-05,
+          "velocity_rmse": 0.001965203698690278
+        },
+        "constant_velocity": {
+          "position_rmse": 4.30001449274896e-05,
+          "velocity_rmse": 0.004297715910479568
+        },
+        "frozen_v1": {
+          "position_rmse": 1.034948006360828e-05,
+          "velocity_rmse": 0.0010332470564083035
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 4.30001449274896e-05,
+          "velocity_rmse": 0.004297715910479568
+        },
+        "material_v2": {
+          "position_rmse": 3.172749339492441e-05,
+          "velocity_rmse": 0.0031676164058623904
+        },
+        "persistence": {
+          "position_rmse": 0.0005927463745771329,
+          "velocity_rmse": 0.004297715910479568
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/interpolated-material",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 50,
+      "material_condition": "interpolation_joint",
+      "material_id": "interpolated-material",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.00048341069926721004,
+          "velocity_rmse": 0.009542954661301119
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0010695572773919513,
+          "velocity_rmse": 0.021312601731970363
+        },
+        "frozen_v1": {
+          "position_rmse": 0.00025513154531024067,
+          "velocity_rmse": 0.0050552770043981055
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0010695572773919513,
+          "velocity_rmse": 0.021312601731970363
+        },
+        "material_v2": {
+          "position_rmse": 0.0007810742059862183,
+          "velocity_rmse": 0.015446936432800195
+        },
+        "persistence": {
+          "position_rmse": 0.0032385922582439945,
+          "velocity_rmse": 0.021312601731970363
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/interpolated-material",
+      "time": 0.1
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 1,
+      "material_condition": "stiffness_extrapolation",
+      "material_id": "high-stiffness",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 5.674122949151161e-07,
+          "velocity_rmse": 0.0005674129764560223
+        },
+        "constant_velocity": {
+          "position_rmse": 1.1491149257421018e-06,
+          "velocity_rmse": 0.0011490662218872534
+        },
+        "frozen_v1": {
+          "position_rmse": 6.690692082856496e-07,
+          "velocity_rmse": 0.0006690508378563032
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 1.1491149257421018e-06,
+          "velocity_rmse": 0.0011490662218872534
+        },
+        "material_v2": {
+          "position_rmse": 8.395484451418101e-07,
+          "velocity_rmse": 0.0008394191554779664
+        },
+        "persistence": {
+          "position_rmse": 5.877491920167092e-05,
+          "velocity_rmse": 0.0011490662218872534
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/high-stiffness",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 10,
+      "material_condition": "stiffness_extrapolation",
+      "material_id": "high-stiffness",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 5.6734218289710807e-05,
+          "velocity_rmse": 0.005672578580922578
+        },
+        "constant_velocity": {
+          "position_rmse": 0.000114811352867389,
+          "velocity_rmse": 0.0114748813957553
+        },
+        "frozen_v1": {
+          "position_rmse": 6.686353318054087e-05,
+          "velocity_rmse": 0.006683372931631816
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.000114811352867389,
+          "velocity_rmse": 0.0114748813957553
+        },
+        "material_v2": {
+          "position_rmse": 8.371616824385755e-05,
+          "velocity_rmse": 0.008358026471552255
+        },
+        "persistence": {
+          "position_rmse": 0.0006128686331696892,
+          "velocity_rmse": 0.0114748813957553
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/high-stiffness",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 50,
+      "material_condition": "stiffness_extrapolation",
+      "material_id": "high-stiffness",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0014126849779108595,
+          "velocity_rmse": 0.0281343841403864
+        },
+        "constant_velocity": {
+          "position_rmse": 0.002851701882793126,
+          "velocity_rmse": 0.056726998326784024
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0016606145640255252,
+          "velocity_rmse": 0.03301375077319947
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.002851701882793126,
+          "velocity_rmse": 0.056726998326784024
+        },
+        "material_v2": {
+          "position_rmse": 0.002062673883664309,
+          "velocity_rmse": 0.04083658491709438
+        },
+        "persistence": {
+          "position_rmse": 0.0043686028279306495,
+          "velocity_rmse": 0.056726998326784024
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/high-stiffness",
+      "time": 0.1
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 1,
+      "material_condition": "viscosity_extrapolation",
+      "material_id": "high-viscosity",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 3.2982698527614233e-07,
+          "velocity_rmse": 0.00032981347314847616
+        },
+        "constant_velocity": {
+          "position_rmse": 2.8822787219681545e-07,
+          "velocity_rmse": 0.0002881798015148161
+        },
+        "frozen_v1": {
+          "position_rmse": 2.211676921365876e-07,
+          "velocity_rmse": 0.00022117365794118186
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 2.8822787219681545e-07,
+          "velocity_rmse": 0.0002881798015148161
+        },
+        "material_v2": {
+          "position_rmse": 2.1279477846527828e-07,
+          "velocity_rmse": 0.00021279259715090363
+        },
+        "persistence": {
+          "position_rmse": 5.8594486418100116e-05,
+          "velocity_rmse": 0.0002881798015148161
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/high-viscosity",
+      "time": 0.002
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 10,
+      "material_condition": "viscosity_extrapolation",
+      "material_id": "high-viscosity",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 3.295486841679515e-05,
+          "velocity_rmse": 0.0032937461882613815
+        },
+        "constant_velocity": {
+          "position_rmse": 2.873568873974816e-05,
+          "velocity_rmse": 0.0028686989868285475
+        },
+        "frozen_v1": {
+          "position_rmse": 2.2126139187272085e-05,
+          "velocity_rmse": 0.002213059755545209
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 2.873568873974816e-05,
+          "velocity_rmse": 0.0028686989868285475
+        },
+        "material_v2": {
+          "position_rmse": 2.127329988333171e-05,
+          "velocity_rmse": 0.0021268636858883094
+        },
+        "persistence": {
+          "position_rmse": 0.0005859499117165204,
+          "velocity_rmse": 0.0028686989868285475
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/high-viscosity",
+      "time": 0.02
+    },
+    {
+      "geometry_condition": "held_out_particle_count",
+      "group_id": "test-geometry-27",
+      "horizon": 50,
+      "material_condition": "viscosity_extrapolation",
+      "material_id": "high-viscosity",
+      "metrics": {
+        "blind_v2": {
+          "position_rmse": 0.0008186406665072358,
+          "velocity_rmse": 0.01628546647993751
+        },
+        "constant_velocity": {
+          "position_rmse": 0.0007083763053217327,
+          "velocity_rmse": 0.014039010601541698
+        },
+        "frozen_v1": {
+          "position_rmse": 0.0005533545233710485,
+          "velocity_rmse": 0.011061024018948498
+        },
+        "known_gravity_ballistic": {
+          "position_rmse": 0.0007083763053217327,
+          "velocity_rmse": 0.014039010601541698
+        },
+        "material_v2": {
+          "position_rmse": 0.0005297725880327848,
+          "velocity_rmse": 0.010555796614738433
+        },
+        "persistence": {
+          "position_rmse": 0.0029974788355110558,
+          "velocity_rmse": 0.014039010601541698
+        }
+      },
+      "particles": 27,
+      "scene_id": "test-geometry-27/high-viscosity",
+      "time": 0.1
+    }
+  ],
+  "schema": "cogniarc.particle-material-evaluation.v2",
+  "selected_alphas": {
+    "blind_v2": 0.01,
+    "material_v2": 1e-06
+  },
+  "selection_changed_during_evaluation": false,
+  "split": "test"
+}

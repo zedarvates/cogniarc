@@ -23,10 +23,12 @@ Updated: 2026-09-13. This scientific-transfer track complements the existing
 ## Later: learned prediction and consumers
 
 - [x] Freeze the initial scene-level training/validation/test manifest before fitting any predictor. The published targets are reserved from fitting/selection; they are not a blind benchmark.
-- [x] Fit a direct affine baseline on three training scenes; select alpha on two validation scenes, save the model, then score five test scenes against persistence, constant velocity and known-gravity ballistic prediction. Protocol committed before test scoring; 45 focused tests pass. See [affine evidence](experiments/particle_graph/AFFINE_BASELINE.md).
+- [x] Fit a direct affine baseline on three training scenes; select alpha on two validation scenes, save the model, then score five test scenes against persistence, constant velocity and known-gravity ballistic prediction. Protocol committed before test scoring; 45 focused tests passed at that stage. See [affine evidence](experiments/particle_graph/AFFINE_BASELINE.md).
 - [x] Publish errors at steps 1/10/50 by scene and held-out count/material condition. On these small synthetic scenes, the affine baseline lowers mean step-50 position RMSE by 41.11% against ballistic prediction; the stiffness case retains the largest error. These direct predictions do not establish learned rollout stability or broad physical generalisation.
-- [ ] Freeze a v2 corpus with material variation in development and new test seeds before changing features; compare a material-conditioned affine baseline while preserving the v1 result.
-- [ ] Measure longer autoregressive rollouts, conservation, uncertainty and resource cost before a graph/JEPA predictor. A graph structure alone is not a graph neural network or a JEPA result.
+- [x] Freeze and generate v2 with four material variants per initial-condition group: 16 train / 8 validation / 12 test scenes from 4/2/3 groups, with seeds absent from v1. All 36 scenes pass their numerical checks. Compare material interactions with a blind refit and the frozen v1 model; 57 focused tests pass. See [material evidence](experiments/particle_graph/MATERIAL_BASELINE.md).
+- [x] Retain v2 regressions: mean step-50 position error falls 20.29% versus the blind refit, but rises 10.89% at 27 particles and 31.57% on the joint-interpolation material. A lower average does not establish improvement across all conditions; v1 sources/models/raw evidence remain unchanged.
+- [ ] Predeclare longer autoregressive rollouts of the frozen step-1 maps; measure error growth and conservation by material/count, including known regressions. Keep geometry-feature changes in a separate future protocol with fresh scenes.
+- [ ] Measure uncertainty and resource cost before a graph/JEPA predictor. A graph structure alone is not a graph neural network or a JEPA result.
 - [ ] Export versioned observations/constraints only after reproducibility, units, coordinate frames, identities and fallback checks pass.
 
 [Detailed sequence, sources and acceptance criteria](docs/plans/2026-09-10-scientific-transfer.md).

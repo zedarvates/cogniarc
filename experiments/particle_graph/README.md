@@ -7,7 +7,9 @@ independent dense RK4, frozen splits and reproducible reference snapshots.
 **Box-contact follow-up:** [analytic impacts and coupled ledgers](BOUNDARY_VALIDATION.md),
 with 9 validation cases and 33 tests at that stage.
 **Affine follow-up:** [direct horizon prediction and held-out scores](AFFINE_BASELINE.md),
-training-only ridge fitting, validation selection and 45 tests in the current suite.
+training-only ridge fitting, validation selection and 45 tests at that stage.
+**Material follow-up:** [paired material variation and retained regressions](MATERIAL_BASELINE.md),
+36 grouped scenes and 57 tests in the current suite.
 **Planned:** physically validated fluid dynamics, learned rollouts, ShardJEPA comparison and runtime adapters.
 
 This module is outside the installed `cogniarc` packages and is not imported by
@@ -63,6 +65,7 @@ commit. The command above is the focused experiment gate; broader suite results
 or blockers are recorded in the PR.
 
 The original 2026-09-10 source and evidence remain unchanged. The current
-combined suite passes 45 tests. The [numerical follow-up](NUMERICAL_VALIDATION.md),
-[box-contact follow-up](BOUNDARY_VALIDATION.md) and [affine baseline](AFFINE_BASELINE.md)
-record their separate protocols, raw outputs and remaining validation gates.
+combined suite passes 57 tests. The [numerical follow-up](NUMERICAL_VALIDATION.md),
+[box-contact follow-up](BOUNDARY_VALIDATION.md), [affine baseline](AFFINE_BASELINE.md)
+and [material comparison](MATERIAL_BASELINE.md) record their separate protocols,
+raw outputs and remaining validation gates.

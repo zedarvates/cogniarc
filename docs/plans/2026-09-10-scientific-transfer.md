@@ -1,6 +1,6 @@
 # Scientific transfer: physical graphs, drawing and experimentation
 
-Date: 2026-09-10. Updated 2026-09-13: offline reference and direct affine baseline implemented;
+Date: 2026-09-10. Updated 2026-09-13: offline reference, direct affine and paired-material baselines implemented;
 learned rollouts and consumer integration planned.
 This complements the world-model, organic-writing and Socratic-evaluation plans.
 
@@ -22,7 +22,7 @@ simulator learns message functions.
 | R0 | Dependency-free synthetic particle operators | Dense-search/operator agreement; finite outputs; mass/momentum controls; raw fixture | Implemented; see evidence |
 | R1 | Trajectories and numerical validation | Split by scene/seed before fitting; dt refinement, particle counts, gravity, velocities, boundaries; units, hashes, provenance | Partial: 10 split scenes, sparse snapshots, unbounded numerical convergence and fixed-box contact controls implemented; coupled boundary accuracy and physical water validation remain planned |
 | R2 | Offline physical hypothesis adapter | Selected/random/fixed interventions at equal budget on held-out observations; abstain when all hypotheses fail | Planned |
-| R3 | Learned rollout comparison | Persistence, constant velocity and affine baselines; horizons 1/10/50; unseen scenes, longer rollouts and resource use | Partial: direct affine baseline fitted on train, selected on validation and measured on five test scenes; autoregressive rollouts, material conditioning and resource use remain planned |
+| R3 | Learned rollout comparison | Persistence, constant velocity and affine baselines; horizons 1/10/50; unseen scenes, longer rollouts and resource use | Partial: v1 and v2 direct affine comparisons, training-only fits and validation-only selection measured; v2 material/count regressions retained. Autoregressive rollouts and resource use remain planned |
 | D0 | Stroke-transfer protocol | Separate raster fit from motor trajectories, pressure and order; hold out compositions | Planned |
 | D1 | Socratic correction experiment | Targeted/no/random correction, equal budget; closure, intersections, perspective and rubric quality | Planned |
 | C0 | Authoring interchange | Versioned units/frames/IDs; deterministic replay; incompatible-input rejection; ordinary runtime fallback | Planned |
@@ -50,12 +50,18 @@ adds analytic collision controls and coupled containment/ledger checks.
 The [affine follow-up](../../experiments/particle_graph/AFFINE_BASELINE.md) adds
 training-only ridge fitting, validation-only selection and test errors at three
 horizons against persistence, constant velocity and known-gravity ballistic
-prediction. Its protocol was committed before test scoring; 45 focused tests pass.
-The stiffness case retains the largest prediction error. Next, freeze a v2 corpus
-with material variation in development and new test seeds before changing the
-features; compare material-conditioned prediction, then longer autoregressive
-rollouts. Extend physical validation to coupled contact accuracy and fluid wall
-treatment. Keep generated targets out of policy observations.
+prediction. Its protocol was committed before test scoring; 45 focused tests
+passed at that stage. The [paired-material follow-up](../../experiments/particle_graph/MATERIAL_BASELINE.md)
+freezes v2 before generation/scoring, replays each initial condition across four
+materials, and compares a material-conditioned ridge model with a blind refit
+and the frozen v1 model. All 36 numerical scenes and 57 focused tests pass.
+The lower average prediction error coexists with regressions at 27 particles and
+on an interpolated material; the detailed errors remain in the report.
+Next, predeclare longer autoregressive evaluation of the frozen step-1 models,
+retaining material/count-specific errors and conservation failures. Geometry
+feature changes need a separate protocol and fresh scenes. Extend physical
+validation to coupled contact accuracy and fluid wall treatment. Keep generated
+targets out of policy observations.
 R1 remains partial: numerical convergence and confinement do not establish
 calibrated water behaviour.
 
