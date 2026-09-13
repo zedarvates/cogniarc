@@ -9,8 +9,10 @@ with 9 validation cases and 33 tests at that stage.
 **Affine follow-up:** [direct horizon prediction and held-out scores](AFFINE_BASELINE.md),
 training-only ridge fitting, validation selection and 45 tests at that stage.
 **Material follow-up:** [paired material variation and retained regressions](MATERIAL_BASELINE.md),
-36 grouped scenes and 57 tests in the current suite.
-**Planned:** physically validated fluid dynamics, learned rollouts, ShardJEPA comparison and runtime adapters.
+36 grouped scenes and 57 tests at that stage.
+**Rollout follow-up:** [500-step feedback, error growth and momentum failures](ROLLOUT_EVALUATION.md),
+84 completed comparison trajectories and 66 tests in the current suite.
+**Planned:** physically validated fluid dynamics, improved learned rollouts, ShardJEPA comparison and runtime adapters.
 
 This module is outside the installed `cogniarc` packages and is not imported by
 the agent or existing simulator. It uses only Python's standard library.
@@ -65,7 +67,7 @@ commit. The command above is the focused experiment gate; broader suite results
 or blockers are recorded in the PR.
 
 The original 2026-09-10 source and evidence remain unchanged. The current
-combined suite passes 57 tests. The [numerical follow-up](NUMERICAL_VALIDATION.md),
+combined suite passes 66 tests. The [numerical follow-up](NUMERICAL_VALIDATION.md),
 [box-contact follow-up](BOUNDARY_VALIDATION.md), [affine baseline](AFFINE_BASELINE.md)
-and [material comparison](MATERIAL_BASELINE.md) record their separate protocols,
+the [material comparison](MATERIAL_BASELINE.md) and [rollout evaluation](ROLLOUT_EVALUATION.md) record their separate protocols,
 raw outputs and remaining validation gates.
