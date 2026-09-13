@@ -1,0 +1,37 @@
+{
+  "schema": "cogniarc.particle-rollout-protocol.v1",
+  "date": "2026-09-13",
+  "prior_revision": "038457dfca5ac8bb749c1de0c00d45d70bd75dd1",
+  "frozen_inputs_sha256": {
+    "experiments/particle_graph/material_manifest.json": "8ce938f7589da1b36687eacce887c9024393ddb78e11307b095338a7fd7c6abc",
+    "experiments/particle_graph/material_protocol.json": "b219a8b0a4515419f9a213e0759fcc632baa19a1c64bc62867344c03846c79a8",
+    "experiments/particle_graph/evidence/2026-09-13-affine/model.json": "1d179137c38de6d032a552e3973fc4b0fe923062dcc2ada15743ad710a8c7ccd",
+    "experiments/particle_graph/evidence/2026-09-13-materials/models.json": "698d24c09f77eb31625e0defda1896b5d8a2ae60c6c7332fc8f0c445cc8bf67d",
+    "experiments/particle_graph/evidence/2026-09-13-materials/numerics.json": "f4a704bd2639234da3400e05589df5865a0244c289be4d3ce306cb1696c6202b",
+    "experiments/particle_graph/evidence/2026-09-13-materials/test.jsonl": "0fba680c2082a87353b1d24ba7e29f61cc61725e9d9edb1c82fbfff4e84dc988"
+  },
+  "dt": 0.002,
+  "steps": 500,
+  "checkpoints": [1, 10, 50, 100, 250, 500],
+  "reference_factors": [4, 8],
+  "methods": ["persistence", "constant_velocity", "known_gravity_ballistic", "sph_euler", "frozen_v1", "blind_v2", "material_v2"],
+  "scene_policy": "Extend the 12 existing v2 test material variants from three initial-condition groups. These inspected fixtures are not a fresh blind benchmark. Do not train, select, refit, change features, or change v1/v2 files.",
+  "rollout_rule": "Apply each frozen model's step-1 map 500 times at dt=0.002, feeding only its own predicted positions and velocities into the next step. Recompute centring from that predicted state. Keep masses, identities, material parameters and gravity fixed. No future reference state, reset, clipping or conservation correction.",
+  "baseline_rule": "Persistence, constant velocity and known-gravity ballistic predictions use their exact initial-state formulas at each checkpoint. The unchanged SPH semi-implicit Euler solver takes 500 steps at dt=0.002; it is a known-equation numerical comparator, not a learned model.",
+  "reference_rule": "Unchanged independent dense RK4 at dt/4 and dt/8; compare at every checkpoint, export the finer snapshots. Verify exact replay of available v2 short-horizon snapshots. Reference gaps are sensitivity estimates for the same simplified equations, not physical-water validation.",
+  "reference_gates": {
+    "position_gap_absolute_max": 1e-7,
+    "velocity_gap_absolute_max": 1e-6,
+    "relative_to_ballistic_error_max": 0.01,
+    "roundoff_floor": 1e-12,
+    "mass_error_max": 1e-12,
+    "momentum_with_gravity_error_max": 1e-10
+  },
+  "reference_gap_rule": "For each coordinate RMSE channel require gap <= max(roundoff_floor, min(absolute_max, relative_max * corresponding ballistic error)). Both RK4 resolutions must pass mass/momentum gates. Unqualified references retain provisional metrics but invalidate aggregate prediction scores at that checkpoint.",
+  "diagnostics": "At each checkpoint record position/velocity RMSE, mass error, momentum error against P0+M*g*t, centre-of-mass error against c0+v_mean*t+0.5*g*t^2, kinetic energy and its difference from the reference, state hashes and completion status. Kinetic energy is not expected to be conserved under gravity, pressure and viscosity.",
+  "diagnostic_gates": {"mass_error_max": 1e-12, "momentum_with_gravity_error_max": 1e-8},
+  "abort_absolute_component_max": 1000000.0,
+  "failure_rule": "Stop a trajectory at its first non-finite/invalid state or position/velocity component above the fixed abort bound. Record failed step/reason and retain earlier checkpoints. The bound is a numerical guard, not a physical stability threshold. Do not silently repair, restart or omit failed methods/scenes.",
+  "aggregation": "Report every scene/method/checkpoint and equal-weight means of scene RMSE by horizon, material and particle count, alongside completion/reference/conservation counts. If any member of an aggregate failed or has an unqualified reference, its mean prediction errors are null; do not publish survivor-only means. Separate finite completion, conservation diagnostics and accuracy; no accuracy pass threshold or automatic promotion.",
+  "limits": ["Only one initial lattice family, three correlated test groups and no walls.", "No neural/JEPA runtime, calibrated water, uncertainty calibration or resource-performance claim.", "Any predictor change needs a future protocol and fresh evaluation scenes; preserve this negative or positive result unchanged."]
+}
