@@ -22,7 +22,7 @@ simulator learns message functions.
 | R0 | Dependency-free synthetic particle operators | Dense-search/operator agreement; finite outputs; mass/momentum controls; raw fixture | Implemented; see evidence |
 | R1 | Trajectories and numerical validation | Split by scene/seed before fitting; dt refinement, particle counts, gravity, velocities, boundaries; units, hashes, provenance | Partial: 10 split scenes, sparse snapshots, unbounded numerical convergence and fixed-box contact controls implemented; coupled boundary accuracy and physical water validation remain planned |
 | R2 | Offline physical hypothesis adapter | Selected/random/fixed interventions at equal budget on held-out observations; abstain when all hypotheses fail | Planned |
-| R3 | Learned rollout comparison | Persistence, constant velocity and affine baselines; horizons 1/10/50; unseen scenes, longer rollouts and resource use | Partial: direct, raw/projected and local-pair rollouts measured; local forces improve deformation on fresh scenes, but physical-reference error remains. Density diagnostics and resource use remain planned |
+| R3 | Learned rollout comparison | Persistence, constant velocity and affine baselines; horizons 1/10/50; unseen scenes, longer rollouts and resource use | Partial: direct, raw/projected and local-pair rollouts plus frozen force diagnostics measured; pressure-threshold and viscosity-density failures retained. Density-aware ablation and resource use remain planned |
 | D0 | Stroke-transfer protocol | Separate raster fit from motor trajectories, pressure and order; hold out compositions | Planned |
 | D1 | Socratic correction experiment | Targeted/no/random correction, equal budget; closure, intersections, perspective and rubric quality | Planned |
 | C0 | Authoring interchange | Versioned units/frames/IDs; deterministic replay; incompatible-input rejection; ordinary runtime fallback | Planned |
@@ -77,9 +77,25 @@ with projected affine maps and same-midpoint SPH. All 105 trajectories complete,
 projected blind v2 and 96.52% against projected material v2 on the new main corpus;
 local conservation and ballistic controls pass. The physical solvers remain much
 more accurate, and low-density/separating and unequal-mass residuals are retained.
-Next, predeclare density/separation/mass-ratio acceleration diagnostics before
-any new feature fit, with fresh reserved evaluation scenes. Do not infer general
-accuracy or runtime readiness from these bounded gains. Extend physical validation to coupled contact accuracy and fluid wall
+The [frozen force diagnostic](../../experiments/particle_graph/FORCE_DIAGNOSTICS.md)
+now reuses those states and exact local replays, plus 81 static pair and four
+neighbour-context controls. Its protocol and implementation were published before
+measurement. All 295 records pass 7,376 checks; 90 replayed state hashes match and
+106 focused tests pass. These are diagnostic observations, not a new blind test.
+The local law applies pressure on 22 below-threshold interacting static pairs
+whose reference pressure is zero, and its mass scaling gives the opposite
+viscous-acceleration scaling from the reference. The separating pair's initial
+viscous response is underestimated by 96.86%; contextual physical pair forces
+change while the local pair contribution remains fixed. Old coefficients and
+evidence stay unchanged; bins alone do not establish causality for rollout error.
+Next, predeclare separate and joint pressure-threshold/inverse-density ablations,
+using current observations only and identical train/validation targets. Reserve
+new geometry and mass-scale/ratio test conditions before fitting, freeze selection
+before their generation, and retain the current local model and same-midpoint
+physical comparator. Separate force accuracy, 500-step prediction/conservation
+and actual cost. Exact physical features supply known equations, not discovery.
+Do not infer general accuracy or runtime readiness from these bounded gains.
+Extend physical validation to coupled contact accuracy and fluid wall
 treatment. Keep generated targets out of policy observations.
 R1 remains partial: numerical convergence and confinement do not establish
 calibrated water behaviour.
