@@ -1,0 +1,101 @@
+{
+  "dt": 0.002,
+  "steps": 500,
+  "checkpoints": [
+    1,
+    10,
+    50,
+    100,
+    250,
+    500
+  ],
+  "reference_factors": [
+    4,
+    8
+  ],
+  "reference_gates": {
+    "position_gap_absolute_max": 1e-07,
+    "velocity_gap_absolute_max": 1e-06,
+    "relative_to_ballistic_error_max": 0.01,
+    "roundoff_floor": 1e-12,
+    "mass_error_max": 1e-12,
+    "momentum_with_gravity_error_max": 1e-10
+  },
+  "diagnostic_gates": {
+    "mass_error_max": 1e-12,
+    "momentum_with_gravity_error_max": 1e-08
+  },
+  "centre_of_mass_error_max": 1e-10,
+  "abort_absolute_component_max": 1000000.0,
+  "failure_rule": "Stop a trajectory at its first non-finite/invalid state or position/velocity component above the fixed abort bound. Record failed step/reason and retain earlier checkpoints. The bound is a numerical guard, not a physical stability threshold. Do not silently repair, restart or omit failed methods/scenes.",
+  "aggregation": "Report every scene/method/checkpoint and equal-weight means of scene RMSE by horizon, material and particle count, alongside completion/reference/conservation counts. If any member of an aggregate failed or has an unqualified reference, its mean prediction errors are null; do not publish survivor-only means. Separate finite completion, conservation diagnostics and accuracy; no accuracy pass threshold or automatic promotion.",
+  "projected_methods": {
+    "projected_v1": "frozen_v1",
+    "projected_blind_v2": "blind_v2",
+    "projected_material_v2": "material_v2"
+  },
+  "schema": "cogniarc.local-pair-protocol.v1",
+  "date": "2026-09-13",
+  "prior_revision": "fab602c49d179b0cbc61b0371bae144220ce4a93",
+  "frozen_inputs_sha256": {
+    "experiments/particle_graph/material_manifest.json": "8ce938f7589da1b36687eacce887c9024393ddb78e11307b095338a7fd7c6abc",
+    "experiments/particle_graph/material_protocol.json": "b219a8b0a4515419f9a213e0759fcc632baa19a1c64bc62867344c03846c79a8",
+    "experiments/particle_graph/evidence/2026-09-13-affine/model.json": "1d179137c38de6d032a552e3973fc4b0fe923062dcc2ada15743ad710a8c7ccd",
+    "experiments/particle_graph/evidence/2026-09-13-materials/models.json": "698d24c09f77eb31625e0defda1896b5d8a2ae60c6c7332fc8f0c445cc8bf67d",
+    "experiments/particle_graph/evidence/2026-09-13-materials/numerics.json": "f4a704bd2639234da3400e05589df5865a0244c289be4d3ce306cb1696c6202b",
+    "experiments/particle_graph/evidence/2026-09-13-materials/test.jsonl": "0fba680c2082a87353b1d24ba7e29f61cc61725e9d9edb1c82fbfff4e84dc988",
+    "experiments/particle_graph/conservation_manifest.json": "6a313a8264ddd68d60a0180187781f49ca15c6a8ea16ab7942a2a88b59ac82a7",
+    "experiments/particle_graph/rollout_protocol.json": "9836b7e1f492bf387709869c5039031c8639580eee74682a601dc04f1afc2d8b",
+    "experiments/particle_graph/rollouts.py": "b225177984bf01af330277de3413c224f989fd595a13f2ad2f91cb1f350d2310",
+    "experiments/particle_graph/scene_manifest.json": "97ac88e2951ec6a96f4700fb4abb064be1ad260da05e19e6e511d7d168551160",
+    "experiments/particle_graph/local_pair_manifest.json": "43169654a0370f7a755390c05d0b8e1b64a41c658be26c960e5f994458448578",
+    "experiments/particle_graph/conservation_protocol.json": "7a280ceffe47732cf9b479d0f0ba000c243eee2b0b34ba6f199744857fa604bf",
+    "experiments/particle_graph/conservation.py": "c5d560d6dfc293caae820289590f0c9bb2e9854e6d32842c12edc3ca5ebadbc1",
+    "experiments/particle_graph/evidence/2026-09-13-conservation/initial.jsonl": "5e57f12c641daca5bbdf852ef0ad2d2e6e1b83155291f6fc27432af02594b39f",
+    "experiments/particle_graph/evidence/2026-09-13-materials/train.jsonl": "80882080552ff731f21d20f2217ee7dc54c0b1a0dbb560a5f6e8ee6802466519",
+    "experiments/particle_graph/evidence/2026-09-13-materials/validation.jsonl": "00c7cdf2301afd7b58859ccd2a28afd8318253f3a937c05bce1982f0a31fdec2"
+  },
+  "methods": [
+    "known_gravity_ballistic",
+    "sph_euler",
+    "sph_midpoint",
+    "projected_v1",
+    "projected_blind_v2",
+    "projected_material_v2",
+    "pair_local"
+  ],
+  "feature_names": [
+    "pressure_q2",
+    "pressure_q3",
+    "viscosity_q1",
+    "viscosity_q2"
+  ],
+  "ridge_alphas": [
+    1e-08,
+    1e-06,
+    0.0001,
+    0.01,
+    1.0
+  ],
+  "training_steps": [
+    0,
+    1,
+    10,
+    50
+  ],
+  "force_rule": "Rebuild the existing undirected neighbour graph at each force evaluation, r<h. Let q=1-r/h and n=(x_i-x_j)/r (zero for coincident particles). Four force-on-i basis vectors: m_i*m_j*k*q^2*n; m_i*m_j*k*q^3*n; m_i*m_j*mu*q*(v_j-v_i); m_i*m_j*mu*q^2*(v_j-v_i). Each force is applied with opposite sign to j. Sum and divide by own mass for acceleration. Four shared nonnegative coefficients, no bias, density input, global correction or edge beyond support. These dimensionless polynomial features are a proposed approximation, not the exact SPH pressure/density law.",
+  "fit_rule": "Use only verified v2 train observations at steps 0/1/10/50. Generate internal-acceleration targets with unchanged independent dense SPH at zero gravity. Export/reload labelled targets with scene/split/step/state hashes. Train-only RMS scaling per feature, without centring or bias. Equal weights per scene, snapshot, particle and coordinate. Solve nonnegative ridge exactly by enumerating all 16 active subsets. For each positive alpha minimize weighted squared acceleration error plus alpha times squared scaled coefficients; reject negative coefficients. Select on equal-scene/snapshot/particle/coordinate validation acceleration RMSE only; exact ties choose larger alpha. Never refit on validation.",
+  "freeze_rule": "Publish implementation, tests, all fit candidates, chosen coefficients, source/input/label hashes in a separate model commit before generating or evaluating the reserved test trajectories. Evaluation verifies that model/data/source hashes match and cannot fit or select.",
+  "integration_rule": "pair_local and sph_midpoint use the same explicit midpoint (two fresh force/graph evaluations per step): midpoint x=x+dt*v/2, midpoint v=v+dt*(a(x,v)+g)/2; next x=x+dt*v_mid, next v=v+dt*(a(x_mid,v_mid)+g). Constant uniform gravity is explicit. No trajectory reset, projection, clipping, automatic substep or tuned integrator. Keep SPH Euler and projected affine maps unchanged.",
+  "scene_rule": "12 new main variants from three fresh geometry seeds, crossed with equal/unequal masses and base/high stiffness, all under oblique gravity. Exclude all prior initial states/seeds. Add three separately reported controls (isolated, separated, separating). Main means exclude controls by declaration; retain each control and every failure. Geometry/material/mass/checkpoint observations are correlated.",
+  "reference_rule": "Unchanged dense RK4 at dt/4 and dt/8; reuse fixed reference qualification gates and export finer snapshots. No old-prefix matches on fresh scenes. For isolated/separated controls additionally compare fine reference and every method with exact initial-state ballistic prediction; record each result, with 1e-10 RMSE tolerance.",
+  "analytic_rmse_max": 1e-10,
+  "diagnostics": "Per checkpoint: global and mass-centred position/velocity RMSE; mass/momentum/centre-of-mass/kinetic-energy ledgers; neighbour and isolated-particle counts. Record internal acceleration RMS, weighted net-force norm, pair count and maximum isolated-particle acceleration from each local-force trajectory at saved states. These diagnostic calls are passive, not extra integration steps. No learned angular-momentum or total-energy guarantee.",
+  "reporting": "Show all main scene errors, equal-scene means by horizon/material/mass/particle count, every control, and paired local-vs-projected and local-vs-same-midpoint-physical comparisons. Suppress aggregate errors for any missing/unqualified member. Report negative results without tuning. Conservation is architectural, accuracy measured separately; no accuracy promotion threshold.",
+  "limits": [
+    "Four scalar coefficients, not a graph neural network or JEPA runtime. Teacher and numerical targets share the same simplified equations.",
+    "Only three new main geometry groups in one lattice family, two materials and a known constant gravity; unequal masses are reserved from fitting.",
+    "Density-free pressure approximation can act where the reference clamps pressure to zero. Neighbour support and opposite forces alone do not establish accuracy.",
+    "No walls, calibrated water, learned uncertainty, performance/resource saving, production activation or merge. Preserve all earlier experiments."
+  ]
+}
