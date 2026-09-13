@@ -11,7 +11,9 @@ training-only ridge fitting, validation selection and 45 tests at that stage.
 **Material follow-up:** [paired material variation and retained regressions](MATERIAL_BASELINE.md),
 36 grouped scenes and 57 tests at that stage.
 **Rollout follow-up:** [500-step feedback, error growth and momentum failures](ROLLOUT_EVALUATION.md),
-84 completed comparison trajectories and 66 tests in the current suite.
+84 completed comparison trajectories and 66 tests at that stage.
+**Conservation follow-up:** [explicit gravity and paired global projection](CONSERVATION_EVALUATION.md),
+96 completed comparisons on new reserved scenes; 77 tests in the current suite.
 **Planned:** physically validated fluid dynamics, improved learned rollouts, ShardJEPA comparison and runtime adapters.
 
 This module is outside the installed `cogniarc` packages and is not imported by
@@ -67,7 +69,8 @@ commit. The command above is the focused experiment gate; broader suite results
 or blockers are recorded in the PR.
 
 The original 2026-09-10 source and evidence remain unchanged. The current
-combined suite passes 66 tests. The [numerical follow-up](NUMERICAL_VALIDATION.md),
-[box-contact follow-up](BOUNDARY_VALIDATION.md), [affine baseline](AFFINE_BASELINE.md)
-the [material comparison](MATERIAL_BASELINE.md) and [rollout evaluation](ROLLOUT_EVALUATION.md) record their separate protocols,
+combined suite passes 77 tests. The [numerical follow-up](NUMERICAL_VALIDATION.md),
+[box-contact follow-up](BOUNDARY_VALIDATION.md), [affine baseline](AFFINE_BASELINE.md),
+[material comparison](MATERIAL_BASELINE.md), [rollout evaluation](ROLLOUT_EVALUATION.md)
+and [conservation evaluation](CONSERVATION_EVALUATION.md) record their separate protocols,
 raw outputs and remaining validation gates.
