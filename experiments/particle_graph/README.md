@@ -13,7 +13,9 @@ training-only ridge fitting, validation selection and 45 tests at that stage.
 **Rollout follow-up:** [500-step feedback, error growth and momentum failures](ROLLOUT_EVALUATION.md),
 84 completed comparison trajectories and 66 tests at that stage.
 **Conservation follow-up:** [explicit gravity and paired global projection](CONSERVATION_EVALUATION.md),
-96 completed comparisons on new reserved scenes; 77 tests in the current suite.
+96 completed comparisons on new reserved scenes; 77 tests at that stage.
+**Local-pair follow-up:** [compact forces, a frozen four-coefficient fit and new rollouts](LOCAL_PAIR_EVALUATION.md),
+105 completed comparisons, retained physical-reference gap and 91 tests in the current suite.
 **Planned:** physically validated fluid dynamics, improved learned rollouts, ShardJEPA comparison and runtime adapters.
 
 This module is outside the installed `cogniarc` packages and is not imported by
@@ -69,8 +71,9 @@ commit. The command above is the focused experiment gate; broader suite results
 or blockers are recorded in the PR.
 
 The original 2026-09-10 source and evidence remain unchanged. The current
-combined suite passes 77 tests. The [numerical follow-up](NUMERICAL_VALIDATION.md),
+combined suite passes 91 tests. The [numerical follow-up](NUMERICAL_VALIDATION.md),
 [box-contact follow-up](BOUNDARY_VALIDATION.md), [affine baseline](AFFINE_BASELINE.md),
-[material comparison](MATERIAL_BASELINE.md), [rollout evaluation](ROLLOUT_EVALUATION.md)
-and [conservation evaluation](CONSERVATION_EVALUATION.md) record their separate protocols,
+[material comparison](MATERIAL_BASELINE.md), [rollout evaluation](ROLLOUT_EVALUATION.md),
+[conservation evaluation](CONSERVATION_EVALUATION.md) and [local-pair evaluation](LOCAL_PAIR_EVALUATION.md)
+record their separate protocols,
 raw outputs and remaining validation gates.
