@@ -1,0 +1,206 @@
+{
+  "schema": "cogniarc.force-diagnostic-protocol.v1",
+  "date": "2026-09-13",
+  "status": "predeclared diagnostic; no fit, model selection or accuracy promotion",
+  "previous_result_revision": "645ec7c6994981079ed5e7e946986d5af1f7c444",
+  "frozen_model_revision": "7cdd4d199fe8fcbfc499473d25171f95478f1c05",
+  "scope": "Diagnose the frozen four-coefficient force law. Reused test observations are now diagnostic data, not a new blind evaluation. Preserve every earlier source, model and raw result.",
+  "observation_paths": [
+    "reference",
+    "pair_local_replay"
+  ],
+  "steps": [
+    0,
+    1,
+    10,
+    50,
+    100,
+    250,
+    500
+  ],
+  "replay_rule": "Read all 15 prior initial records, all 15 fine-reference records and the prior evaluation through checksum/identity/completeness gates. Evaluate on every saved reference state. Independently replay only the unchanged local midpoint model for 500 steps at dt=0.002, and require exact state-digest equality with all 90 published local checkpoints before diagnostics. Keep initial states as step 0; main aggregates exclude the three separately reported controls.",
+  "force_rule": "At each identical observation, call the unchanged independent dense accelerations and frozen local accelerations with full config, viscosity=0 (pressure), and stiffness=0 (viscosity), all at zero gravity. Decomposition is an offline diagnostic intervention, never an integration step or a change to the saved model. Reconstruct densities and pair forces independently in the new diagnostic module; compare their accumulated accelerations to both existing implementations.",
+  "density_rule": "rho_i includes self mass using the same poly6 equation. Record rho_i/rest_density, neighbour-only density contribution, neighbour count and p_i=max(0,k*(rho_i-rho0)). For pair bins use min(rho_i,rho_j)/rho0 and max(m_i,m_j)/min(m_i,m_j). Record both-pressure-zero pairs separately.",
+  "bins": {
+    "density_ratio": {
+      "edges": [
+        1,
+        2,
+        4
+      ],
+      "rule": "left closed, right open; underflow below first edge, overflow at/above last edge"
+    },
+    "neighbours": {
+      "edges": [
+        1,
+        4,
+        8,
+        16
+      ],
+      "rule": "left closed, right open"
+    },
+    "separation_over_radius": {
+      "edges": [
+        0.25,
+        0.5,
+        0.75,
+        0.9
+      ],
+      "rule": "active unordered pairs only; r<h; left closed, right open"
+    },
+    "mass_ratio": {
+      "edges": [
+        1.000000000001,
+        3.000000000001,
+        9.000000000001
+      ],
+      "rule": "left closed, right open; 1e-12 boundary margin groups roundoff at ratios 1/3/9"
+    }
+  },
+  "metrics": "Keep pressure, viscosity and full force errors separate. Per particle use acceleration coordinate MSE; per unordered pair use force-on-lower-index coordinate MSE. Report RMSE=sqrt(mean of per-state MSE), with equal weight per state that has members in the named bin and equal weight per particle/pair within that state. Main unconditional summaries have equal scene and checkpoint weight; report per time, material, mass, count, density, neighbour count, separation and mass-ratio bins, with item/state/scene/group counts. Controls are separate. Relative error is RMSE/reference RMS only when reference RMS>1e-12; otherwise null. No confidence intervals, independent-sample claims or causal attribution from bins.",
+  "raw_rule": "Save all diagnostic observation states, metadata, density/count descriptors and reference/local component accelerations; save per-state pair-bin sufficient statistics and explicit target-pair forces for contextual controls. The saved state plus frozen coefficients/equations reconstruct every pair. Write and actually reload observation/control JSONL through exact expected-identity/state/config and recomputed-diagnostic validation before aggregate generation. Retain checks and failures; no survivor-only means.",
+  "controlled_pair_grid": {
+    "radius": 0.85,
+    "rest_density": 1.0,
+    "stiffness": 0.15,
+    "viscosity": 0.04,
+    "total_masses": [
+      0.1,
+      0.5,
+      2.0
+    ],
+    "mass_ratios": [
+      1.0,
+      3.0,
+      9.0
+    ],
+    "separations_over_radius": [
+      0.0,
+      0.2,
+      0.5,
+      0.8,
+      0.9,
+      0.99,
+      1.0,
+      1.01,
+      1.25
+    ],
+    "recipe": "81 static two-particle states; m0=M/(1+R), m1=M-m0; x0=(-r/2,0,0), x1=(r/2,0,0); velocities=(-0.2,0.1,0) and (0.2,-0.1,0). No gravity, time integration, random seed, fit or reserved-test claim. Pressure-only, viscosity-only and combined calls at each state. Keep coincident and at/outside-support controls even with zero pressure/force.",
+    "expected_states": 81
+  },
+  "context_controls": {
+    "radius": 0.85,
+    "rest_density": 1.0,
+    "stiffness": 0.15,
+    "viscosity": 0.04,
+    "target_positions_in_radius_units": [
+      [
+        -0.25,
+        0,
+        0
+      ],
+      [
+        0.25,
+        0,
+        0
+      ]
+    ],
+    "target_masses": [
+      0.125,
+      0.375
+    ],
+    "target_velocities": [
+      [
+        -0.2,
+        0.1,
+        0
+      ],
+      [
+        0.2,
+        -0.1,
+        0
+      ]
+    ],
+    "extra_positions_in_radius_units": [
+      [
+        0,
+        0.45,
+        0
+      ],
+      [
+        0,
+        -0.45,
+        0
+      ],
+      [
+        0,
+        0,
+        0.45
+      ],
+      [
+        0,
+        0,
+        -0.45
+      ],
+      [
+        0.7,
+        0,
+        0
+      ],
+      [
+        -0.7,
+        0,
+        0
+      ]
+    ],
+    "extra_mass": 0.25,
+    "extra_velocity": [
+      0,
+      0,
+      0
+    ],
+    "extra_counts": [
+      0,
+      2,
+      4,
+      6
+    ],
+    "recipe": "Four static states preserve the exact pair 0-1 positions, velocities, masses and material while adding each prefix of neighbours. Compare that pair contribution alone: the local pair law must be unchanged, while the physical law may respond through densities/pressure. Other edges and full net particle forces also change; do not claim an isolated causal contribution to rollout RMSE or impossibility of matching full net forces.",
+    "expected_states": 4
+  },
+  "checks": {
+    "comparison_absolute_tolerance": 1e-12,
+    "comparison_relative_tolerance": 1e-11,
+    "rule": "Componentwise abs(a-b)<=atol+rtol*max(abs(a),abs(b)). Check dense/local pressure+viscosity=full and diagnostic pair reconstruction=existing full/component acceleration; finite outputs; isolated/outside-support acceleration zero; coincident pressure zero; dense pressure exactly zero if every rho<=rho0; viscous power <=atol+rtol*sum(abs(m*v*a_visc)); net internal force components <=atol+rtol*sum(abs(m*a)); context target local pair unchanged. A nonzero local pressure at rho<=rho0 is a retained model error, not an implementation-gate failure.",
+    "failure_rule": "Abort on changed input/state identity or malformed/missing record. Record all numerical checks; if any fails, suppress aggregate scores globally, export raw failures and exit nonzero. Exit zero means diagnostic implementation/replay gates passed, not predictor accuracy."
+  },
+  "limits": [
+    "Simplified dimensionless equations, one fixed radius/rest density; no physical water validation.",
+    "Old trajectories and correlated static grid controls are diagnostic observations; no fresh blind generalisation estimate.",
+    "Pressure and viscosity error vectors can cancel; full RMSE is not the sum of component RMSEs.",
+    "No fit, candidate selection, coefficient/feature change, learned density, runtime integration, cost measurement, publication promotion or merge in this diagnostic."
+  ],
+  "next_decision": "Use these diagnostics to decide whether to predeclare density-aware pressure-threshold and viscosity-denominator features. Any new fit needs a separate protocol and fresh reserved test scenes, keeping the four-coefficient model as a frozen comparator.",
+  "frozen_inputs_sha256": {
+    "experiments/particle_graph/material_data.py": "a72882261654e63745942675e970e6a99bf885603657e8d1ba2c598432d9e946",
+    "experiments/particle_graph/materials.py": "f08d211be47cec5be78915821f1545f1b82061ba1b458f1acc8d34bab4e8b76c",
+    "experiments/particle_graph/affine.py": "a37e18ae79207ea85ba4154a75a122b464c00b457533fec0744b6be2881c5527",
+    "experiments/particle_graph/validation.py": "8aad854ad73a980ce7650fd3483f9a3e1baafaa29c93dbe5f87fd58a70c7acbd",
+    "experiments/particle_graph/reference.py": "2ca936c43527e1a3802e240b216a856d827e9187fd75100d34f79bb268188d90",
+    "experiments/particle_graph/dense_reference.py": "c00d6dfbdc1db1bbb87d971193ed104948e99dddaac70a9031576331e44aaafe",
+    "tests/test_particle_graph_materials.py": "4a50638bc77445b32eac1cba6b5f740330dfba671791e955be64a50a15c3fe94",
+    "experiments/particle_graph/rollouts.py": "b225177984bf01af330277de3413c224f989fd595a13f2ad2f91cb1f350d2310",
+    "experiments/particle_graph/conservation.py": "c5d560d6dfc293caae820289590f0c9bb2e9854e6d32842c12edc3ca5ebadbc1",
+    "experiments/particle_graph/local_pairs.py": "03d5ce94e4c9c552bc1c514002eb8c5e3ca5a60db844cee4cbd5b7e4810def9f",
+    "experiments/particle_graph/local_pair_evaluation.py": "6d53d2cf93942da42f5ad48360792ca3baf0e0929fd5380843d0e7cb1c775de2",
+    "tests/test_particle_graph_local_pairs.py": "82ac5215ae30c0b153ac0cb09575c4a012d00890da0e2dba126be358c1b76c71",
+    "experiments/particle_graph/local_pair_protocol.json": "3010a267fc99af035985efdd16434b709fb251035c3b8c894478717f56f780e0",
+    "experiments/particle_graph/local_pair_manifest.json": "43169654a0370f7a755390c05d0b8e1b64a41c658be26c960e5f994458448578",
+    "experiments/particle_graph/evidence/2026-09-13-local-pairs/model.json": "ecfa41b6e2aae7e5da3d1fe64fe60c74b50264ced1b630bcb4e692b7550ac6e0",
+    "experiments/particle_graph/evidence/2026-09-13-local-pairs/model_lock.json": "da2d9c067640b202ea4f99b5540e0928e7cb93d0c134e6a400721c082ad74cc4",
+    "experiments/particle_graph/evidence/2026-09-13-local-pairs/force_targets.jsonl": "f40e8407f04dd16732527e1769b368844af2bda84c4e838dde9f0eabe003c45a",
+    "experiments/particle_graph/evidence/2026-09-13-local-pairs/initial.jsonl": "7e7557c0b34597d8eb7eb7447f9fd8efbe7fc5973f655aa549861fd2eb902fcd",
+    "experiments/particle_graph/evidence/2026-09-13-local-pairs/reference.jsonl": "d67a2035f5773062933dfadd73d6ecd6b93b23e80aabb931c3803f43cba538b4",
+    "experiments/particle_graph/evidence/2026-09-13-local-pairs/evaluation.json": "3da4606eb642cb7e3d6d2c4cd0520456830fa32aad71d574548b8b73d907e4d5"
+  }
+}
