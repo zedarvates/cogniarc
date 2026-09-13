@@ -1,0 +1,75 @@
+{
+  "dt": 0.002,
+  "steps": 500,
+  "checkpoints": [
+    1,
+    10,
+    50,
+    100,
+    250,
+    500
+  ],
+  "reference_factors": [
+    4,
+    8
+  ],
+  "reference_gates": {
+    "position_gap_absolute_max": 1e-07,
+    "velocity_gap_absolute_max": 1e-06,
+    "relative_to_ballistic_error_max": 0.01,
+    "roundoff_floor": 1e-12,
+    "mass_error_max": 1e-12,
+    "momentum_with_gravity_error_max": 1e-10
+  },
+  "diagnostic_gates": {
+    "mass_error_max": 1e-12,
+    "momentum_with_gravity_error_max": 1e-08
+  },
+  "abort_absolute_component_max": 1000000.0,
+  "failure_rule": "Stop a trajectory at its first non-finite/invalid state or position/velocity component above the fixed abort bound. Record failed step/reason and retain earlier checkpoints. The bound is a numerical guard, not a physical stability threshold. Do not silently repair, restart or omit failed methods/scenes.",
+  "aggregation": "Report every scene/method/checkpoint and equal-weight means of scene RMSE by horizon, material and particle count, alongside completion/reference/conservation counts. If any member of an aggregate failed or has an unqualified reference, its mean prediction errors are null; do not publish survivor-only means. Separate finite completion, conservation diagnostics and accuracy; no accuracy pass threshold or automatic promotion.",
+  "schema": "cogniarc.particle-conservation-protocol.v1",
+  "date": "2026-09-13",
+  "prior_revision": "f1a35b9fdbbaf68c8df33dccc84a2abac7987400",
+  "frozen_inputs_sha256": {
+    "experiments/particle_graph/material_manifest.json": "8ce938f7589da1b36687eacce887c9024393ddb78e11307b095338a7fd7c6abc",
+    "experiments/particle_graph/material_protocol.json": "b219a8b0a4515419f9a213e0759fcc632baa19a1c64bc62867344c03846c79a8",
+    "experiments/particle_graph/evidence/2026-09-13-affine/model.json": "1d179137c38de6d032a552e3973fc4b0fe923062dcc2ada15743ad710a8c7ccd",
+    "experiments/particle_graph/evidence/2026-09-13-materials/models.json": "698d24c09f77eb31625e0defda1896b5d8a2ae60c6c7332fc8f0c445cc8bf67d",
+    "experiments/particle_graph/evidence/2026-09-13-materials/numerics.json": "f4a704bd2639234da3400e05589df5865a0244c289be4d3ce306cb1696c6202b",
+    "experiments/particle_graph/evidence/2026-09-13-materials/test.jsonl": "0fba680c2082a87353b1d24ba7e29f61cc61725e9d9edb1c82fbfff4e84dc988",
+    "experiments/particle_graph/conservation_manifest.json": "6a313a8264ddd68d60a0180187781f49ca15c6a8ea16ab7942a2a88b59ac82a7",
+    "experiments/particle_graph/rollout_protocol.json": "9836b7e1f492bf387709869c5039031c8639580eee74682a601dc04f1afc2d8b",
+    "experiments/particle_graph/rollouts.py": "b225177984bf01af330277de3413c224f989fd595a13f2ad2f91cb1f350d2310",
+    "experiments/particle_graph/scene_manifest.json": "97ac88e2951ec6a96f4700fb4abb064be1ad260da05e19e6e511d7d168551160"
+  },
+  "methods": [
+    "known_gravity_ballistic",
+    "sph_euler",
+    "frozen_v1",
+    "blind_v2",
+    "material_v2",
+    "projected_v1",
+    "projected_blind_v2",
+    "projected_material_v2"
+  ],
+  "projected_methods": {
+    "projected_v1": "frozen_v1",
+    "projected_blind_v2": "blind_v2",
+    "projected_material_v2": "material_v2"
+  },
+  "scene_policy": "Generate three new deterministic initial-condition groups, each crossed with two gravities and two materials (12 variants). Seeds must be absent from v1 and v2 and initial states disjoint from all prior corpus groups. This is a new reserved synthetic evaluation, with only three independent geometry groups and the same lattice family. No training, selection, refitting or tuning on these scenes.",
+  "correction_rule": "First compute the unchanged frozen step-1 proposal from the current predicted state. Validate it before correction. For each position/velocity channel compute current and proposed mass-weighted means. Translate all proposed positions by c_current + dt*v_mean_current + 0.5*g*dt^2 - c_proposed, and all proposed velocities by v_mean_current + g*dt - v_mean_proposed. Apply this fixed projection at every step, using fixed observed masses and known uniform constant gravity. No future state, reference, initial-state reset, clipping, coefficient change or tuned parameter. Relative positions and relative velocities are unchanged by each projection; this enforces net internal momentum only, not local pair forces, angular momentum or energy.",
+  "raw_proposal_rule": "Apply the same finite/shape/count/absolute-bound validation to the raw proposal before projecting. A projection may not conceal an invalid or over-bound proposal.",
+  "reference_rule": "Generate independent dense RK4 at dt/4 and dt/8 for every new variant; reuse the prior numerical qualification thresholds. There are no old-prefix targets on these new scenes. Export all finer snapshots and initial records with exact recipes, schema and provenance.",
+  "additional_diagnostics": "Record centre-of-mass gate, mass-centred position/velocity RMSE and neighbour-pair/isolated-particle counts for each prediction and reference checkpoint. Compare the centred states of each raw/corrected pair. These passive diagnostics never feed the predictor or select a model.",
+  "centre_of_mass_error_max": 1e-10,
+  "centred_pair_state_rmse_max": 1e-10,
+  "reporting": "Equal scene weights, raw and corrected results paired on identical initial states. Separate numerical qualification, conservation, global translation error and internal deformation error. Report all material/gravity/particle groups, including negative results. No tuned accuracy threshold or automatic promotion.",
+  "limits": [
+    "Three correlated initial-condition groups, one lattice family, dimensionless equal-mass synthetic scenes, no walls or calibrated water.",
+    "Oblique gravity adds x/z components absent from model training; gravity and materials are paired within every new group.",
+    "The global projection leaves relative learned dynamics unchanged; good momentum/centre-of-mass ledgers alone cannot validate those dynamics.",
+    "No ShardJEPA/neural runtime, learning, physical calibration or resource-performance result. Preserve earlier artifacts unchanged."
+  ]
+}
