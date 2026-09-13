@@ -1,0 +1,43 @@
+{
+  "schema": "cogniarc.particle-material-scenes.v2",
+  "units": "dimensionless",
+  "dt": 0.002,
+  "steps": 50,
+  "horizons": [1, 10, 50],
+  "reference_factors": [4, 8],
+  "defaults": {
+    "mass": 0.25, "spacing": 0.35, "jitter": 0.01, "velocity_scale": 0.05,
+    "config": {"radius": 0.85, "rest_density": 1.0, "stiffness": 0.15, "viscosity": 0.04}
+  },
+  "groups": [
+    {"id": "train-geometry-01", "split": "train", "seed": 1001, "shape": [2, 2, 2], "gravity": [0, 0, 0], "condition": "development"},
+    {"id": "train-geometry-02", "split": "train", "seed": 1002, "shape": [2, 2, 2], "gravity": [0, -0.3, 0], "condition": "development"},
+    {"id": "train-geometry-03", "split": "train", "seed": 1003, "shape": [3, 2, 2], "gravity": [0, 0, 0], "condition": "development"},
+    {"id": "train-geometry-04", "split": "train", "seed": 1004, "shape": [3, 2, 2], "gravity": [0, -0.3, 0], "condition": "development"},
+    {"id": "validation-geometry-01", "split": "validation", "seed": 2001, "shape": [2, 2, 2], "gravity": [0, -0.3, 0], "condition": "development"},
+    {"id": "validation-geometry-02", "split": "validation", "seed": 2002, "shape": [3, 2, 2], "gravity": [0, 0, 0], "condition": "development"},
+    {"id": "test-geometry-08", "split": "test", "seed": 3001, "shape": [2, 2, 2], "gravity": [0, 0, 0], "condition": "unseen_seed"},
+    {"id": "test-geometry-18", "split": "test", "seed": 3002, "shape": [3, 3, 2], "gravity": [0, -0.3, 0], "condition": "held_out_particle_count"},
+    {"id": "test-geometry-27", "split": "test", "seed": 3003, "shape": [3, 3, 3], "gravity": [0, 0, 0], "condition": "held_out_particle_count"}
+  ],
+  "materials": {
+    "train": [
+      {"id": "low-k-low-mu", "stiffness": 0.075, "viscosity": 0.02},
+      {"id": "low-k-high-mu", "stiffness": 0.075, "viscosity": 0.08},
+      {"id": "high-k-low-mu", "stiffness": 0.3, "viscosity": 0.02},
+      {"id": "high-k-high-mu", "stiffness": 0.3, "viscosity": 0.08}
+    ],
+    "validation": [
+      {"id": "lower-k-lower-mu", "stiffness": 0.1, "viscosity": 0.03},
+      {"id": "lower-k-upper-mu", "stiffness": 0.1, "viscosity": 0.06},
+      {"id": "upper-k-lower-mu", "stiffness": 0.2, "viscosity": 0.03},
+      {"id": "upper-k-upper-mu", "stiffness": 0.2, "viscosity": 0.06}
+    ],
+    "test": [
+      {"id": "base-material", "stiffness": 0.15, "viscosity": 0.04, "condition": "interpolation_base"},
+      {"id": "interpolated-material", "stiffness": 0.225, "viscosity": 0.05, "condition": "interpolation_joint"},
+      {"id": "high-stiffness", "stiffness": 0.6, "viscosity": 0.04, "condition": "stiffness_extrapolation"},
+      {"id": "high-viscosity", "stiffness": 0.15, "viscosity": 0.2, "condition": "viscosity_extrapolation"}
+    ]
+  }
+}
