@@ -19,7 +19,7 @@ simulator learns message functions.
 | Stage | Deliverable | Acceptance / stopping rule | Status |
 | --- | --- | --- | --- |
 | R0 | Dependency-free synthetic particle operators | Dense-search/operator agreement; finite outputs; mass/momentum controls; raw fixture | Implemented; see evidence |
-| R1 | Trajectories and numerical validation | Split by scene/seed before fitting; dt refinement, particle counts, gravity, velocities, boundaries; units, hashes, provenance | Partial: 10 split scenes, sparse snapshots and numerical convergence implemented on 2026-09-13; boundaries and physical validation remain planned |
+| R1 | Trajectories and numerical validation | Split by scene/seed before fitting; dt refinement, particle counts, gravity, velocities, boundaries; units, hashes, provenance | Partial: 10 split scenes, sparse snapshots, unbounded numerical convergence and fixed-box contact controls implemented; coupled boundary accuracy and physical water validation remain planned |
 | R2 | Offline physical hypothesis adapter | Selected/random/fixed interventions at equal budget on held-out observations; abstain when all hypotheses fail | Planned |
 | R3 | Learned rollout comparison | Persistence, constant velocity and affine baselines; horizons 1/10/50; unseen scenes, longer rollouts and resource use | Planned; no trained model |
 | D0 | Stroke-transfer protocol | Separate raster fit from motor trajectories, pressure and order; hold out compositions | Planned |
@@ -44,10 +44,13 @@ The [experiment README](../../experiments/particle_graph/README.md) contains com
 and a raw report with exact initial particles, parameters, baselines, environment
 and source SHA-256 values. The [2026-09-13 numerical follow-up](../../experiments/particle_graph/NUMERICAL_VALIDATION.md)
 adds a frozen scene manifest, independent dense RK4, equal-time refinement and
-snapshots reserved by scene. Next, add contact/boundary controls and longer
-rollouts; fit the affine baseline on training scenes only, with validation-only
-selection. Keep generated targets out of policy observations. R1 remains partial:
-numerical convergence does not establish calibrated water behaviour.
+snapshots reserved by scene. The [box-contact follow-up](../../experiments/particle_graph/BOUNDARY_VALIDATION.md)
+adds analytic collision controls and coupled containment/ledger checks.
+Next, fit the affine baseline on training scenes only, with validation-only
+selection; extend physical validation to coupled contact accuracy, fluid wall
+treatment and longer rollouts. Keep generated targets out of policy observations.
+R1 remains partial: numerical convergence and confinement do not establish
+calibrated water behaviour.
 
 ## Primary sources
 

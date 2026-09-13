@@ -10,7 +10,8 @@ Updated: 2026-09-13. This scientific-transfer track complements the existing
 - [x] Reproducible 27-particle, 50-step fixture with persistence and constant-velocity prediction baselines. See [source and evidence](experiments/particle_graph/README.md).
 - [x] Freeze 10 synthetic scenes into 3 train / 2 validation / 5 test scenes, including reserved particle counts and parameters; export sparse reference snapshots with hashes and split-leakage controls.
 - [x] Compare three semi-implicit Euler resolutions at identical physical times against independently coded dense RK4, with a second RK4 resolution checking reference error. All ten scenes pass the numerical gates; see [numerical evidence and scope](experiments/particle_graph/NUMERICAL_VALIDATION.md).
-- [ ] Add boundaries/contact, longer rollouts, physical calibration and comparison with an independently validated fluid solver before describing this as a water simulator. Dense RK4 checks the same simplified equations, not their physical adequacy.
+- [x] Add fixed frictionless box contacts with swept straight-line drift, restitution, a wall-contact radius and impulse/energy ledgers. All 9 boundary cases and the combined 33-test suite pass; see [boundary evidence](experiments/particle_graph/BOUNDARY_VALIDATION.md).
+- [ ] Validate accelerated contacts and time-step refinement with walls, fluid-specific wall-density/no-slip treatment, longer rollouts and comparison with a calibrated fluid reference before describing this as a water simulator. Dense RK4 and geometric containment do not establish physical water accuracy.
 
 ## Next: hypotheses that can fail
 

@@ -4,6 +4,8 @@
 **Observed on fixture:** dense-oracle agreement and structural controls below.
 **Added 2026-09-13:** [10-scene numerical validation](NUMERICAL_VALIDATION.md),
 independent dense RK4, frozen splits and reproducible reference snapshots.
+**Box-contact follow-up:** [analytic impacts and coupled ledgers](BOUNDARY_VALIDATION.md),
+with 9 validation cases and 33 tests in the combined suite.
 **Planned:** physically validated fluid dynamics, learned prediction, ShardJEPA comparison and runtime adapters.
 
 This module is outside the installed `cogniarc` packages and is not imported by
@@ -59,5 +61,6 @@ commit. The command above is the focused experiment gate; broader suite results
 or blockers are recorded in the PR.
 
 The original 2026-09-10 source and evidence remain unchanged. The current
-combined suite passes 21 tests; [the follow-up](NUMERICAL_VALIDATION.md) records
-the numerical protocol, raw outputs, schema and remaining R1 gates.
+combined suite passes 33 tests. The [numerical follow-up](NUMERICAL_VALIDATION.md)
+and [box-contact follow-up](BOUNDARY_VALIDATION.md) record their protocols, raw
+outputs and remaining R1 gates.

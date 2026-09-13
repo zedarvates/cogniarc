@@ -3,8 +3,9 @@
 **Implemented:** a frozen scene manifest, an independent dense RK4 reference,
 equal-time refinement comparisons and sparse snapshot export.
 **Observed fixture:** all 10 synthetic scenes pass the numerical checks below;
-the combined particle-graph suite passes 21 tests.
-**Planned:** boundaries/contact, calibrated fluid validation, longer rollouts,
+the particle-graph suite at that stage passed 21 tests. The later
+[box-contact follow-up](BOUNDARY_VALIDATION.md) brings the combined suite to 33.
+**Planned:** physically validated fluid boundaries, calibrated fluid validation, longer rollouts,
 trained predictors and runtime integration. R1 is still partial.
 
 ## Reproduce
