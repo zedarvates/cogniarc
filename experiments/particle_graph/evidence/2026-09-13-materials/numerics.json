@@ -1,0 +1,1816 @@
+{
+  "artifacts": {
+    "test": {
+      "bytes": 120239,
+      "groups": 3,
+      "path": "test.jsonl",
+      "scenes": 12,
+      "sha256": "0fba680c2082a87353b1d24ba7e29f61cc61725e9d9edb1c82fbfff4e84dc988"
+    },
+    "train": {
+      "bytes": 95580,
+      "groups": 4,
+      "path": "train.jsonl",
+      "scenes": 16,
+      "sha256": "80882080552ff731f21d20f2217ee7dc54c0b1a0dbb560a5f6e8ee6802466519"
+    },
+    "validation": {
+      "bytes": 47926,
+      "groups": 2,
+      "path": "validation.jsonl",
+      "scenes": 8,
+      "sha256": "00c7cdf2301afd7b58859ccd2a28afd8318253f3a937c05bce1982f0a31fdec2"
+    }
+  },
+  "passed": true,
+  "provenance": {
+    "command": "python -m experiments.particle_graph.materials generate --output-dir experiments/particle_graph/evidence/2026-09-13-materials",
+    "date": "2026-09-13",
+    "environment": {
+      "dependencies": "Python standard library only",
+      "machine": "x86_64",
+      "python": "3.12.14",
+      "system": "Linux"
+    },
+    "license": "MIT (repository license)",
+    "manifest_sha256": "8ce938f7589da1b36687eacce887c9024393ddb78e11307b095338a7fd7c6abc",
+    "protocol_revision": "0751eb36ca1b01d7a1cc2f1484f49cd563d900e9",
+    "protocol_sha256": "b219a8b0a4515419f9a213e0759fcc632baa19a1c64bc62867344c03846c79a8",
+    "source_sha256": {
+      "experiments/particle_graph/affine.py": "a37e18ae79207ea85ba4154a75a122b464c00b457533fec0744b6be2881c5527",
+      "experiments/particle_graph/dense_reference.py": "c00d6dfbdc1db1bbb87d971193ed104948e99dddaac70a9031576331e44aaafe",
+      "experiments/particle_graph/material_data.py": "a72882261654e63745942675e970e6a99bf885603657e8d1ba2c598432d9e946",
+      "experiments/particle_graph/materials.py": "f08d211be47cec5be78915821f1545f1b82061ba1b458f1acc8d34bab4e8b76c",
+      "experiments/particle_graph/reference.py": "2ca936c43527e1a3802e240b216a856d827e9187fd75100d34f79bb268188d90",
+      "experiments/particle_graph/validation.py": "8aad854ad73a980ce7650fd3483f9a3e1baafaa29c93dbe5f87fd58a70c7acbd",
+      "tests/test_particle_graph_materials.py": "4a50638bc77445b32eac1cba6b5f740330dfba671791e955be64a50a15c3fe94"
+    }
+  },
+  "scenes": [
+    {
+      "group_id": "train-geometry-01",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 7.152448122690996e-18,
+          "reference_position_gap": 3.254629732262919e-17,
+          "reference_velocity_gap": 5.402206763758173e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.0304417714388973e-17,
+          "reference_position_gap": 7.053594135616507e-17,
+          "reference_velocity_gap": 1.4387448617042938e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.3682237275240583e-17,
+          "reference_position_gap": 2.2283826810667915e-16,
+          "reference_velocity_gap": 4.0132596048713425e-17
+        }
+      ],
+      "initial_state_sha256": "9a8b3651b17af7d6426bf1653a3fe11de1443cf667974f12ff2f4b96d8e124ba",
+      "passed": true,
+      "record_sha256": "c405027a4de0adf55aa7389fc1c174b1a4b2a642a6b93df8c43dd27aba8d5d0c",
+      "scene_id": "train-geometry-01/low-k-low-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-01",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 7.152448122690996e-18,
+          "reference_position_gap": 3.3518041921118955e-17,
+          "reference_velocity_gap": 5.425360220021325e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.993045536433795e-17,
+          "reference_position_gap": 1.1029713270092763e-16,
+          "reference_velocity_gap": 1.2862083713884567e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.5962963631595152e-17,
+          "reference_position_gap": 2.372790594235408e-16,
+          "reference_velocity_gap": 2.6617090304422815e-17
+        }
+      ],
+      "initial_state_sha256": "9a8b3651b17af7d6426bf1653a3fe11de1443cf667974f12ff2f4b96d8e124ba",
+      "passed": true,
+      "record_sha256": "98bf99c770ee1d43cb937efa7cbd7f890ce1b346d3cf20a7d68ea27b8b46349b",
+      "scene_id": "train-geometry-01/low-k-high-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-01",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 8.673617379884035e-18,
+          "reference_position_gap": 2.6573940485783934e-17,
+          "reference_velocity_gap": 6.1329440677185665e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.3985787785349405e-17,
+          "reference_position_gap": 7.664258822861523e-17,
+          "reference_velocity_gap": 4.583438236241223e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 6.186910185601235e-17,
+          "reference_position_gap": 2.2095774277045924e-16,
+          "reference_velocity_gap": 2.0869296902703319e-16
+        }
+      ],
+      "initial_state_sha256": "9a8b3651b17af7d6426bf1653a3fe11de1443cf667974f12ff2f4b96d8e124ba",
+      "passed": true,
+      "record_sha256": "54cc9ef11e4af54c367907bb29150a90bea07b4fe92b8446ce8637141ecb97c5",
+      "scene_id": "train-geometry-01/high-k-low-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-01",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.469446951953614e-18,
+          "reference_position_gap": 2.5962963631595152e-17,
+          "reference_velocity_gap": 5.718588360764922e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.000580707114743e-17,
+          "reference_position_gap": 7.23333234564263e-17,
+          "reference_velocity_gap": 3.90973034838535e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.273069708340169e-17,
+          "reference_position_gap": 1.7717973386793406e-16,
+          "reference_velocity_gap": 1.586657183993329e-16
+        }
+      ],
+      "initial_state_sha256": "9a8b3651b17af7d6426bf1653a3fe11de1443cf667974f12ff2f4b96d8e124ba",
+      "passed": true,
+      "record_sha256": "1df56c79bba917826ccd0f4a300a5532981b373488521d02cc493533b3c86fa7",
+      "scene_id": "train-geometry-01/high-k-high-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-02",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 6.829613154537259e-18,
+          "reference_position_gap": 3.254629732262919e-17,
+          "reference_velocity_gap": 3.1166491063792917e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.6818768105360015e-17,
+          "reference_position_gap": 6.283435673255384e-17,
+          "reference_velocity_gap": 1.3337055045723874e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.8517111915170804e-17,
+          "reference_position_gap": 1.221718341885767e-16,
+          "reference_velocity_gap": 3.214020984664855e-17
+        }
+      ],
+      "initial_state_sha256": "e1b7ccf0277b75d64eedba8a95e1a239d75c368762d65cd86f4a2340a07ba7ca",
+      "passed": true,
+      "record_sha256": "ca00254f6e67c615dc1885e48a80b77dd4fe48e6b49506f400a7f9ac8687aaba",
+      "scene_id": "train-geometry-02/low-k-low-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-02",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.168404344971009e-18,
+          "reference_position_gap": 2.7171182258938244e-17,
+          "reference_velocity_gap": 5.010257664213483e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 9.69739903612216e-18,
+          "reference_position_gap": 8.940139411221186e-17,
+          "reference_velocity_gap": 1.5094618093324322e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.67177649439248e-17,
+          "reference_position_gap": 1.482825013223777e-16,
+          "reference_velocity_gap": 3.308173081737956e-17
+        }
+      ],
+      "initial_state_sha256": "e1b7ccf0277b75d64eedba8a95e1a239d75c368762d65cd86f4a2340a07ba7ca",
+      "passed": true,
+      "record_sha256": "f9fb85ada28a61edd717dacbdc88ada5c633609867c4466c4f597905aa7d9acb",
+      "scene_id": "train-geometry-02/low-k-high-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-02",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.1245936804851847e-18,
+          "reference_position_gap": 2.4037033579794548e-17,
+          "reference_velocity_gap": 5.5828955302213734e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.0189193347101841e-17,
+          "reference_position_gap": 7.098955337099443e-17,
+          "reference_velocity_gap": 4.3375540148897426e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 6.935098158120334e-17,
+          "reference_position_gap": 1.9966659672768449e-16,
+          "reference_velocity_gap": 2.0714453966477183e-16
+        }
+      ],
+      "initial_state_sha256": "e1b7ccf0277b75d64eedba8a95e1a239d75c368762d65cd86f4a2340a07ba7ca",
+      "passed": true,
+      "record_sha256": "4d67e8da676aa1f53b2b674e2d27e983f0d1a4bf660693f76a0d1e17256fec4f",
+      "scene_id": "train-geometry-02/high-k-low-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-02",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.076104428597243e-18,
+          "reference_position_gap": 2.6573940485783934e-17,
+          "reference_velocity_gap": 5.578638986170378e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.281672496420498e-17,
+          "reference_position_gap": 8.813578979258001e-17,
+          "reference_velocity_gap": 3.5975919582669244e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.3016760004254755e-17,
+          "reference_position_gap": 2.390983490446859e-16,
+          "reference_velocity_gap": 1.4424100261868417e-16
+        }
+      ],
+      "initial_state_sha256": "e1b7ccf0277b75d64eedba8a95e1a239d75c368762d65cd86f4a2340a07ba7ca",
+      "passed": true,
+      "record_sha256": "326118c89bd66c15bb72e64b343c020ec141c3d223b2a3dd90921a2d06f614bd",
+      "scene_id": "train-geometry-02/high-k-high-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-03",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.204170427930421e-18,
+          "reference_position_gap": 2.8518341589713583e-17,
+          "reference_velocity_gap": 3.1871594647427848e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.414624184311813e-17,
+          "reference_position_gap": 8.617769826490932e-17,
+          "reference_velocity_gap": 1.0987845061225481e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.5978354043166897e-17,
+          "reference_position_gap": 1.8720945706215815e-14,
+          "reference_velocity_gap": 3.8108203263221253e-13
+        }
+      ],
+      "initial_state_sha256": "a3fd33cb789229932cc5b9bd49557173bfd5d902d2862dbffcc9fb4d7b62e962",
+      "passed": true,
+      "record_sha256": "ea7755e491873ea88110d950fc80b6dd61565170b8b73d2926c3a180639595d2",
+      "scene_id": "train-geometry-03/low-k-low-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-03",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.742838647325548e-18,
+          "reference_position_gap": 3.3679134951660004e-17,
+          "reference_velocity_gap": 3.740020070836002e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.4539632184201917e-17,
+          "reference_position_gap": 1.3839192257327807e-16,
+          "reference_velocity_gap": 1.2671618527743642e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.8988573637139114e-17,
+          "reference_position_gap": 5.7415526275139166e-15,
+          "reference_velocity_gap": 1.1878234386622624e-13
+        }
+      ],
+      "initial_state_sha256": "a3fd33cb789229932cc5b9bd49557173bfd5d902d2862dbffcc9fb4d7b62e962",
+      "passed": true,
+      "record_sha256": "94bf60f4710a52ba73898bad52889fd69b838a0dfa3b2307d93be297dd4bf4bc",
+      "scene_id": "train-geometry-03/low-k-high-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-03",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 8.586443133426895e-18,
+          "reference_position_gap": 3.786734644234274e-17,
+          "reference_velocity_gap": 4.50166093651124e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.1829236979699286e-17,
+          "reference_position_gap": 9.005792788030814e-17,
+          "reference_velocity_gap": 3.28250998901187e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.47679667661819e-17,
+          "reference_position_gap": 2.34355878306249e-14,
+          "reference_velocity_gap": 3.9849552558677565e-13
+        }
+      ],
+      "initial_state_sha256": "a3fd33cb789229932cc5b9bd49557173bfd5d902d2862dbffcc9fb4d7b62e962",
+      "passed": true,
+      "record_sha256": "9fff9ee6f396d74b566123da1c02753baa05cbe094ad6688bc7fedb0b1e27cb0",
+      "scene_id": "train-geometry-03/high-k-low-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-03",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.336808689942018e-18,
+          "reference_position_gap": 3.9253376239747587e-17,
+          "reference_velocity_gap": 4.284773390796857e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.8763903324156507e-17,
+          "reference_position_gap": 1.1812504158292956e-16,
+          "reference_velocity_gap": 2.9632044068121567e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.2186064346577006e-17,
+          "reference_position_gap": 1.5317632892559617e-14,
+          "reference_velocity_gap": 2.5808477266968053e-13
+        }
+      ],
+      "initial_state_sha256": "a3fd33cb789229932cc5b9bd49557173bfd5d902d2862dbffcc9fb4d7b62e962",
+      "passed": true,
+      "record_sha256": "7f5aee70506e4938773ff03210305482816b1e0bf945579397ce1abf270e618a",
+      "scene_id": "train-geometry-03/high-k-high-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-04",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.204170427930421e-18,
+          "reference_position_gap": 3.171583241672285e-17,
+          "reference_velocity_gap": 5.411374356229442e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.4161902126951447e-17,
+          "reference_position_gap": 1.1822373907683892e-16,
+          "reference_velocity_gap": 1.6199946189877158e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.706986034002913e-17,
+          "reference_position_gap": 2.0747242208751563e-16,
+          "reference_velocity_gap": 3.89810440181132e-17
+        }
+      ],
+      "initial_state_sha256": "cfe83af536a5a11f0bce18d2a9285282ab3a0ec67c5d95072a67adbea6427fd9",
+      "passed": true,
+      "record_sha256": "96a1e6e8490c3384d7c8cc4d7911eb3ba313bb6fd465a489ce8f21e1f8a3629d",
+      "scene_id": "train-geometry-04/low-k-low-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-04",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 6.314488766312914e-18,
+          "reference_position_gap": 3.3682857705668354e-17,
+          "reference_velocity_gap": 5.428722788234921e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.1457344368072987e-17,
+          "reference_position_gap": 1.0610173790914842e-16,
+          "reference_velocity_gap": 1.7316639301120096e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.925231146709438e-17,
+          "reference_position_gap": 2.7287328517015704e-16,
+          "reference_velocity_gap": 3.35440278529723e-17
+        }
+      ],
+      "initial_state_sha256": "cfe83af536a5a11f0bce18d2a9285282ab3a0ec67c5d95072a67adbea6427fd9",
+      "passed": true,
+      "record_sha256": "e9a8d88b377f9d15ce871fd3340b1d0895b6ac44f8a62f245d4ba5f0162736ae",
+      "scene_id": "train-geometry-04/low-k-high-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-04",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.204170427930421e-18,
+          "reference_position_gap": 3.897877286300181e-17,
+          "reference_velocity_gap": 5.976734901431218e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.3338317471424865e-17,
+          "reference_position_gap": 8.26353958115172e-17,
+          "reference_velocity_gap": 3.406688291462109e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.875695608684155e-17,
+          "reference_position_gap": 2.364823532889523e-16,
+          "reference_velocity_gap": 1.4704370025781344e-16
+        }
+      ],
+      "initial_state_sha256": "cfe83af536a5a11f0bce18d2a9285282ab3a0ec67c5d95072a67adbea6427fd9",
+      "passed": true,
+      "record_sha256": "423491ee9742447d8a53eb90ef2b692554c6150df1935d07bde6da4b7888d03a",
+      "scene_id": "train-geometry-04/high-k-low-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "train-geometry-04",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.336808689942018e-18,
+          "reference_position_gap": 3.430719035906801e-17,
+          "reference_velocity_gap": 4.555200073432281e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.138710737318089e-17,
+          "reference_position_gap": 1.0938011289458026e-16,
+          "reference_velocity_gap": 3.254726044454469e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 6.928586327427905e-17,
+          "reference_position_gap": 2.299609932140456e-16,
+          "reference_velocity_gap": 1.4686797636669834e-16
+        }
+      ],
+      "initial_state_sha256": "cfe83af536a5a11f0bce18d2a9285282ab3a0ec67c5d95072a67adbea6427fd9",
+      "passed": true,
+      "record_sha256": "85dc7d69813b3d85eb64da1da3c56a5722384c1a6dd7c677507da6ae7ff6b3de",
+      "scene_id": "train-geometry-04/high-k-high-mu",
+      "split": "train"
+    },
+    {
+      "group_id": "validation-geometry-01",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 7.757919228897728e-18,
+          "reference_position_gap": 2.832791573980247e-17,
+          "reference_velocity_gap": 4.3701103975024966e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.2509268882771003e-17,
+          "reference_position_gap": 8.62955915345466e-17,
+          "reference_velocity_gap": 1.4424100092086834e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.788693259787749e-17,
+          "reference_position_gap": 1.642041997679149e-16,
+          "reference_velocity_gap": 3.218486000462195e-17
+        }
+      ],
+      "initial_state_sha256": "7a167648be097d3774a9d8fc69281e05f6076f2a08e4fe0d349793bb89c9d80b",
+      "passed": true,
+      "record_sha256": "5806a877c6e669a1b3df77966f9be0784be6b0e179f729ce72fc6e3ea6bc7ba4",
+      "scene_id": "validation-geometry-01/lower-k-lower-mu",
+      "split": "validation"
+    },
+    {
+      "group_id": "validation-geometry-01",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.469446951953614e-18,
+          "reference_position_gap": 2.042755054537624e-17,
+          "reference_velocity_gap": 3.7317140488978206e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.5257955065251657e-17,
+          "reference_position_gap": 7.277573322931826e-17,
+          "reference_velocity_gap": 1.1634184809546548e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.4532694666933986e-17,
+          "reference_position_gap": 2.0458953408719598e-16,
+          "reference_velocity_gap": 2.7555555097954483e-17
+        }
+      ],
+      "initial_state_sha256": "7a167648be097d3774a9d8fc69281e05f6076f2a08e4fe0d349793bb89c9d80b",
+      "passed": true,
+      "record_sha256": "359ea6a23796414b071bf91205537ac99b0fb7e23f4b90ab3060916541c5aa01",
+      "scene_id": "validation-geometry-01/lower-k-upper-mu",
+      "split": "validation"
+    },
+    {
+      "group_id": "validation-geometry-01",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 6.938893903907228e-18,
+          "reference_position_gap": 3.4925000092272717e-17,
+          "reference_velocity_gap": 3.979676773317018e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 9.813077866773595e-18,
+          "reference_position_gap": 9.064933036736789e-17,
+          "reference_velocity_gap": 1.715941903512389e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.291468873614597e-17,
+          "reference_position_gap": 2.0762642394904276e-16,
+          "reference_velocity_gap": 6.052595245305837e-17
+        }
+      ],
+      "initial_state_sha256": "7a167648be097d3774a9d8fc69281e05f6076f2a08e4fe0d349793bb89c9d80b",
+      "passed": true,
+      "record_sha256": "5539fa469d7338d8f8169e314701cc61b97364433f1ed04846f24a3723031755",
+      "scene_id": "validation-geometry-01/upper-k-lower-mu",
+      "split": "validation"
+    },
+    {
+      "group_id": "validation-geometry-01",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 6.938893903907228e-18,
+          "reference_position_gap": 2.4695704398186837e-17,
+          "reference_velocity_gap": 5.548177965200194e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 9.813077866773595e-18,
+          "reference_position_gap": 1.0462170831429198e-16,
+          "reference_velocity_gap": 1.4345668478752512e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.993045536433795e-17,
+          "reference_position_gap": 1.9699616336213962e-16,
+          "reference_velocity_gap": 5.146769493898321e-17
+        }
+      ],
+      "initial_state_sha256": "7a167648be097d3774a9d8fc69281e05f6076f2a08e4fe0d349793bb89c9d80b",
+      "passed": true,
+      "record_sha256": "fd4cb6bb2a5ee5867f45daa6cc470f037b49ce76c64cc977f02cbdf2be56219b",
+      "scene_id": "validation-geometry-01/upper-k-upper-mu",
+      "split": "validation"
+    },
+    {
+      "group_id": "validation-geometry-02",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.275955480050203e-18,
+          "reference_position_gap": 3.2714411962018427e-17,
+          "reference_velocity_gap": 5.152210656721612e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.3737838402225502e-17,
+          "reference_position_gap": 8.379024155291132e-17,
+          "reference_velocity_gap": 1.810155899589989e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.5269303412461995e-17,
+          "reference_position_gap": 2.382264537609331e-16,
+          "reference_velocity_gap": 2.9586714310556896e-17
+        }
+      ],
+      "initial_state_sha256": "1543a14a9f34b71fda7b663b79b6f7acf4369ba68369377c0d4b541460b96a18",
+      "passed": true,
+      "record_sha256": "7717538855e437aa21771dc2a57321cff659edf009742b66b3461e55724d2646",
+      "scene_id": "validation-geometry-02/lower-k-lower-mu",
+      "split": "validation"
+    },
+    {
+      "group_id": "validation-geometry-02",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.1273172206927508e-18,
+          "reference_position_gap": 3.7011104448271886e-17,
+          "reference_velocity_gap": 5.53462525177582e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.7965069689866702e-17,
+          "reference_position_gap": 9.986259966504664e-17,
+          "reference_velocity_gap": 1.5228527704751766e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.090164661686745e-17,
+          "reference_position_gap": 2.516594110605601e-16,
+          "reference_velocity_gap": 3.9537074048954143e-17
+        }
+      ],
+      "initial_state_sha256": "1543a14a9f34b71fda7b663b79b6f7acf4369ba68369377c0d4b541460b96a18",
+      "passed": true,
+      "record_sha256": "ce5a6c783aca0bde40efa740f2719699b4bcb6f3ce456ddef80b258432c90f1b",
+      "scene_id": "validation-geometry-02/lower-k-upper-mu",
+      "split": "validation"
+    },
+    {
+      "group_id": "validation-geometry-02",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 7.204847710556568e-18,
+          "reference_position_gap": 3.17177267081107e-17,
+          "reference_velocity_gap": 4.549775326099134e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 7.611068361834778e-18,
+          "reference_position_gap": 9.627248606752677e-17,
+          "reference_velocity_gap": 1.7483889955735318e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.2571471319696836e-17,
+          "reference_position_gap": 1.921168178460942e-16,
+          "reference_velocity_gap": 6.751377604457363e-17
+        }
+      ],
+      "initial_state_sha256": "1543a14a9f34b71fda7b663b79b6f7acf4369ba68369377c0d4b541460b96a18",
+      "passed": true,
+      "record_sha256": "adb1c5d3f1a53b9f97ec06574324c6672ce2c36888217c17db9c51cd63169d15",
+      "scene_id": "validation-geometry-02/upper-k-lower-mu",
+      "split": "validation"
+    },
+    {
+      "group_id": "validation-geometry-02",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.1273172206927508e-18,
+          "reference_position_gap": 2.8517608800053543e-17,
+          "reference_velocity_gap": 4.225491641260797e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.0978681678024108e-17,
+          "reference_position_gap": 1.1092937228947021e-16,
+          "reference_velocity_gap": 1.628252901086936e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.690975831039126e-17,
+          "reference_position_gap": 2.8428272566220165e-16,
+          "reference_velocity_gap": 5.2293801257633056e-17
+        }
+      ],
+      "initial_state_sha256": "1543a14a9f34b71fda7b663b79b6f7acf4369ba68369377c0d4b541460b96a18",
+      "passed": true,
+      "record_sha256": "7b22051b0471ea5ea1f34967cffe85270ea9649f5a743bc6872e7fe6bdef214b",
+      "scene_id": "validation-geometry-02/upper-k-upper-mu",
+      "split": "validation"
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.878959614448864e-18,
+          "reference_position_gap": 3.1031676915590914e-17,
+          "reference_velocity_gap": 3.847517666152469e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.2813783630249776e-17,
+          "reference_position_gap": 9.878281759274735e-17,
+          "reference_velocity_gap": 1.4483739912320485e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.104379629778137e-17,
+          "reference_position_gap": 2.0770370905276122e-16,
+          "reference_velocity_gap": 2.958465046088107e-17
+        }
+      ],
+      "initial_state_sha256": "8e34cc28913034ffa5e5e9d93038d95c8b6679475a05c0e787c80d498e2c5386",
+      "passed": true,
+      "record_sha256": "be3e11477fcb02fcf46788d3c065dda1ca96ed41dcb42984bda939b42aa16f52",
+      "scene_id": "test-geometry-08/base-material",
+      "split": "test"
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.336808689942018e-18,
+          "reference_position_gap": 2.4037033579794548e-17,
+          "reference_velocity_gap": 4.236315641198898e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.542008421780933e-17,
+          "reference_position_gap": 7.622262568009686e-17,
+          "reference_velocity_gap": 2.0076582783630208e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.285973357912873e-17,
+          "reference_position_gap": 1.5412052420354632e-16,
+          "reference_velocity_gap": 6.986256458703921e-17
+        }
+      ],
+      "initial_state_sha256": "8e34cc28913034ffa5e5e9d93038d95c8b6679475a05c0e787c80d498e2c5386",
+      "passed": true,
+      "record_sha256": "febd91746bee7a7b46fa6dbcb288b7849f47a683be83ff6ec1331d777cc08ef8",
+      "scene_id": "test-geometry-08/interpolated-material",
+      "split": "test"
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.591793069478953e-18,
+          "reference_position_gap": 2.3359797749760525e-17,
+          "reference_velocity_gap": 3.441700138108502e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 6.1331736667334966e-18,
+          "reference_position_gap": 7.121527589091908e-17,
+          "reference_velocity_gap": 3.350621048619268e-16
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.425804372495563e-17,
+          "reference_position_gap": 3.4392469730710346e-16,
+          "reference_velocity_gap": 1.4988228340556456e-15
+        }
+      ],
+      "initial_state_sha256": "8e34cc28913034ffa5e5e9d93038d95c8b6679475a05c0e787c80d498e2c5386",
+      "passed": true,
+      "record_sha256": "74dbd6ca659fa0fad2f8fcf9fff56d81a1c507a876f0cf045d84143aa2f7739c",
+      "scene_id": "test-geometry-08/high-stiffness",
+      "split": "test"
+    },
+    {
+      "group_id": "test-geometry-08",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.2491873609703695e-18,
+          "reference_position_gap": 2.5962963631595152e-17,
+          "reference_velocity_gap": 5.543629716558473e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.1143573180127928e-17,
+          "reference_position_gap": 7.473417450352271e-17,
+          "reference_velocity_gap": 1.4713493000522953e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.716330050765485e-17,
+          "reference_position_gap": 2.0754911006665668e-16,
+          "reference_velocity_gap": 4.3433637238469365e-17
+        }
+      ],
+      "initial_state_sha256": "8e34cc28913034ffa5e5e9d93038d95c8b6679475a05c0e787c80d498e2c5386",
+      "passed": true,
+      "record_sha256": "237d18f57ac70437fb87d5996b580fdc1e7279287d2f0d67098b0ea9ea3d851f",
+      "scene_id": "test-geometry-08/high-viscosity",
+      "split": "test"
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 7.757919228897728e-18,
+          "reference_position_gap": 3.441445887447713e-17,
+          "reference_velocity_gap": 4.1124586478633606e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.5962963631595152e-17,
+          "reference_position_gap": 1.3833070661989505e-16,
+          "reference_velocity_gap": 1.5264614288518567e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.7367087251761353e-17,
+          "reference_position_gap": 3.3299012415035327e-15,
+          "reference_velocity_gap": 2.2451358968090706e-14
+        }
+      ],
+      "initial_state_sha256": "efafa40e0537631796054d223605040ffd0cfa6354036482236a4931669a90f7",
+      "passed": true,
+      "record_sha256": "10d696f5262d79b2a6a2cdfca15095e40ac47d33b099c46f26448ca8b0995aec",
+      "scene_id": "test-geometry-18/base-material",
+      "split": "test"
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 9.813077866773595e-18,
+          "reference_position_gap": 3.137686918337651e-17,
+          "reference_velocity_gap": 4.447529915176796e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.254629732262919e-17,
+          "reference_position_gap": 1.2498809579189228e-16,
+          "reference_velocity_gap": 1.736524525187686e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.721958498152797e-17,
+          "reference_position_gap": 5.352311618703612e-16,
+          "reference_velocity_gap": 8.800389403252867e-15
+        }
+      ],
+      "initial_state_sha256": "efafa40e0537631796054d223605040ffd0cfa6354036482236a4931669a90f7",
+      "passed": true,
+      "record_sha256": "08ada30460e2d94496961ffebd86c6b695ff11b5521393b1044ef7f6a54bcece",
+      "scene_id": "test-geometry-18/interpolated-material",
+      "split": "test"
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 6.938893903907228e-18,
+          "reference_position_gap": 4.10305856073878e-17,
+          "reference_velocity_gap": 1.8329141504902508e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.5962963631595152e-17,
+          "reference_position_gap": 9.215087942480572e-17,
+          "reference_velocity_gap": 1.8207896803582231e-16
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 9.257639144254436e-17,
+          "reference_position_gap": 2.6169652134963992e-15,
+          "reference_velocity_gap": 2.5000332982997893e-13
+        }
+      ],
+      "initial_state_sha256": "efafa40e0537631796054d223605040ffd0cfa6354036482236a4931669a90f7",
+      "passed": true,
+      "record_sha256": "59f44eb0fa967fdfc00e0c1541fa2d9d20dab735ce28aba85f4319b8e407b9ee",
+      "scene_id": "test-geometry-18/high-stiffness",
+      "split": "test"
+    },
+    {
+      "group_id": "test-geometry-18",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 9.813077866773595e-18,
+          "reference_position_gap": 3.2928795821307945e-17,
+          "reference_velocity_gap": 4.1367360972515534e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.5018537765542006e-17,
+          "reference_position_gap": 1.1318961880679711e-16,
+          "reference_velocity_gap": 1.5747073239869765e-17
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 5.594315114139762e-17,
+          "reference_position_gap": 1.2675975836985778e-14,
+          "reference_velocity_gap": 2.619794947105385e-13
+        }
+      ],
+      "initial_state_sha256": "efafa40e0537631796054d223605040ffd0cfa6354036482236a4931669a90f7",
+      "passed": true,
+      "record_sha256": "f55d3b5f5f547bebcc84d9886efb30c4d5c06fa3df014ed39cbe805a05d3dcf2",
+      "scene_id": "test-geometry-18/high-viscosity",
+      "split": "test"
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 7.359808400080195e-18,
+          "reference_position_gap": 5.377368722520985e-17,
+          "reference_velocity_gap": 5.1452204775493154e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.5659539662557586e-17,
+          "reference_position_gap": 2.690207466749734e-16,
+          "reference_velocity_gap": 1.4325864777633883e-13
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 6.04187651050364e-17,
+          "reference_position_gap": 1.5054888604455742e-14,
+          "reference_velocity_gap": 3.9877668193779396e-13
+        }
+      ],
+      "initial_state_sha256": "8a03344b3d3591bd12f599b9fc935c0d06b572b4dc1fbd7e2a8092ee6a496d3e",
+      "passed": true,
+      "record_sha256": "185f9ca35e164f5596b0c4c214dfdacc8ab353c70cf6f0c12b43788668761217",
+      "scene_id": "test-geometry-27/base-material",
+      "split": "test"
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 9.107298248878237e-18,
+          "reference_position_gap": 4.532602725003318e-17,
+          "reference_velocity_gap": 4.57831310321095e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.184528986116163e-17,
+          "reference_position_gap": 5.88066724218395e-16,
+          "reference_velocity_gap": 1.8947672049675922e-13
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.1966327647007474e-17,
+          "reference_position_gap": 2.610592435914151e-14,
+          "reference_velocity_gap": 5.362891697928104e-13
+        }
+      ],
+      "initial_state_sha256": "8a03344b3d3591bd12f599b9fc935c0d06b572b4dc1fbd7e2a8092ee6a496d3e",
+      "passed": true,
+      "record_sha256": "87ef140f686cf918c4ce994382ced54efdf3a478b15aba53a36bb3e19bd60ebb",
+      "scene_id": "test-geometry-27/interpolated-material",
+      "split": "test"
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 8.148123767742044e-18,
+          "reference_position_gap": 4.777919752161508e-17,
+          "reference_velocity_gap": 6.634041641019933e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 3.1348257962563605e-17,
+          "reference_position_gap": 4.533276781662364e-16,
+          "reference_velocity_gap": 1.4684159924763425e-13
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 1.1904046126816172e-16,
+          "reference_position_gap": 6.454514872749573e-14,
+          "reference_velocity_gap": 1.6926140205062027e-12
+        }
+      ],
+      "initial_state_sha256": "8a03344b3d3591bd12f599b9fc935c0d06b572b4dc1fbd7e2a8092ee6a496d3e",
+      "passed": true,
+      "record_sha256": "58a96a30195cdad96cc9703fbb4a6932fcb1c0b919d9eeb969bb81e81a3851c9",
+      "scene_id": "test-geometry-27/high-stiffness",
+      "split": "test"
+    },
+    {
+      "group_id": "test-geometry-27",
+      "horizons": [
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 1,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 7.611068361834778e-18,
+          "reference_position_gap": 4.615898150349005e-17,
+          "reference_velocity_gap": 6.410650784968876e-18
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 10,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 2.4973391495194897e-17,
+          "reference_position_gap": 1.4987015704266248e-15,
+          "reference_velocity_gap": 2.1977314034687902e-13
+        },
+        {
+          "gates": {
+            "mass_error": true,
+            "momentum_with_gravity_error": true,
+            "reference_position_gap": true,
+            "reference_velocity_gap": true
+          },
+          "horizon": 50,
+          "mass_error": 0.0,
+          "momentum_with_gravity_error": 4.1786676446990356e-17,
+          "reference_position_gap": 5.906190694112554e-14,
+          "reference_velocity_gap": 1.9821956489143498e-12
+        }
+      ],
+      "initial_state_sha256": "8a03344b3d3591bd12f599b9fc935c0d06b572b4dc1fbd7e2a8092ee6a496d3e",
+      "passed": true,
+      "record_sha256": "cb30fe8a43106da9fe2e61c243827df447bd870da27fdb82a89e84e970c6a41e",
+      "scene_id": "test-geometry-27/high-viscosity",
+      "split": "test"
+    }
+  ],
+  "schema": "cogniarc.particle-material-numerics.v2"
+}

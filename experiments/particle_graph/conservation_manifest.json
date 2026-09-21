@@ -1,0 +1,77 @@
+{
+  "schema": "cogniarc.particle-conservation-scenes.v1",
+  "units": "dimensionless",
+  "defaults": {
+    "mass": 0.25,
+    "spacing": 0.35,
+    "jitter": 0.01,
+    "velocity_scale": 0.05,
+    "config": {
+      "radius": 0.85,
+      "rest_density": 1.0,
+      "stiffness": 0.15,
+      "viscosity": 0.04
+    }
+  },
+  "groups": [
+    {
+      "id": "reserved-4001",
+      "seed": 4001,
+      "shape": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "reserved-4002",
+      "seed": 4002,
+      "shape": [
+        3,
+        3,
+        2
+      ]
+    },
+    {
+      "id": "reserved-4003",
+      "seed": 4003,
+      "shape": [
+        3,
+        3,
+        3
+      ]
+    }
+  ],
+  "gravities": [
+    {
+      "id": "zero",
+      "value": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "oblique",
+      "value": [
+        0.12,
+        -0.24,
+        0.09
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "base-material",
+      "stiffness": 0.15,
+      "viscosity": 0.04,
+      "condition": "interpolation_base"
+    },
+    {
+      "id": "high-stiffness",
+      "stiffness": 0.6,
+      "viscosity": 0.04,
+      "condition": "stiffness_extrapolation"
+    }
+  ]
+}

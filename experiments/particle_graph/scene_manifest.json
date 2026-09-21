@@ -1,0 +1,28 @@
+{
+  "schema": "cogniarc.particle-graph-scenes.v1",
+  "units": "dimensionless",
+  "dt": 0.002,
+  "steps": 50,
+  "horizons": [1, 10, 50],
+  "refinement_factors": [1, 2, 4],
+  "reference_factors": [4, 8],
+  "defaults": {
+    "mass": 0.25,
+    "spacing": 0.35,
+    "jitter": 0.01,
+    "velocity_scale": 0.05,
+    "config": {"radius": 0.85, "rest_density": 1.0, "stiffness": 0.15, "viscosity": 0.04}
+  },
+  "scenes": [
+    {"id": "train-01", "split": "train", "condition": "development", "seed": 101, "shape": [2, 2, 2], "gravity": [0, 0, 0], "config": {}},
+    {"id": "train-02", "split": "train", "condition": "development", "seed": 102, "shape": [2, 2, 2], "gravity": [0, -0.3, 0], "config": {}},
+    {"id": "train-03", "split": "train", "condition": "development", "seed": 103, "shape": [3, 2, 2], "gravity": [0, 0, 0], "config": {}},
+    {"id": "validation-01", "split": "validation", "condition": "development", "seed": 201, "shape": [2, 2, 2], "gravity": [0, 0, 0], "config": {}},
+    {"id": "validation-02", "split": "validation", "condition": "development", "seed": 202, "shape": [3, 2, 2], "gravity": [0, -0.3, 0], "config": {}},
+    {"id": "test-seed", "split": "test", "condition": "unseen_seed", "seed": 301, "shape": [2, 2, 2], "gravity": [0, 0, 0], "config": {}},
+    {"id": "test-count-18", "split": "test", "condition": "held_out_particle_count", "seed": 302, "shape": [3, 3, 2], "gravity": [0, -0.3, 0], "config": {}},
+    {"id": "test-count-27", "split": "test", "condition": "held_out_particle_count", "seed": 303, "shape": [3, 3, 3], "gravity": [0, 0, 0], "config": {}},
+    {"id": "test-viscosity", "split": "test", "condition": "held_out_parameters", "seed": 304, "shape": [3, 2, 2], "gravity": [0, -0.3, 0], "config": {"viscosity": 0.2}},
+    {"id": "test-stiffness", "split": "test", "condition": "held_out_parameters", "seed": 305, "shape": [2, 2, 2], "gravity": [0, 0, 0], "config": {"stiffness": 0.6}}
+  ]
+}
