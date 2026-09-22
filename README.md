@@ -575,11 +575,11 @@ unknown, and gating every NN behind the simple baseline it must beat:
 | Repo | Description |
 |------|-------------|
 | [hermes-agent](https://github.com/nous-research/hermes-agent) | Hermes Agent framework |
-| [arc-human-skills](https://github.com/zedarvates/arc-human-skills) | Human skills track (drawing/writing/reading/painting) |
+| arc-human-skills *(private repository)* | Human skills track (drawing/writing/reading/painting) |
 | [cogniarc-nano-nn](https://huggingface.co/zedgamer/cogniarc-nano-nn) 🆕 | Micro-NNs for ARC-AGI-3 (Rust, 394KB) |
-| [hermes-fusion](https://github.com/zedarvates/hermes-fusion) | Multi-LLM fusion engine (Rust + Python) |
+| hermes-fusion *(private repository)* | Multi-LLM fusion engine (Rust + Python) |
 | [turboquant](https://github.com/zedarvates/turboquant) | Autonomous trading agent |
-| [ultimate-odycer](https://github.com/zedarvates/ultimate-odycer) | MMORPG server |
+| ultimate-odycer *(not yet public)* | MMORPG server |
 
 ---
 
